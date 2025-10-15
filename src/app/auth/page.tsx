@@ -31,7 +31,7 @@ const Page = () => {
       router.push('/dashboard')
 
     }catch(e){
-      setError('Something went wrong')
+      setError('Something went wrong'+e)
     }
   }
   return (
