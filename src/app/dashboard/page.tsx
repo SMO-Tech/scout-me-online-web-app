@@ -1,7 +1,7 @@
 import MyNavbar from '@/components/layout/MyNavbar'
 import React from 'react'
 
-const page = () => {
+const Page = () => {
   return (
     <section className='min-w-screen flex items-center justify-center min-h-screen bg-white/95'>
         <MyNavbar />
@@ -13,4 +13,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

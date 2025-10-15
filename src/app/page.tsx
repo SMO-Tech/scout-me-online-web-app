@@ -3,7 +3,7 @@ import MyNavbar from '@/components/layout/MyNavbar'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
-const page = () => {
+const Page = () => {
 
   const router = useRouter()
   const handleGetStarted =()=>{
@@ -26,4 +26,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
