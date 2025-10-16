@@ -6,12 +6,12 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBp26lmFEBtb9zeVjxiJxYN08RmnBNi9KY",
-  authDomain: "scout-me-online-firebase.firebaseapp.com",
-  projectId: "scout-me-online-firebase",
-  storageBucket: "scout-me-online-firebase.firebasestorage.app",
-  messagingSenderId: "436943845349",
-  appId: "1:436943845349:web:69240dc2d4cf7ab8fae10c"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
 };
 
 // Initialize Firebase

@@ -5,7 +5,7 @@ const MyNavbar = () => {
    const items = [
     {
       label: "About",
-      bgColor: "#0D0716",
+      bgColor: "#BE77F1",
       textColor: "#fff",
       links: [
         // { label: "Company", ariaLabel: "About Company" },
@@ -38,7 +38,7 @@ const MyNavbar = () => {
       logo={logo}
       logoAlt="Company Logo"
       items={items}
-      baseColor="#fff"
+      baseColor="#ffffff"
       menuColor="#000"
       buttonBgColor="#111"
       buttonTextColor="#fff"
