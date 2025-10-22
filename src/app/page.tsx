@@ -12,7 +12,7 @@ const Page = () => {
   }
   return (
     <>
-      <section className="relative w-screen h-screen bg-white/90 bg-center bg-cover bg-no-repeat p-5 sm:pt-24">
+      <section className="relative w-screen h-screen bg-white/90 bg-center bg-cover bg-no-repeat p-5">
         <MyNavbar />
 
         <div className="w-full h-full flex flex-col items-center justify-center text-center">
