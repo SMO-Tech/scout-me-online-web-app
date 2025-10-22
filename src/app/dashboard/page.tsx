@@ -1,5 +1,4 @@
 'use client'
-import MyNavbar from '@/components/layout/MyNavbar'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 

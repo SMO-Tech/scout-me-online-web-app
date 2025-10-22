@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react'
-import { FcGoogle } from 'react-icons/fc'
 interface Props {
     text: string,
     icon: ReactNode,
