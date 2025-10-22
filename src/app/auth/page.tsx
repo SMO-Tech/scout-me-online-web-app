@@ -31,7 +31,7 @@ const Page = () => {
           "email": email,
           "phoneno": phoneNumber,
           "auth_provider": "google",
-           "avatar" : photoURL
+          "avatar": photoURL
         })
       }
       //after succes full login redirect to dashboard
@@ -43,14 +43,29 @@ const Page = () => {
     }
   }
   return (
-    <div className='w-screen h-screen bg-white flex flex-col items-center justify-center'>
-      <h2 className='text-purple-950 text-3xl mb-5'>Scout Me</h2>
-      <div className='border border-gray-400 rounded w-96  h-60 flex flex-col gap-2 items-center justify-center'>
-        <p className='text-center p-1   text-red-700 '>{error ? error : null}</p>
-        <OauthButton onClick={handleGoogleAuth} text='Continue with Google' icon={<FcGoogle />} />
+    (
+      <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">
+        {/* Auth Card */}
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-10 w-full max-w-md flex flex-col items-center text-center animate-fadeIn">
+          <h1 className="text-white text-4xl font-extrabold tracking-wide mb-4">
+            Scout<span className="text-purple-300">Me</span>
+          </h1>
+          <p className="text-gray-200 text-base mb-8">
+            Sign in securely to get started with your player analytics.
+          </p>
+
+          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+
+          <button
+            onClick={handleGoogleAuth}
+            className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
+          >
+            <FcGoogle size={24} />
+            Continue with Google
+          </button>
+        </div>
       </div>
-    </div>
-  )
+    ))
 }
 
 export default Page
