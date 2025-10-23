@@ -1,0 +1,65 @@
+import axios, { AxiosError, AxiosInstance } from 'axios';
+import { API_CONFIG, STORAGE_KEYS } from '../config';
+import { toast } from 'react-hot-toast';
+
+// Create axios instance with default config
+const apiClient: AxiosInstance = axios.create({
+  baseURL: API_CONFIG.BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config;
+
+    // Handle unauthorized errors (401)
+    if (error.response?.status === 401 && originalRequest) {
+      const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+      
+      if (refreshToken) {
+        try {
+          const response = await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {
+            refresh: refreshToken,
+          });
+
+          const { access } = response.data;
+          localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, access);
+
+          // Retry the original request
+          originalRequest.headers.Authorization = `Bearer ${access}`;
+          return apiClient(originalRequest);
+        } catch (refreshError) {
+          // If refresh token fails, logout user
+          localStorage.clear();
+          window.location.href = '/auth';
+          return Promise.reject(refreshError);
+        }
+      }
+    }
+
+    // Handle other errors
+    const errorMessage = error.response?.data?.message || error.message;
+    toast.error(errorMessage);
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;

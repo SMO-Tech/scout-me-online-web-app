@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa";
+import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -14,10 +14,20 @@ interface AuthCardProps {
   onAppleAuth?: () => void;
   onForgotPassword?: () => void;
   error?: string;
+  isLoading?: boolean;
 }
 
 const loginSchema = yup.object({
-  email: yup.string().email('Please enter a valid email').required('Email is required'),
+  username: yup.string()
+    .required('Username or Email is required')
+    .test('isEmailOrUsername', 'Enter a valid email or username', (value) => {
+      // Check if it's a valid email
+      const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+      // Check if it's a valid username (alphanumeric, underscores, hyphens, 3-30 chars)
+      const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
+      
+      return emailRegex.test(value) || usernameRegex.test(value);
+    }),
   password: yup.string().required('Password is required'),
 });
 
@@ -27,9 +37,11 @@ const AuthCard: React.FC<AuthCardProps> = ({
   onGoogleAuth,
   onAppleAuth,
   onForgotPassword,
-  error
+  error,
+  isLoading = false
 }) => {
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(loginSchema)
@@ -73,29 +85,36 @@ const AuthCard: React.FC<AuthCardProps> = ({
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mb-6">
         <div>
           <input
-            type="email"
+            type="text"
             placeholder="Email or Username"
-            {...register('email')}
+            {...register('username')}
             className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
           />
-          {errors.email && (
+          {errors.username && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-red-400 text-sm mt-1"
             >
-              {errors.email.message}
+              {errors.username.message}
             </motion.p>
           )}
         </div>
 
-        <div>
+        <div className="relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             {...register('password')}
-            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors pr-12"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+          >
+            {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+          </button>
           {errors.password && (
             <motion.p
               initial={{ opacity: 0 }}
@@ -127,12 +146,22 @@ const AuthCard: React.FC<AuthCardProps> = ({
           </button>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-5 rounded-full shadow-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200"
-        >
-          Sign In
-        </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-3 px-5 rounded-full shadow-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 relative ${isLoading ? 'opacity-80 cursor-not-allowed' : ''}`}
+          >
+            {isLoading ? (
+              <>
+                <span className="opacity-0">Sign In</span>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              </>
+            ) : (
+              'Sign In'
+            )}
+          </button>
       </form>
 
       {/* Divider */}

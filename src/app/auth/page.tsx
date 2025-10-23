@@ -4,13 +4,16 @@ import { getAdditionalUserInfo, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import AuthCard from '@/components/auth/AuthCard';
-import AuthForm from '@/components/auth/AuthForm';
-import authAPI from '@/lib/api/auth';
+import SignupForm from '@/components/auth/SignupForm';
+import { Toaster } from 'react-hot-toast';
+import authService from '@/services/api/auth.service';
+import toast from 'react-hot-toast';
 
 const Page = () => {
   const router = useRouter();
   const [error, setError] = useState('');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle Google Authentication
   const handleGoogleAuth = async () => {
@@ -22,7 +25,7 @@ const Page = () => {
       const isNewUser = info?.isNewUser;
 
       if (isNewUser) {
-        await authAPI.register({
+        await authService.register({
           user_sub: uid,
           name: displayName || '',
           email: email || '',
@@ -54,34 +57,60 @@ const Page = () => {
       }
 
       if (mode === 'signup') {
-        // Handle signup
-        await authAPI.register({
-          user_sub: Date.now().toString(), // Temporary ID until backend assigns one
-          name: data.name,
-          email: data.email,
-          auth_provider: 'email',
-        });
-        setError('');
-        router.push('/dashboard');
-      } else {
-        // Handle login
-        await authAPI.login(data.email, data.password);
-        
-        // Handle remember me
-        if (data.rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
-          localStorage.setItem('userEmail', data.email);
-        } else {
-          localStorage.removeItem('rememberMe');
-          localStorage.removeItem('userEmail');
+        try {
+          setIsLoading(true);
+          setError('');
+          
+          // Register user
+          await authService.register({
+            username: data.username,
+            email: data.email,
+            password: data.password,
+            password_confirm: data.password_confirm,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            phoneno: data.phoneno || undefined
+          });
+
+          // Show success message
+          toast.success('Account created successfully! Please sign in.');
+          
+          // Switch to login mode
+          setMode('login');
+          return;
+        } catch (e: any) {
+          setError(e.message || 'Registration failed. Please try again.');
+          console.error('Registration Error:', e);
+          return;
+        } finally {
+          setIsLoading(false);
         }
-        
-        setError('');
-        router.push('/dashboard');
       }
-    } catch (e) {
-      setError('Authentication failed. Please check your credentials and try again.');
+
+      setIsLoading(true);
+      setError('');
+
+      // Handle login
+      const response = await authService.login({
+        username: data.username,
+        password: data.password
+      });
+      
+      // Handle remember me
+      if (data.rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+        localStorage.setItem('username', data.username);
+      } else {
+        localStorage.removeItem('rememberMe');
+        localStorage.removeItem('username');
+      }
+      
+      router.push('/dashboard');
+    } catch (e: any) {
+      setError(e.message || 'Authentication failed. Please check your credentials and try again.');
       console.error('Form Submit Error:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,15 +122,52 @@ const Page = () => {
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 5000,
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            style: {
+              background: '#4aed88',
+              color: '#fff',
+            },
+          },
+          error: {
+            duration: 5000,
+            style: {
+              background: '#ff4b4b',
+              color: '#fff',
+            },
+          },
+        }}
+      />
       <div className="w-full max-w-md">
-        <AuthCard
-          mode={mode}
-          onGoogleAuth={handleGoogleAuth}
-          onAppleAuth={handleAppleAuth}
-          onForgotPassword={handleForgotPassword}
-          onSubmit={handleFormSubmit}
-          error={error}
-        />
+        {mode === 'login' ? (
+          <AuthCard
+            mode={mode}
+            onGoogleAuth={handleGoogleAuth}
+            onAppleAuth={handleAppleAuth}
+            onForgotPassword={handleForgotPassword}
+            onSubmit={handleFormSubmit}
+            error={error}
+            isLoading={isLoading}
+          />
+        ) : (
+          <SignupForm
+            onSubmit={handleFormSubmit}
+            onGoogleAuth={handleGoogleAuth}
+            onAppleAuth={handleAppleAuth}
+            onFacebookAuth={() => setError('Facebook authentication coming soon!')}
+            onSignIn={() => setMode('login')}
+            error={error}
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </div>
   );
