@@ -12,22 +12,39 @@ const Page = () => {
   }
   return (
     <>
-      <section className="relative w-screen h-screen bg-white/90 bg-center bg-cover bg-no-repeat p-5">
-        <MyNavbar />
+      <section 
+        className="relative w-screen h-screen bg-center bg-cover bg-no-repeat p-5"
+        style={{
+          backgroundImage: 'url("/images/view-empty-soccer-stadium-with-fantasy-dreamy-sky.jpg")',
+        }}
+      >
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/20" />
 
-        <div className="w-full h-full flex flex-col items-center justify-center text-center">
-          <p className="text-3xl sm:text-5xl font-extrabold leading-tight text-black sm:px-20">
-            Don’t wait to be noticed
-            <br />
-            <span className="text-purple-600">let AI showcase your talent.</span>
-          </p>
+        {/* Navbar with glassmorphism */}
+        <div className="relative z-10">
+          <MyNavbar />
+        </div>
 
-          <button
-            onClick={handleGetStarted}
-            className="mt-6 px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold transition"
-          >
-            Get Started
-          </button>
+        {/* Hero Content with glassmorphism */}
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-8 sm:p-12 max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight text-white mb-6">
+              Don't wait to be noticed
+              <br />
+              <span className="text-purple-400">let AI showcase your talent.</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+              Use advanced AI technology to analyze and highlight your sports performance, 
+              making it easier for scouts to discover your potential.
+            </p>
+            <button
+              onClick={handleGetStarted}
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-full text-white font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
+              Get Started
+            </button>
+          </div>
         </div>
       </section>
       <section className="relative w-screen min-h-screen flex flex-col items-center justify-center bg-gray-950 text-white px-6 py-20">

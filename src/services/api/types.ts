@@ -22,6 +22,17 @@ export interface RegisterRequest {
   phoneno?: string;
 }
 
+export interface OAuthRequest {
+  oauth_id: string;
+  email: string;
+  name: string;
+  auth_provider: 'google' | 'facebook' | 'apple';
+  avatar?: string;
+  access_token: string;
+  refresh_token: string;
+  token_expires: string;
+}
+
 export interface UserData {
   id: number;
   user_sub: string;

@@ -18,27 +18,57 @@ const Page = () => {
   // Handle Google Authentication
   const handleGoogleAuth = async () => {
     try {
+      setIsLoading(true);
       const res = await signInWithPopup(auth, googleProvider);
       const user = res.user;
-      const { displayName, email, photoURL, uid, phoneNumber } = user;
-      const info = getAdditionalUserInfo(res);
-      const isNewUser = info?.isNewUser;
-
-      if (isNewUser) {
-        await authService.register({
-          user_sub: uid,
-          name: displayName || '',
-          email: email || '',
-          phoneno: phoneNumber || undefined,
-          auth_provider: 'google',
-          avatar: photoURL || undefined
-        });
+      const { displayName, email, photoURL } = user;
+      const credentials = await user.getIdTokenResult();
+      
+      if (!email || !displayName) {
+        throw new Error('Failed to get required user information from Google');
       }
 
+      // Use the original avatar URL
+      const avatarUrl = photoURL || null;
+
+      // Format the expiration date to ISO string
+      const expirationDate = new Date(credentials.expirationTime).toISOString();
+
+      // Prepare OAuth data
+      const oauthData = {
+        oauth_id: `google_${user.uid}`,
+        email: email,
+        name: displayName,
+        auth_provider: 'google' as const,
+        avatar: avatarUrl,
+        access_token: credentials.token,
+        refresh_token: user.refreshToken || null,
+        token_expires: expirationDate
+      };
+
+      console.log('Sending OAuth data:', oauthData);
+
+      try {
+        // Register with our backend
+        await authService.registerOAuth(oauthData);
+      } catch (error: any) {
+        // Check if it's a network error
+        if (error.message.includes('Network Error') || !navigator.onLine) {
+          throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
+        }
+        throw error;
+      }
+
+      // Show success message
+      toast.success('Successfully signed in with Google!');
+      
+      // Redirect to dashboard
       router.push('/dashboard');
-    } catch (e) {
-      setError('Authentication failed. Please try again.');
+    } catch (e: any) {
+      setError(e.message || 'Authentication failed. Please try again.');
       console.error('Google Auth Error:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 

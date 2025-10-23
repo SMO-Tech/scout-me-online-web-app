@@ -30,8 +30,21 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config;
 
+    // Handle network errors
+    if (!error.response) {
+      // Check if it's a network error
+      if (!navigator.onLine) {
+        toast.error('You are offline. Please check your internet connection.');
+        return Promise.reject(new Error('You are offline. Please check your internet connection.'));
+      }
+
+      // Other network errors (CORS, server down, etc.)
+      toast.error('Unable to connect to the server. Please try again later.');
+      return Promise.reject(new Error('Unable to connect to the server. Please try again later.'));
+    }
+
     // Handle unauthorized errors (401)
-    if (error.response?.status === 401 && originalRequest) {
+    if (error.response.status === 401 && originalRequest) {
       const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
       
       if (refreshToken) {
@@ -56,7 +69,7 @@ apiClient.interceptors.response.use(
     }
 
     // Handle other errors
-    const errorMessage = error.response?.data?.message || error.message;
+    const errorMessage = (error.response?.data as any)?.message || error.message;
     toast.error(errorMessage);
     return Promise.reject(error);
   }

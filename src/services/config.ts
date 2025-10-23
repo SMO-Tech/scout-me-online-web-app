@@ -5,6 +5,7 @@ export const API_CONFIG = {
     AUTH: {
       LOGIN: '/api/auth/django/login/',
       REGISTER: '/api/auth/django/register/',
+      OAUTH: '/api/auth/oauth/',
       REFRESH_TOKEN: '/api/auth/refresh/',
     }
   }
