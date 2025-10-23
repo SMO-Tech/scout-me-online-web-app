@@ -4,7 +4,7 @@ import { FiMenu, FiX } from 'react-icons/fi'
 import Image from 'next/image'
 const RoundedNavbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const navLinks = ['Home', 'About', 'Services', 'Contact']
+  const navLinks = ['Home', 'About', 'Services', 'Contact', 'Login']
 
   return (
     <nav className="sticky top-0 z-50">
@@ -18,6 +18,7 @@ const RoundedNavbar: React.FC = () => {
                 alt="Logo"
                 width={80}
                 height={40}
+                style={{ height: 'auto' }}
                 className="object-contain brightness-200"
               />
             </div>

@@ -1,83 +1,122 @@
 'use client'
-import { useEffect, useState } from 'react';
-import authService from '@/services/api/auth.service';
+import { useState, useEffect } from 'react';
+import { FiUpload } from 'react-icons/fi';
+import DashboardNav from '@/components/layout/DashboardNav';
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const userData = authService.getCurrentUser();
-    setUser(userData);
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  if (!user) {
+  const handleAnalyze = async () => {
+    if (!videoUrl) {
+      // Show error toast
+      return;
+    }
+    setIsUploading(true);
+    // TODO: Implement video analysis
+    setTimeout(() => setIsUploading(false), 2000);
+  };
+
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, {user.name}!</h1>
-          <p className="text-gray-600">Here's your player analytics dashboard</p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <DashboardNav />
+      
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-2xl shadow-sm p-8">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900">Match Analysis Center</h1>
+              <p className="text-gray-600 mt-2">Choose an option below to upload your video for analysis.</p>
+            </div>
 
-        {/* User Profile Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="h-16 w-16 rounded-full"
-              />
-            ) : (
-              <div className="h-16 w-16 rounded-full bg-purple-100 flex items-center justify-center">
-                <span className="text-2xl font-semibold text-purple-600">
-                  {user.name.charAt(0).toUpperCase()}
-                </span>
+            {/* YouTube/Vimeo Link Section */}
+            <div className="mb-12">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Copy/Paste a Match Link</h2>
+              <div className="flex gap-4">
+                <input
+                  type="text"
+                  placeholder="YouTube or Vimeo URL (e.g. https://youtube.com/...)"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <button
+                  onClick={handleAnalyze}
+                  disabled={isUploading}
+                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                      Analyzing...
+                    </>
+                  ) : (
+                    'Start Analysis'
+                  )}
+                </button>
               </div>
-            )}
+              <p className="text-sm text-gray-500 mt-2">
+                Supports Public YouTube, VEO, and Vimeo videos.
+              </p>
+            </div>
+
+            {/* Upload Section */}
+            <div className="mb-12">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Upload Match Footage</h2>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors">
+                <div className="mx-auto w-16 h-16 mb-4 text-gray-400">
+                  <FiUpload className="w-full h-full" />
+                </div>
+                <p className="text-gray-600 mb-2">
+                  Drag and drop your full match video (up to 3GB) here to receive a detailed analysis
+                </p>
+                <p className="text-sm text-gray-500">
+                  Compatible formats: VEO, Pixellot, MP4, MOV, AVI, WMV
+                </p>
+                <button className="mt-4 px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  Click to browse
+                </button>
+              </div>
+            </div>
+
+            {/* Live Analysis Section */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{user.name}</h2>
-              <p className="text-gray-600">{user.email}</p>
-              {user.phoneno && (
-                <p className="text-gray-600">{user.phoneno}</p>
-              )}
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Go Live with a Device - Coming Soon!</h2>
+              <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 mb-2">
+                      Connect your camera or external device to stream matches live and analyze stats in real time.
+                    </p>
+                    <p className="text-sm text-gray-500">Perfect for on-the-go play-by-play insights!</p>
+                  </div>
+                  <button disabled className="px-6 py-3 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
+                    Connect External Device
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-purple-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-purple-900 mb-2">Total Players</h3>
-            <p className="text-3xl font-bold text-purple-600">0</p>
-          </div>
-          <div className="bg-blue-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">Active Scouts</h3>
-            <p className="text-3xl font-bold text-blue-600">0</p>
-          </div>
-          <div className="bg-green-50 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-green-900 mb-2">Reports Generated</h3>
-            <p className="text-3xl font-bold text-green-600">0</p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
-          <button className="bg-purple-600 text-white rounded-lg p-4 hover:bg-purple-700 transition-colors">
-            Add New Player
-          </button>
-          <button className="bg-gray-800 text-white rounded-lg p-4 hover:bg-gray-900 transition-colors">
-            Generate Report
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

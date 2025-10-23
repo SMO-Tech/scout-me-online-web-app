@@ -50,20 +50,25 @@ const Page = () => {
 
       try {
         // Register with our backend
-        await authService.registerOAuth(oauthData);
+        const response = await authService.registerOAuth(oauthData);
+        
+        // Show success message
+        toast.success('Successfully signed in with Google!');
+        
+        // Refresh to ensure middleware picks up the new cookie
+        router.refresh();
+        
+        // Redirect to dashboard using replace
+        router.replace('/dashboard');
+        return;
       } catch (error: any) {
+        console.error('OAuth Error:', error);
         // Check if it's a network error
-        if (error.message.includes('Network Error') || !navigator.onLine) {
+        if (!navigator.onLine || error.message.includes('Network Error')) {
           throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
         }
         throw error;
       }
-
-      // Show success message
-      toast.success('Successfully signed in with Google!');
-      
-      // Redirect to dashboard
-      router.push('/dashboard');
     } catch (e: any) {
       setError(e.message || 'Authentication failed. Please try again.');
       console.error('Google Auth Error:', e);
@@ -125,6 +130,9 @@ const Page = () => {
         username: data.username,
         password: data.password
       });
+
+      // Show success message
+      toast.success('Successfully logged in!');
       
       // Handle remember me
       if (data.rememberMe) {
@@ -135,7 +143,11 @@ const Page = () => {
         localStorage.removeItem('username');
       }
       
-      router.push('/dashboard');
+      // Refresh to ensure middleware picks up the new cookie
+      router.refresh();
+      
+      // Use replace instead of push to prevent back navigation
+      router.replace('/dashboard');
     } catch (e: any) {
       setError(e.message || 'Authentication failed. Please check your credentials and try again.');
       console.error('Form Submit Error:', e);

@@ -14,18 +14,93 @@ class AuthService {
       };
 
       console.log('Sending OAuth registration request with:', formattedData);
-      const response = await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.OAUTH, formattedData);
-      const responseData = response.data;
+      
+      try {
+        // Log complete API details
+        console.log('=== OAuth API Request Details ===');
+        console.log('URL:', API_CONFIG.BASE_URL + API_CONFIG.ENDPOINTS.AUTH.OAUTH);
+        console.log('Method: POST');
+        console.log('Headers:', {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        });
+        console.log('Request Body:', JSON.stringify(formattedData, null, 2));
+        
+        const response = await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.OAUTH, formattedData);
+        console.log('\n=== OAuth API Response Details ===');
+        console.log('Status:', response.status);
+        console.log('Status Text:', response.statusText);
+        console.log('Response Headers:', response.headers);
+        console.log('Response Body:', JSON.stringify(response.data, null, 2));
+        
+        const responseData = response.data;
 
-      if (responseData.status === 'success') {
-        // Store tokens and user data
-        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, responseData.data.tokens.access);
-        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, responseData.data.tokens.refresh);
-        localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(responseData.data.user));
-        return responseData;
+        if (responseData.status === 'success') {
+          // For OAuth, we'll use the tokens from the OAuth provider
+          localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, formattedData.access_token);
+          localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, formattedData.refresh_token);
+          localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(responseData.data));
+          
+          // Set cookie for middleware
+          document.cookie = `access_token=${formattedData.access_token}; path=/; max-age=3600; SameSite=Lax`;
+          
+          return {
+            status: 'success',
+            message: responseData.message,
+            data: {
+              user: responseData.data,
+              tokens: {
+                access: formattedData.access_token,
+                refresh: formattedData.refresh_token
+              }
+            }
+          };
+        }
+
+        throw new Error(responseData.message || ERROR_MESSAGES.DEFAULT);
+      } catch (apiError: any) {
+        // Log detailed error information
+        console.error('OAuth API Error:', {
+          message: apiError.message,
+          status: apiError.response?.status,
+          statusText: apiError.response?.statusText,
+          data: apiError.response?.data,
+          config: {
+            url: apiError.config?.url,
+            method: apiError.config?.method,
+            headers: apiError.config?.headers,
+          }
+        });
+        
+        // Handle CORS errors
+        if (apiError.message === 'Network Error' || !apiError.response) {
+          console.error('Possible CORS or Network Error');
+          throw new Error('Unable to connect to the authentication server. Please try again later.');
+        }
+
+        const status = apiError.response.status;
+        const errorData = apiError.response.data;
+        
+        // Handle specific error cases
+        switch (status) {
+          case 400:
+            if (errorData?.errors) {
+              const validationErrors = Object.values(errorData.errors).flat().join(', ');
+              throw new Error(`Validation error: ${validationErrors}`);
+            }
+            throw new Error(errorData?.message || 'Invalid request data');
+          case 401:
+            throw new Error('Authentication failed. Please try again.');
+          case 403:
+            throw new Error('Access denied. Please try again later.');
+          case 409:
+            throw new Error('Account already exists with this email');
+          case 500:
+            throw new Error(ERROR_MESSAGES.SERVER_ERROR);
+          default:
+            throw new Error(errorData?.message || `Server error (${status}): Please try again later`);
+        }
       }
-
-      throw new Error(responseData.message || ERROR_MESSAGES.DEFAULT);
     } catch (error: any) {
       console.error('OAuth registration error details:', error.response?.data);
 
@@ -107,6 +182,9 @@ class AuthService {
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.data.tokens.refresh);
         localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data.data.user));
 
+        // Set cookie for middleware
+        document.cookie = `access_token=${data.data.tokens.access}; path=/; max-age=3600; SameSite=Lax`;
+
         return data;
       }
 
@@ -143,9 +221,13 @@ class AuthService {
   }
 
   logout(): void {
+    // Clear localStorage
     localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    
+    // Clear cookie
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   }
 
   getCurrentUser(): LoginResponse['user'] | null {

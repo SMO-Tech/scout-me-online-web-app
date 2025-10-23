@@ -29,12 +29,12 @@ const Page = () => {
         {/* Hero Content with glassmorphism */}
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
           <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-8 sm:p-12 max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight text-white mb-6">
+            <h3 className="text-2xl sm:text-4xl font-extrabold leading-tight text-white mb-6">
               Don't wait to be noticed
               <br />
               <span className="text-purple-400">let AI showcase your talent.</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+            </h3>
+            <p className="text-sm sm:text-base text-gray-200 mb-8 max-w-2xl mx-auto">
               Use advanced AI technology to analyze and highlight your sports performance, 
               making it easier for scouts to discover your potential.
             </p>
@@ -91,6 +91,7 @@ const Page = () => {
             <li><a href="#about" className="hover:text-white transition">About</a></li>
             <li><a href="#features" className="hover:text-white transition">Features</a></li>
             <li><a href="#contact" className="hover:text-white transition">Contact</a></li>
+            <li><a href="/auth" className="hover:text-white transition">Login</a></li>
           </ul>
         </div>
 

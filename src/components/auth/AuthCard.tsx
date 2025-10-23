@@ -105,6 +105,7 @@ const AuthCard: React.FC<AuthCardProps> = ({
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
+            autoComplete="current-password"
             {...register('password')}
             className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors pr-12"
           />

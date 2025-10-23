@@ -27,7 +27,7 @@ export interface OAuthRequest {
   email: string;
   name: string;
   auth_provider: 'google' | 'facebook' | 'apple';
-  avatar?: string;
+  avatar?: string | null;
   access_token: string;
   refresh_token: string;
   token_expires: string;
