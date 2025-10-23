@@ -1,5 +1,4 @@
 'use client'
-
 import { auth, googleProvider } from '@/lib/firebaseConfig';
 import { getAdditionalUserInfo, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
