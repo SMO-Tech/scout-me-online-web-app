@@ -220,19 +220,46 @@ class AuthService {
     }
   }
 
-  logout(): void {
-    // Clear localStorage
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-    
-    // Clear cookie
-    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  async logout(): Promise<void> {
+    try {
+      // Get the access token before clearing storage
+      const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      
+      if (token) {
+        // Call logout API
+        await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Logout API error:', error);
+      // Continue with local cleanup even if API call fails
+    } finally {
+      // Clear localStorage
+      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+      
+      // Clear cookie
+      document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
   }
 
   getCurrentUser(): LoginResponse['user'] | null {
     const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
     return userData ? JSON.parse(userData) : null;
+  }
+
+  async getUserInfo(userId: number): Promise<ApiResponse<UserData>> {
+    try {
+      const response = await apiClient.get(`${API_CONFIG.ENDPOINTS.AUTH.USER_INFO}?user_id=${userId}`);
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to fetch user info:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch user information');
+    }
   }
 
   isAuthenticated(): boolean {

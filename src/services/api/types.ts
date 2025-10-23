@@ -29,7 +29,7 @@ export interface OAuthRequest {
   auth_provider: 'google' | 'facebook' | 'apple';
   avatar?: string | null;
   access_token: string;
-  refresh_token: string;
+  refresh_token: string | null;
   token_expires: string;
 }
 

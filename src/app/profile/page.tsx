@@ -14,13 +14,32 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    const userData = authService.getCurrentUser();
-    setUser(userData);
-    setFormData({
-      name: userData?.name || '',
-      email: userData?.email || '',
-      phoneno: userData?.phoneno || ''
-    });
+    const fetchUserData = async () => {
+      try {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser?.id) {
+          const response = await authService.getUserInfo(currentUser.id);
+          setUser(response.data);
+          setFormData({
+            name: response.data.name || '',
+            email: response.data.email || '',
+            phoneno: response.data.phoneno || ''
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        // Use cached data from localStorage as fallback
+        const cachedUser = authService.getCurrentUser();
+        setUser(cachedUser);
+        setFormData({
+          name: cachedUser?.name || '',
+          email: cachedUser?.email || '',
+          phoneno: cachedUser?.phoneno || ''
+        });
+      }
+    };
+
+    fetchUserData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -136,19 +155,73 @@ export default function ProfilePage() {
               )}
             </form>
 
-            {/* Account Stats */}
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Videos Analyzed</h3>
-                <p className="text-3xl font-bold text-purple-600">0</p>
+            {/* Account Info */}
+            <div className="mt-12 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Videos Analyzed</h3>
+                  <p className="text-3xl font-bold text-purple-600">0</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports Generated</h3>
+                  <p className="text-3xl font-bold text-purple-600">0</p>
+                </div>
+               
               </div>
+
+              {/* Additional User Info */}
               <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports Generated</h3>
-                <p className="text-3xl font-bold text-purple-600">0</p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Account Type</h3>
-                <p className="text-xl font-semibold text-purple-600">Free</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Details</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Account Status</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {user.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Email Verification</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${user.is_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {user.is_verified ? 'Verified' : 'Unverified'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Member Since</span>
+                    <span className="text-gray-900">
+                      {new Date(user.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Last Login</span>
+                    <span className="text-gray-900">
+                      {user.last_login
+                        ? new Date(user.last_login).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : 'Never'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Last Updated</span>
+                    <span className="text-gray-900">
+                      {new Date(user.updated_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

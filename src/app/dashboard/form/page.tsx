@@ -1,12 +1,18 @@
 'use client'
 import React, { useState, FC } from 'react'
+import { useRouter } from 'next/navigation'
 import FormField from '@/components/ui/FormField'
 import ManuealPlayerLineUp, { Player } from '@/components/ui/ManuealPlayerLineUp'
 import * as yup from 'yup'
+import jobsService from '@/services/api/jobs/jobs.service'
+import authService from '@/services/api/auth.service'
+import toast from 'react-hot-toast'
 const Page = () => {
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
   // Centralized form state
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     matchURL: '',
     isLineUpSubmissionAuto: undefined as boolean | undefined,
@@ -15,6 +21,11 @@ const Page = () => {
       jerseyNumber: '',
       position: '',
     })) as Player[],
+    // Additional fields for job creation
+    matchDate: new Date().toISOString().split('T')[0],
+    teamHome: '',
+    teamAway: '',
+    league: '',
   })
 
   const handlePrevious = () => setStep(prev => Math.max(1, prev - 1))
@@ -24,15 +35,38 @@ const Page = () => {
       switch (step) {
         // ✅ STEP 1 — YouTube link validation
         case 1: {
-          const youtubeSchema = yup
-            .string()
-            .required("You must provide a YouTube URL before continuing.")
-            .matches(
-              /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
-              "Please enter a valid YouTube link."
-            );
+          const step1Schema = yup.object({
+            matchURL: yup
+              .string()
+              .required("You must provide a YouTube URL before continuing.")
+              .matches(
+                /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
+                "Please enter a valid YouTube link."
+              ),
+            matchDate: yup
+              .string()
+              .required("Match date is required"),
+            teamHome: yup
+              .string()
+              .required("Home team name is required")
+              .min(2, "Team name must be at least 2 characters"),
+            teamAway: yup
+              .string()
+              .required("Away team name is required")
+              .min(2, "Team name must be at least 2 characters"),
+            league: yup
+              .string()
+              .required("League name is required")
+              .min(2, "League name must be at least 2 characters"),
+          });
 
-          await youtubeSchema.validate(formData.matchURL);
+          await step1Schema.validate({
+            matchURL: formData.matchURL,
+            matchDate: formData.matchDate,
+            teamHome: formData.teamHome,
+            teamAway: formData.teamAway,
+            league: formData.league,
+          }, { abortEarly: false });
           setError("");
           setStep((prev) => prev + 1);
           break;
@@ -81,7 +115,32 @@ const Page = () => {
           await playersSchema.validate(formData.players, { abortEarly: false });
           setError("");
 
-          console.log("All good! Submitting data:", formData);
+          setIsSubmitting(true);
+          try {
+            const currentUser = authService.getCurrentUser();
+            if (!currentUser?.id) {
+              throw new Error('Please login to continue');
+            }
+
+            const jobData = {
+              video_filename: formData.matchURL.split('v=')[1] + '.mp4',
+              video_path: formData.matchURL,
+              match_date: formData.matchDate,
+              team_home: formData.teamHome,
+              team_away: formData.teamAway,
+              league: formData.league,
+              user_id: currentUser.id
+            };
+
+            const response = await jobsService.createJob(jobData);
+            toast.success('Analysis job created successfully!');
+            router.push('/library'); // Redirect to library to see job status
+          } catch (error: any) {
+            toast.error(error.message || 'Failed to create analysis job');
+            setError(error.message || 'Failed to create analysis job');
+          } finally {
+            setIsSubmitting(false);
+          }
           break;
         }
         default:
@@ -89,16 +148,26 @@ const Page = () => {
       }
     } catch (err: unknown) {
       if (err instanceof yup.ValidationError) {
-        const playerErrors: Record<number, string[]> = {};
-
-        err.inner.forEach((e) => {
-          const match = e.path?.match(/\[(\d+)\]/);
-          if (match) {
-            const index = parseInt(match[1]);
-            if (!playerErrors[index]) playerErrors[index] = [];
-            playerErrors[index].push(e.message);
-          }
-        });
+        if (step === 3) {
+          // Handle player validation errors
+          const playerErrors: Record<number, string[]> = {};
+          err.inner.forEach((e) => {
+            const match = e.path?.match(/\[(\d+)\]/);
+            if (match) {
+              const index = parseInt(match[1]);
+              if (!playerErrors[index]) playerErrors[index] = [];
+              playerErrors[index].push(e.message);
+            }
+          });
+        } else {
+          // Handle other validation errors
+          const errors = err.inner.map(e => e.message);
+          setError(errors.join(', '));
+          toast.error(errors.join(', '));
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
+        toast.error(err.message);
       }
     }
   }
@@ -134,14 +203,47 @@ const Page = () => {
       switch (step) {
         case 1:
           return (
-            <FormField
-              labelHtmlFor="matchURL"
-              labelName="1. Please paste the match Youtube video link."
-              inputType="text"
-              placeholder="https://www.youtube.com/watch?v=..."
-              value={formData.matchURL}
-              onChange={(e) => updateFormData('matchURL', e.target.value)}
-            />
+            <div className="space-y-4">
+              <FormField
+                labelHtmlFor="matchURL"
+                labelName="1. Please paste the match Youtube video link"
+                inputType="text"
+                placeholder="https://www.youtube.com/watch?v=..."
+                value={formData.matchURL}
+                onChange={(e) => updateFormData('matchURL', e.target.value)}
+              />
+              <FormField
+                labelHtmlFor="matchDate"
+                labelName="Match Date"
+                inputType="date"
+                value={formData.matchDate}
+                onChange={(e) => updateFormData('matchDate', e.target.value)}
+              />
+              <FormField
+                labelHtmlFor="teamHome"
+                labelName="Home Team"
+                inputType="text"
+                placeholder="Enter home team name"
+                value={formData.teamHome}
+                onChange={(e) => updateFormData('teamHome', e.target.value)}
+              />
+              <FormField
+                labelHtmlFor="teamAway"
+                labelName="Away Team"
+                inputType="text"
+                placeholder="Enter away team name"
+                value={formData.teamAway}
+                onChange={(e) => updateFormData('teamAway', e.target.value)}
+              />
+              <FormField
+                labelHtmlFor="league"
+                labelName="League"
+                inputType="text"
+                placeholder="Enter league name"
+                value={formData.league}
+                onChange={(e) => updateFormData('league', e.target.value)}
+              />
+            </div>
           )
         case 2:
           return (
@@ -213,10 +315,20 @@ const Page = () => {
               Previous
             </button>
             <button
-              className="text-black border-gray-300 border hover:bg-green-300 w-24 p-1 rounded hover:cursor-pointer"
+              className={`text-black border-gray-300 border hover:bg-green-300 w-24 p-1 rounded hover:cursor-pointer relative ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handleNext}
+              disabled={isSubmitting}
             >
-              {step !== 3 ? 'Next' : 'Submit'}
+              {isSubmitting ? (
+                <>
+                  <span className="opacity-0">{step !== 3 ? 'Next' : 'Submit'}</span>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                </>
+              ) : (
+                step !== 3 ? 'Next' : 'Submit'
+              )}
             </button>
           </div>
         </div>

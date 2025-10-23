@@ -7,6 +7,11 @@ export const API_CONFIG = {
       REGISTER: '/api/auth/django/register/',
       OAUTH: '/api/auth/oauth/',
       REFRESH_TOKEN: '/api/auth/refresh/',
+      USER_INFO: '/api/auth/user-info/',
+      LOGOUT: '/api/auth/logout/',
+    },
+    JOBS: {
+      CREATE: '/api/jobs/',
     }
   }
 };
@@ -27,6 +32,9 @@ export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
   REFRESH_TOKEN: 'refresh_token',
   USER_DATA: 'user_data',
+  JOBS: 'jobs',
+  CURRENT_JOB_ID: 'current_job_id',
+  CURRENT_JOB_UUID: 'current_job_uuid',
 };
 
 // Error Messages

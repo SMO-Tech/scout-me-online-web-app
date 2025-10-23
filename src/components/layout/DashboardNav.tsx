@@ -2,29 +2,60 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiVideo } from 'react-icons/fi';
+import { FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiVideo, FiCreditCard, FiArchive, FiHeart, FiChevronDown } from 'react-icons/fi';
+import { FiBookOpen } from 'react-icons/fi';
 import authService from '@/services/api/auth.service';
+import { useRef, useEffect } from 'react';
 
 export default function DashboardNav() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const user = authService.getCurrentUser();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
-    authService.logout();
-    router.push('/auth');
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      router.replace('/auth');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still redirect to auth page even if API call fails
+      router.replace('/auth');
+    }
   };
 
   const navItems = [
     {
-      label: 'Upload Video',
+      label: 'New Upload',
       icon: <FiUpload className="w-5 h-5" />,
       href: '/dashboard'
     },
     {
-      label: 'Profile',
-      icon: <FiUser className="w-5 h-5" />,
-      href: '/profile'
+      label: 'Library',
+      icon: <FiBookOpen className="w-5 h-5" />,
+      href: '/library'
+    },
+    {
+      label: 'Plans',
+      icon: <FiCreditCard className="w-5 h-5" />,
+      href: '/plans'
+    },
+    {
+      label: 'Favorites',
+      icon: <FiHeart className="w-5 h-5" />,
+      href: '/favorites'
     }
   ];
 
@@ -57,8 +88,11 @@ export default function DashboardNav() {
             ))}
             
             {/* User Menu */}
-            <div className="flex items-center space-x-3 border-l pl-6">
-              <div className="flex items-center space-x-3">
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                className="flex items-center space-x-3 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors"
+              >
                 {user?.avatar ? (
                   <img
                     src={user.avatar}
@@ -73,14 +107,32 @@ export default function DashboardNav() {
                   </div>
                 )}
                 <span className="text-sm font-medium text-gray-700">{user?.name}</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                <FiLogOut className="w-5 h-5" />
-                <span>Logout</span>
+                <FiChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isProfileDropdownOpen ? 'transform rotate-180' : ''}`} />
               </button>
+
+              {/* Dropdown Menu */}
+              {isProfileDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
+                  <Link
+                    href="/profile"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsProfileDropdownOpen(false)}
+                  >
+                    <FiUser className="w-4 h-4" />
+                    <span>Profile</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsProfileDropdownOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+                  >
+                    <FiLogOut className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -104,24 +156,61 @@ export default function DashboardNav() {
       {isMobileMenuOpen && (
         <div className="sm:hidden bg-white border-t">
           <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* User Info - Mobile */}
+            <div className="flex items-center space-x-3 px-3 py-3 border-b border-gray-100 mb-2">
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-10 w-10 rounded-full"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                  <span className="text-lg font-semibold text-purple-600">
+                    {user?.name?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-900">{user?.name}</span>
+                <span className="text-xs text-gray-500">{user?.email}</span>
+              </div>
+            </div>
+
+            {/* Navigation Items - Mobile */}
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md text-base font-medium"
+                className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 px-3 py-3 rounded-lg transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.icon}
                 <span>{item.label}</span>
               </Link>
             ))}
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 text-gray-600 hover:text-red-600 px-3 py-2 rounded-md text-base font-medium w-full"
-            >
-              <FiLogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
+
+            {/* Profile and Logout - Mobile */}
+            <div className="border-t border-gray-100 pt-2 mt-2">
+              <Link
+                href="/profile"
+                className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 px-3 py-3 rounded-lg transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FiUser className="w-5 h-5" />
+                <span>Profile</span>
+              </Link>
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center space-x-3 text-red-600 hover:bg-red-50 px-3 py-3 rounded-lg transition-colors w-full"
+              >
+                <FiLogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
