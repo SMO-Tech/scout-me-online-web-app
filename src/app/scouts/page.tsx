@@ -1,5 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import React from 'react'
 import { motion } from 'framer-motion'
 import { FiFilter, FiTarget, FiTrendingUp, FiGlobe } from 'react-icons/fi'
@@ -27,6 +28,26 @@ const ScoutsPage = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-black/30 backdrop-blur-lg border-b border-purple-500/20 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            {/* Logo */}
+            <div className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => router.push('/')}>
+              <Image 
+                src="/logo.png" 
+                alt="ScoutMe.cloud Logo" 
+                width={40} 
+                height={40} 
+                className="rounded-lg shadow-lg shadow-purple-500/30"
+              />
+              <span className="text-white font-bold text-xl">ScoutMe.cloud</span>
+            </div>
+            {/* Rest of the navigation remains the same */}
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <motion.section 
         initial={{ opacity: 0 }}

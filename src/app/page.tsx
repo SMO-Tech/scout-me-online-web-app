@@ -5,6 +5,7 @@ import { FiCpu, FiVideo, FiUser, FiSearch, FiMessageCircle, FiMenu, FiX } from '
 import { HiSparkles } from 'react-icons/hi'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
+import Image from 'next/image'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
@@ -110,10 +111,14 @@ const Page = () => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => router.push('/')}>
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <HiSparkles className="text-white text-xl" />
-              </div>
-              <span className="text-white font-bold text-xl">ScoutMe.cloud</span>
+              <Image 
+                src="/logo.png" 
+                alt="ScoutMe.cloud Logo" 
+                width={100} 
+                height={80} 
+                className="rounded-lg  "
+              />
+              {/* <span className="text-white font-bold text-xl">ScoutMe.cloud</span> */}
             </div>
 
             {/* Navigation Links - Desktop */}
@@ -188,7 +193,7 @@ const Page = () => {
             playsInline 
             className="w-full h-full object-cover"
           >
-            <source src="https://assets.mixkit.co/active_storage/clips/preview/preview-field-of-soccer-players-running-4930-large.mp4" type="video/mp4" />
+            <source src="/videos/demo.mp4" type="video/mp4" />
           </video>
         </motion.div>
 
@@ -198,7 +203,7 @@ const Page = () => {
           style={{
             backgroundImage: `
               linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-              url('https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')
+              url('/videos/demo.mp4')
             `,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
@@ -1453,8 +1458,17 @@ const Page = () => {
             viewport={{ once: false }}
             transition={{ delay: 0.3 }}
           >
-            <div className="text-gray-400 text-sm">
-              Copyright © 2025 ScoutMe.cloud All Rights Reserved
+            <div className="flex items-center gap-4">
+              <Image 
+                src="/logo.png" 
+                alt="ScoutMe.cloud Logo" 
+                width={50} 
+                height={50} 
+                className="rounded-lg"
+              />
+              <div className="text-gray-400 text-sm">
+                Copyright © 2025 ScoutMe.cloud All Rights Reserved
+              </div>
             </div>
             <div className="flex items-center gap-6">
               <motion.a
