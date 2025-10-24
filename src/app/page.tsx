@@ -119,10 +119,10 @@ const Page = () => {
             {/* Navigation Links - Desktop */}
             <div className="hidden lg:flex items-center gap-8 text-gray-300">
               <a href="#home" className="hover:text-purple-400 transition-colors duration-300">Home</a>
+              <a href="/players" className="hover:text-purple-400 transition-colors duration-300">For Players</a>
+              <a href="/coaches" className="hover:text-purple-400 transition-colors duration-300">For Coaches & Clubs</a>
+              <a href="/scouts" className="hover:text-purple-400 transition-colors duration-300">For Scouts</a>
               <a href="#how-it-works" className="hover:text-purple-400 transition-colors duration-300">How It Works</a>
-              <a href="#for-players" className="hover:text-purple-400 transition-colors duration-300">For Players</a>
-              <a href="#for-coaches" className="hover:text-purple-400 transition-colors duration-300">For Coaches & Clubs</a>
-              <a href="#for-scouts" className="hover:text-purple-400 transition-colors duration-300">For Scouts</a>
               <a href="#blog" className="hover:text-purple-400 transition-colors duration-300">Blog</a>
             </div>
 
@@ -156,10 +156,10 @@ const Page = () => {
           <div className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="py-4 space-y-3">
               <a href="#home" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>Home</a>
+              <a href="/players" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>For Players</a>
+              <a href="/coaches" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>For Coaches & Clubs</a>
+              <a href="/scouts" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>For Scouts</a>
               <a href="#how-it-works" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>How It Works</a>
-              <a href="#for-players" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>For Players</a>
-              <a href="#for-coaches" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>For Coaches & Clubs</a>
-              <a href="#for-scouts" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>For Scouts</a>
               <a href="#blog" className="block py-2 text-gray-300 hover:text-purple-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>Blog</a>
               <div className="pt-4 space-y-2">
                 <button onClick={() => router.push('/auth')} className="w-full py-2 text-center text-gray-300 hover:text-white transition-colors">Sign In</button>
@@ -174,178 +174,75 @@ const Page = () => {
       <motion.section 
         ref={heroRef}
         id="home" 
-        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
+        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-to-b from-black via-purple-950/30 to-black"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
       >
-        {/* Three.js 3D Background with parallax */}
-        <motion.div
-          className="absolute inset-0"
-          style={{ y: heroY, opacity: heroOpacity }}
-        >
-          <Suspense fallback={<div className="absolute inset-0" />}>
-            <ThreeBackground />
-          </Suspense>
+        {/* Football Field Background Video */}
+        <motion.div className="absolute inset-0 opacity-40">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover"
+          >
+            <source src="https://assets.mixkit.co/active_storage/clips/preview/preview-field-of-soccer-players-running-4930-large.mp4" type="video/mp4" />
+          </video>
         </motion.div>
 
-        {/* Animated Background Elements Overlay with parallax */}
+        {/* Additional Football Imagery Overlay */}
         <motion.div 
-          className="absolute inset-0 overflow-hidden pointer-events-none opacity-30"
-          style={{ y: heroOverlayY }}
-        >
-          <div className="absolute w-96 h-96 bg-purple-600/30 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
-          <div className="absolute w-96 h-96 bg-blue-600/30 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute w-64 h-64 bg-cyan-600/30 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </motion.div>
+          className="absolute inset-0 pointer-events-none opacity-30"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+              url('https://images.unsplash.com/photo-1529900748604-07564a03e7a6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')
+            `,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
 
-        <motion.div 
-          className="relative z-10 max-w-6xl mx-auto px-6 text-center"
-          style={{ y: heroContentY, opacity: heroContentOpacity }}
-        >
-          {/* Main Headline */}
+        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 30 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
           >
             <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight">
-              Go Beyond Match Analysis.
+              Premier League 
               <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
-                Get Discovered.
+              <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">
+                Performance Analytics
               </span>
             </h1>
-          </motion.div>
 
-          {/* Sub-headline */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 30 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-          >
-            <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-              ScoutMe.cloud is the first platform that uses AI to analyze your match video, 
-              build your professional player profile, and put you directly in front of scouts.
+            <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-4xl mx-auto leading-relaxed">
+              AI-powered match analysis in just 1 hour. Get scouted faster with professional-grade insights.
             </p>
+
+            <div className="flex justify-center space-x-6">
+              <motion.button
+                onClick={() => router.push('/auth')}
+                className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-full hover:scale-105 transition-transform"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Get Your Analysis
+              </motion.button>
+              <motion.button
+                onClick={() => router.push('/demo')}
+                className="px-10 py-4 border-2 border-white text-white font-bold rounded-full hover:bg-white/10 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Watch Demo
+              </motion.button>
+            </div>
           </motion.div>
-
-          {/* Key Benefits Grid */}
-          <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 transition-all duration-1000 delay-400 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            {/* Benefit 1 */}
-            <div className="group bg-gradient-to-br from-purple-900/40 to-purple-800/20 backdrop-blur-sm border border-purple-500/30 rounded-2xl p-8 hover:border-purple-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 cursor-pointer">
-              <div className="w-14 h-14 bg-purple-600/30 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <FiCpu className="text-3xl text-purple-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">AI-Powered Analysis</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Upload any match video (phone, camera, URL) and get detailed player stats in hours.
-              </p>
-            </div>
-
-            {/* Benefit 2 */}
-            <div className="group bg-gradient-to-br from-blue-900/40 to-blue-800/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-8 hover:border-blue-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/30 cursor-pointer" style={{ animationDelay: '0.1s' }}>
-              <div className="w-14 h-14 bg-blue-600/30 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <FiVideo className="text-3xl text-blue-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Automated Highlights</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Our AI finds and clips your key moments—no editing, no tagging, no hassle.
-              </p>
-            </div>
-
-            {/* Benefit 3 */}
-            <div className="group bg-gradient-to-br from-cyan-900/40 to-cyan-800/20 backdrop-blur-sm border border-cyan-500/30 rounded-2xl p-8 hover:border-cyan-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/30 cursor-pointer" style={{ animationDelay: '0.2s' }}>
-              <div className="w-14 h-14 bg-cyan-600/30 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <FiUser className="text-3xl text-cyan-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Scout-Ready Profile</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                We host your verified stats, highlights, and data on a profile built for recruiters.
-              </p>
-            </div>
-
-            {/* Benefit 4 */}
-            <div className="group bg-gradient-to-br from-pink-900/40 to-pink-800/20 backdrop-blur-sm border border-pink-500/30 rounded-2xl p-8 hover:border-pink-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-pink-500/30 cursor-pointer" style={{ animationDelay: '0.3s' }}>
-              <div className="w-14 h-14 bg-pink-600/30 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <FiSearch className="text-3xl text-pink-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Get Found</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Our platform is a dedicated network where scouts actively find and filter players based on your skills.
-              </p>
-            </div>
-
-            {/* Benefit 5 */}
-            <div className="group bg-gradient-to-br from-indigo-900/40 to-indigo-800/20 backdrop-blur-sm border border-indigo-500/30 rounded-2xl p-8 hover:border-indigo-400/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-indigo-500/30 md:col-span-2 lg:col-span-1 cursor-pointer" style={{ animationDelay: '0.4s' }}>
-              <div className="w-14 h-14 bg-indigo-600/30 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                <FiMessageCircle className="text-3xl text-indigo-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">Instant AI Feedback</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Use our AI Coach to understand your performance, benchmark your skills, and learn exactly how to improve.
-              </p>
-            </div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div className={`flex flex-col sm:flex-row items-center justify-center gap-6 transition-all duration-1000 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <button 
-              onClick={() => router.push('/auth')}
-              className="group relative px-10 py-5 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white text-lg font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Create Your Player Profile
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-700 via-pink-700 to-blue-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-
-            <button 
-              onClick={() => router.push('/auth')}
-              className="group px-10 py-5 bg-transparent border-2 border-purple-500 text-white text-lg font-bold rounded-full hover:bg-purple-600/20 transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/30"
-            >
-              <span className="flex items-center gap-2">
-                I&apos;m a Scout / Club
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </span>
-          </button>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className={`mt-16 transition-all duration-1000 delay-800 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <p className="text-gray-500 text-sm mb-6">Trusted by players worldwide</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-gray-400 text-sm">AI-Powered</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-                <span className="text-gray-400 text-sm">Scout Network</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-                <span className="text-gray-400 text-sm">Instant Analysis</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </motion.div>
+        </div>
       </motion.section>
 
       {/* Section 2: The Core Problem & Solution */}
@@ -1517,7 +1414,7 @@ const Page = () => {
             <div>
               <h4 className="text-white font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Home</a></li>
+                <li><a href="/" className="hover:text-purple-400 transition-colors">Home</a></li>
                 <li><a href="#how-it-works" className="hover:text-purple-400 transition-colors">How We Analyze</a></li>
                 <li><a href="#" className="hover:text-purple-400 transition-colors">Blog</a></li>
               </ul>
@@ -1525,17 +1422,17 @@ const Page = () => {
             <div>
               <h4 className="text-white font-semibold mb-4">For Players</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Get Started</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Pricing</a></li>
+                <li><a href="/players" className="hover:text-purple-400 transition-colors">Get Started</a></li>
+                <li><a href="/auth" className="hover:text-purple-400 transition-colors">Create Profile</a></li>
                 <li><a href="#" className="hover:text-purple-400 transition-colors">Success Stories</a></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">For Scouts</h4>
               <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Find Talent</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Scout Dashboard</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Connect</a></li>
+                <li><a href="/scouts" className="hover:text-purple-400 transition-colors">Find Talent</a></li>
+                <li><a href="/coaches" className="hover:text-purple-400 transition-colors">Coach Dashboard</a></li>
+                <li><a href="/auth" className="hover:text-purple-400 transition-colors">Connect</a></li>
               </ul>
             </div>
             <div>
