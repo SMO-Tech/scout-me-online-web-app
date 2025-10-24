@@ -1,13 +1,16 @@
 'use client'
-import { auth, googleProvider } from '@/lib/firebaseConfig';
+import { auth, facebookProvider, googleProvider } from '@/lib/firebaseConfig';
 import { getAdditionalUserInfo, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from 'react-icons/fa';
 import AuthCard from '@/components/auth/AuthCard';
 import SignupForm from '@/components/auth/SignupForm';
 import { Toaster } from 'react-hot-toast';
 import authService from '@/services/api/auth.service';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const Page = () => {
   const router = useRouter();
@@ -72,6 +75,65 @@ const Page = () => {
     } catch (e: any) {
       setError(e.message || 'Authentication failed. Please try again.');
       console.error('Google Auth Error:', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Facebook Authentication
+  const handleFacebookAuth = async () => {
+    try {
+      setIsLoading(true);
+      // 1. Trigger the Facebook sign-in popup
+      const res = await signInWithPopup(auth, facebookProvider);
+
+      // 2. Extract user info from the result
+      const user = res.user;
+      const { displayName, email, photoURL, uid, phoneNumber } = user;
+
+      // 3. Check if first-time sign-in
+      const info = getAdditionalUserInfo(res);
+      const isNewUser = info?.isNewUser;
+
+      console.log("User Info:", { displayName, email, photoURL, uid });
+      console.log("First time user?", isNewUser);
+
+      // Prepare OAuth data similar to Google
+      const oauthData = {
+        oauth_id: `facebook_${uid}`,
+        email: email || '',
+        name: displayName || '',
+        auth_provider: 'facebook' as const,
+        avatar: photoURL || null,
+        access_token: await user.getIdToken(),
+        refresh_token: user.refreshToken || null,
+        token_expires: (await user.getIdTokenResult()).expirationTime
+      };
+
+      try {
+        // Register with our backend
+        const response = await authService.registerOAuth(oauthData);
+        
+        // Show success message
+        toast.success('Successfully signed in with Facebook!');
+        
+        // Refresh to ensure middleware picks up the new cookie
+        router.refresh();
+        
+        // Redirect to dashboard using replace
+        router.replace('/dashboard');
+        return;
+      } catch (error: any) {
+        console.error('Facebook OAuth Error:', error);
+        // Check if it's a network error
+        if (!navigator.onLine || error.message.includes('Network Error')) {
+          throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
+        }
+        throw error;
+      }
+    } catch (e: any) {
+      setError(e.message || 'Facebook authentication failed. Please try again.');
+      console.error('Facebook Auth Error:', e);
     } finally {
       setIsLoading(false);
     }
@@ -193,6 +255,7 @@ const Page = () => {
           <AuthCard
             mode={mode}
             onGoogleAuth={handleGoogleAuth}
+            onFacebookAuth={handleFacebookAuth}
             onAppleAuth={handleAppleAuth}
             onForgotPassword={handleForgotPassword}
             onSubmit={handleFormSubmit}
@@ -203,8 +266,8 @@ const Page = () => {
           <SignupForm
             onSubmit={handleFormSubmit}
             onGoogleAuth={handleGoogleAuth}
+            onFacebookAuth={handleFacebookAuth}
             onAppleAuth={handleAppleAuth}
-            onFacebookAuth={() => setError('Facebook authentication coming soon!')}
             onSignIn={() => setMode('login')}
             error={error}
             isLoading={isLoading}
@@ -214,6 +277,5 @@ const Page = () => {
     </div>
   );
 }
-
 
 export default Page;

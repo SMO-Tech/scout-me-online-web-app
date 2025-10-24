@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -11,6 +11,7 @@ interface AuthCardProps {
   mode: 'login' | 'signup';
   onSubmit: (data: any) => void;
   onGoogleAuth: () => void;
+  onFacebookAuth?: () => void;
   onAppleAuth?: () => void;
   onForgotPassword?: () => void;
   error?: string;
@@ -35,6 +36,7 @@ const AuthCard: React.FC<AuthCardProps> = ({
   mode,
   onSubmit,
   onGoogleAuth,
+  onFacebookAuth,
   onAppleAuth,
   onForgotPassword,
   error,
@@ -181,6 +183,16 @@ const AuthCard: React.FC<AuthCardProps> = ({
           <FcGoogle size={20} />
           <span className="text-sm">Google</span>
         </button>
+        
+        {onFacebookAuth && (
+          <button
+            onClick={onFacebookAuth}
+            className="flex items-center justify-center gap-2 bg-[#1877F2] text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:bg-[#1865F2] transition-all duration-200"
+          >
+            <FaFacebook size={20} />
+            <span className="text-sm">Facebook</span>
+          </button>
+        )}
         
         {onAppleAuth && (
           <button
