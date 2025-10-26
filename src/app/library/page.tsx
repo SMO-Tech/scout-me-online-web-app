@@ -7,7 +7,21 @@ import { fetchUserJobs } from '@/services/api/jobs.service'
 import { JobSummary } from '@/types/jobs'
 import { STORAGE_KEYS } from '@/services/config'
 import authService from '@/services/api/auth.service'
-import { FiEye, FiVideo } from 'react-icons/fi'
+import { FiEye, FiVideo, FiInfo } from 'react-icons/fi'
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    // Add ordinal suffix to day
+  }).format(date).replace(/(\d+)/, (match) => {
+    const day = parseInt(match);
+    const suffix = ['th', 'st', 'nd', 'rd'][(day % 10 > 3 || (day % 100 - day % 10 === 10)) ? 0 : day % 10];
+    return `${day}${suffix}`;
+  });
+};
 
 export default function LibraryPage() {
   const [jobs, setJobs] = useState<JobSummary[]>([])
@@ -103,6 +117,10 @@ export default function LibraryPage() {
     router.push(`/library/job/${jobId}`)
   }
 
+  const handleViewDetails = (jobId: number) => {
+    router.push(`/library/analysis/${jobId}`)
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -173,7 +191,7 @@ export default function LibraryPage() {
                         <div className="text-sm text-gray-500">{job.league}</div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{job.match_date}</div>
+                        <div className="text-sm text-gray-500">{formatDate(job.match_date)}</div>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span 
@@ -207,6 +225,14 @@ export default function LibraryPage() {
                           >
                             <FiEye className="mr-1" /> Results
                           </button>
+                          
+                          <button 
+                            onClick={() => handleViewDetails(job.id)}
+                            className="text-blue-600 hover:text-blue-900 flex items-center"
+                            title="View Details"
+                          >
+                            <FiInfo className="mr-1" /> Details
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -236,7 +262,7 @@ export default function LibraryPage() {
                     
                     <div className="text-sm text-gray-600 space-y-1 mb-4">
                       <p><strong>League:</strong> {job.league}</p>
-                      <p><strong>Match Date:</strong> {job.match_date}</p>
+                      <p><strong>Match Date:</strong> {formatDate(job.match_date)}</p>
                       <p><strong>Submitted:</strong> {new Date(job.created_at).toLocaleDateString()}</p>
                     </div>
                     
@@ -249,19 +275,27 @@ export default function LibraryPage() {
                       >
                         <FiVideo className="mr-1" /> View Video
                       </a>
-                      <button 
-                        onClick={() => handleViewResults(job.id)}
-                        disabled={job.status !== 'completed'}
-                        className={`
-                          px-4 py-2 rounded-lg text-white font-semibold transition flex items-center
-                          ${job.status === 'completed' 
-                            ? 'bg-purple-600 hover:bg-purple-700' 
-                            : 'bg-gray-400 cursor-not-allowed'
-                          }
-                        `}
-                      >
-                        <FiEye className="mr-1" /> View Results
-                      </button>
+                      <div className="flex space-x-2">
+                        <button 
+                          onClick={() => handleViewResults(job.id)}
+                          disabled={job.status !== 'completed'}
+                          className={`
+                            px-4 py-2 rounded-lg text-white font-semibold transition flex items-center
+                            ${job.status === 'completed' 
+                              ? 'bg-purple-600 hover:bg-purple-700' 
+                              : 'bg-gray-400 cursor-not-allowed'
+                            }
+                          `}
+                        >
+                          <FiEye className="mr-1" /> Results
+                        </button>
+                        <button 
+                          onClick={() => handleViewDetails(job.id)}
+                          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition flex items-center"
+                        >
+                          <FiInfo className="mr-1" /> Details
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
