@@ -95,6 +95,44 @@ export interface BallTrackingResponse {
   };
 }
 
+export interface PlayerTrackingPoint {
+  frame_number: number;
+  time_seconds: number;
+  position: {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  };
+  has_ball: boolean;
+  speed: number;
+  confidence: number;
+}
+
+export interface PlayerTrackingData {
+  player_id: number;
+  team: string;
+  team_color: string;
+  tracking_points: PlayerTrackingPoint[];
+  statistics: {
+    total_frames: number;
+    ball_possession_frames: number;
+    possession_percentage: number;
+    average_speed: number;
+    max_speed: number;
+  };
+}
+
+export interface PlayerTrackingResponse {
+  status: string;
+  message: string;
+  data: {
+    job_uuid: string;
+    match_info: any;
+    players: PlayerTrackingData[];
+  };
+}
+
 /**
  * Get comprehensive match analysis results
  */
@@ -116,6 +154,14 @@ export const getPassEvents = async (jobUuid: string): Promise<PassEventsResponse
  */
 export const getBallTracking = async (jobUuid: string): Promise<BallTrackingResponse> => {
   const response = await apiClient.get(`/api/match/jobs/${jobUuid}/ball-tracking/`);
+  return response.data;
+};
+
+/**
+ * Get player tracking data
+ */
+export const getPlayerTracking = async (jobUuid: string): Promise<PlayerTrackingResponse> => {
+  const response = await apiClient.get(`/api/match/jobs/${jobUuid}/player-tracking/`);
   return response.data;
 };
 
