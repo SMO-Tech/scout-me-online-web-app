@@ -44,19 +44,19 @@ const MatchSummaryWidget: React.FC<MatchSummaryWidgetProps> = ({ data }) => {
   return (
     <div className="space-y-6">
       {/* Match Header */}
-      <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-6">
+      <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 dark:from-purple-900/30 dark:to-cyan-900/30 backdrop-blur-sm border border-purple-500/30 dark:border-purple-400/20 rounded-xl p-6">
         <div className="flex justify-between items-center">
           <div className="text-center flex-1">
-            <h3 className="text-2xl font-bold text-cyan-300">{data.matchMetadata.homeTeam}</h3>
-            <p className="text-gray-400 text-sm mt-1">Home</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-cyan-300">{data.matchMetadata.homeTeam}</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Home</p>
           </div>
           <div className="text-center px-8">
-            <div className="text-4xl font-extrabold text-purple-300">{data.matchMetadata.score}</div>
-            <p className="text-gray-400 text-xs mt-2">{new Date(data.matchMetadata.date).toLocaleDateString()}</p>
+            <div className="text-4xl font-extrabold text-purple-600 dark:text-purple-300">{data.matchMetadata.score}</div>
+            <p className="text-gray-600 dark:text-gray-400 text-xs mt-2">{new Date(data.matchMetadata.date).toLocaleDateString()}</p>
           </div>
           <div className="text-center flex-1">
-            <h3 className="text-2xl font-bold text-cyan-300">{data.matchMetadata.awayTeam}</h3>
-            <p className="text-gray-400 text-sm mt-1">Away</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-cyan-300">{data.matchMetadata.awayTeam}</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Away</p>
           </div>
         </div>
       </div>
@@ -64,8 +64,8 @@ const MatchSummaryWidget: React.FC<MatchSummaryWidgetProps> = ({ data }) => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pass Success Rate Pie Chart */}
-        <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-sm border border-gray-600/30 rounded-xl p-6">
-          <h4 className="text-xl font-bold text-cyan-300 mb-4 text-center">Pass Success Rate</h4>
+        <div className="bg-white dark:bg-gradient-to-br dark:from-gray-800/40 dark:to-gray-900/40 backdrop-blur-sm border border-gray-300 dark:border-gray-600/30 rounded-xl p-6">
+          <h4 className="text-xl font-bold text-gray-900 dark:text-cyan-300 mb-4 text-center">Pass Success Rate</h4>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie

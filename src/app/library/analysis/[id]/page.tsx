@@ -9,6 +9,7 @@ import MatchSummaryWidget from '@/components/match-analysis/MatchSummaryWidget'
 import PassAnalysisChart from '@/components/match-analysis/PassAnalysisChart'
 import PlayerPerformanceMetrics from '@/components/match-analysis/PlayerPerformanceMetrics'
 import { useMatchAnalysis } from '@/hooks/useMatchAnalysis'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 export default function MatchAnalysisPage() {
   const params = useParams()
@@ -17,11 +18,11 @@ export default function MatchAnalysisPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <DashboardNav />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-xl text-gray-600">Loading match analysis...</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Loading match analysis...</p>
           </div>
         </div>
       </div>
@@ -30,11 +31,11 @@ export default function MatchAnalysisPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <DashboardNav />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-xl text-red-600">{error.message}</p>
+            <p className="text-xl text-red-600 dark:text-red-400">{error.message}</p>
           </div>
         </div>
       </div>
@@ -43,11 +44,11 @@ export default function MatchAnalysisPage() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <DashboardNav />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-xl text-gray-600">No match data available</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">No match data available</p>
           </div>
         </div>
       </div>
@@ -55,29 +56,29 @@ export default function MatchAnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <DashboardNav />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-center">Match Analysis</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Match Analysis</h1>
+          <ThemeToggle />
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="space-y-6 mb-8">
           <MatchSummaryWidget data={data} />
           <PlayerPerformanceMetrics data={data} />
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Pass Map Analysis</h2>
-          <FootballPitchPassMap data={data} />
+        <div className="bg-white dark:bg-gray-800 mb-8 rounded-lg">
+            <FootballPitchPassMap data={data} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-4">Ball Tracking</h2>
-            <BallTrackingVisualization data={data} />
+        <div className="space-y-6">
+          <div className=" ">
+                <BallTrackingVisualization data={data} />
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold mb-4">Pass Analysis</h2>
-            <PassAnalysisChart data={data} />
+          <div className="bg-white dark:bg-gray-800">
+               <PassAnalysisChart data={data} />
           </div>
         </div>
       </div>
