@@ -181,6 +181,9 @@ class AuthService {
         localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.data.tokens.access);
         localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.data.tokens.refresh);
         localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(data.data.user));
+        
+        // Explicitly store user ID
+        localStorage.setItem(STORAGE_KEYS.USER_ID, data.data.user.id.toString());
 
         // Set cookie for middleware
         document.cookie = `access_token=${data.data.tokens.access}; path=/; max-age=3600; SameSite=Lax`;
@@ -248,8 +251,12 @@ class AuthService {
   }
 
   getCurrentUser(): LoginResponse['user'] | null {
-    const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
-    return userData ? JSON.parse(userData) : null;
+    // Only attempt to access localStorage on the client side
+    if (typeof window !== 'undefined') {
+      const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
+      return userData ? JSON.parse(userData) : null;
+    }
+    return null;
   }
 
   async getUserInfo(userId: number): Promise<ApiResponse<UserData>> {
@@ -263,7 +270,24 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+    // Only check authentication on the client side
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+      const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA)
+      const userId = localStorage.getItem(STORAGE_KEYS.USER_ID)
+
+      const isValid = !!token && !!userData && !!userId
+
+      console.log('Authentication Status Check:', {
+        token: token ? 'Present' : 'Missing',
+        userData: userData ? 'Present' : 'Missing',
+        userId: userId ? 'Present' : 'Missing',
+        isAuthenticated: isValid
+      })
+
+      return isValid
+    }
+    return false;
   }
 }
 

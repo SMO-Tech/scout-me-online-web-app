@@ -12,6 +12,7 @@ export const API_CONFIG = {
     },
     JOBS: {
       CREATE: '/api/jobs/',
+      LIST: '/api/jobs/summary/', // Endpoint for fetching user jobs
     }
   }
 };
@@ -20,6 +21,7 @@ export const API_CONFIG = {
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
+  NO_CONTENT: 204,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
@@ -35,12 +37,12 @@ export const STORAGE_KEYS = {
   JOBS: 'jobs',
   CURRENT_JOB_ID: 'current_job_id',
   CURRENT_JOB_UUID: 'current_job_uuid',
+  USER_ID: 'user_id', // Ensure this key is used for storing user ID
 };
 
 // Error Messages
 export const ERROR_MESSAGES = {
-  DEFAULT: 'Something went wrong. Please try again later.',
-  NETWORK_ERROR: 'Network error. Please check your internet connection.',
-  UNAUTHORIZED: 'Invalid credentials. Please try again.',
-  SERVER_ERROR: 'Internal server error. Please try again later.',
+  NETWORK_ERROR: 'Network error. Please check your connection.',
+  UNAUTHORIZED: 'Your session has expired. Please log in again.',
+  GENERIC_ERROR: 'An unexpected error occurred. Please try again.',
 };
