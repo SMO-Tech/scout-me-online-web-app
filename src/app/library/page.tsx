@@ -117,8 +117,8 @@ export default function LibraryPage() {
     router.push(`/library/job/${jobId}`)
   }
 
-  const handleViewDetails = (jobId: number) => {
-    router.push(`/library/analysis/${jobId}`)
+  const handleViewDetails = (jobUuid: string) => {
+    router.push(`/library/analysis/${jobUuid}`)
   }
 
   if (isLoading) {
@@ -227,7 +227,7 @@ export default function LibraryPage() {
                           </button>
                           
                           <button 
-                            onClick={() => handleViewDetails(job.id)}
+                            onClick={() => handleViewDetails(job.job_uuid)}
                             className="text-blue-600 hover:text-blue-900 flex items-center"
                             title="View Details"
                           >
@@ -290,7 +290,7 @@ export default function LibraryPage() {
                           <FiEye className="mr-1" /> Results
                         </button>
                         <button 
-                          onClick={() => handleViewDetails(job.id)}
+                          onClick={() => handleViewDetails(job.job_uuid)}
                           className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition flex items-center"
                         >
                           <FiInfo className="mr-1" /> Details

@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { MatchAnalysisData } from '@/types/matchAnalysis';
 import { mockMatchData } from '@/lib/mockMatchData';
+import { 
+  getMatchAnalysis, 
+  getPassEvents, 
+  getBallTracking,
+  getMatchData 
+} from '@/services/api/matchAnalysis.service';
 
 interface UseMatchAnalysisReturn {
   data: MatchAnalysisData | null;
@@ -58,19 +64,28 @@ export const useMatchAnalysis = (
       setLoading(true);
       setError(null);
 
-      // Fetch match data from your API
-      const response = await fetch(`/api/jobs/${jobUuid}/data/`);
-      
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
-      }
+      console.log('Fetching match analysis for job:', jobUuid);
 
-      const result = await response.json();
-      
-      // Transform API response to match MatchAnalysisData interface if needed
-      // const transformedData = transformApiResponse(result);
-      
-      setData(result);
+      // Fetch all data in parallel
+      const [analysisData, passEventsData, ballTrackingData] = await Promise.all([
+        getMatchAnalysis(jobUuid),
+        getPassEvents(jobUuid),
+        getBallTracking(jobUuid),
+      ]);
+
+      console.log('Analysis data:', analysisData);
+      console.log('Pass events data:', passEventsData);
+      console.log('Ball tracking data:', ballTrackingData);
+
+      // Transform API response to match MatchAnalysisData interface
+      const transformedData = transformApiToMatchData(
+        analysisData,
+        passEventsData,
+        ballTrackingData
+      );
+
+      console.log('Transformed data:', transformedData);
+      setData(transformedData);
     } catch (err) {
       const error = err instanceof Error ? err : new Error('An unknown error occurred');
       setError(error);
@@ -90,6 +105,82 @@ export const useMatchAnalysis = (
   };
 
   return { data, loading, error, refetch };
+};
+
+/**
+ * Transform multiple API responses to MatchAnalysisData format
+ */
+const transformApiToMatchData = (
+  analysisData: any,
+  passEventsData: any,
+  ballTrackingData: any
+): MatchAnalysisData => {
+  const matchStats = analysisData.data.match_statistics;
+  const matchInfo = analysisData.data.match_info;
+
+  // Transform pass events for the pass map
+  const passEvents = passEventsData.data.pass_events.map((event: any, index: number) => ({
+    id: String(event.id || index + 1),
+    timestamp: event.time_seconds,
+    fromPlayer: `${event.passer.team} Player ${event.passer.id}`,
+    toPlayer: `${event.receiver.team} Player ${event.receiver.id}`,
+    success: event.metrics.pass_success,
+    distance: event.metrics.ball_distance,
+    zone: 'midfield', // Default zone - can be enhanced
+    fromX: Math.random() * 100, // Should come from actual position data
+    fromY: Math.random() * 100,
+    toX: Math.random() * 100,
+    toY: Math.random() * 100,
+  }));
+
+  // Transform ball tracking data
+  const ballTracking = ballTrackingData.data.tracking_data.map((point: any) => ({
+    x: point.position.x1 * 100, // Convert to percentage
+    y: point.position.y1 * 100,
+    timestamp: point.time_seconds,
+    possession: 'neutral' as 'home' | 'away' | 'neutral',
+  }));
+
+  // Calculate team stats from pass events
+  const homeTeamPasses = passEvents.filter((p: any) => p.fromPlayer.includes(matchInfo.team_home)).length;
+  const awayTeamPasses = passEvents.length - homeTeamPasses;
+
+  return {
+    jobUuid: analysisData.data.job_uuid,
+    matchMetadata: {
+      homeTeam: matchInfo.team_home,
+      awayTeam: matchInfo.team_away,
+      date: matchInfo.match_date,
+      score: '0-0', // Would need to come from actual match result
+    },
+    analysisResult: {
+      totalPasses: matchStats.total_passes,
+      successfulPasses: matchStats.successful_passes,
+      passAccuracy: matchStats.pass_accuracy,
+      homeTeamPasses,
+      awayTeamPasses,
+    },
+    homeTeamStats: {
+      teamName: matchInfo.team_home,
+      possession: (homeTeamPasses / matchStats.total_passes) * 100,
+      totalPasses: homeTeamPasses,
+      passAccuracy: matchStats.pass_accuracy,
+      shotsOnTarget: 8, // Would need from actual API
+      defensiveActions: 42, // Would need from actual API
+    },
+    awayTeamStats: {
+      teamName: matchInfo.team_away,
+      possession: (awayTeamPasses / matchStats.total_passes) * 100,
+      totalPasses: awayTeamPasses,
+      passAccuracy: matchStats.pass_accuracy,
+      shotsOnTarget: 5, // Would need from actual API
+      defensiveActions: 67, // Would need from actual API
+    },
+    playerStats: [], // Would need transformation from player_performances
+    passEvents,
+    ballTracking,
+    timeSeriesData: [], // Would need time-series data
+  };
 };
 
 /**

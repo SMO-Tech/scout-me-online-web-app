@@ -14,7 +14,8 @@ import ThemeToggle from '@/components/ui/ThemeToggle'
 export default function MatchAnalysisPage() {
   const params = useParams()
   const jobId = params.id as string
-  const { data, loading, error } = useMatchAnalysis(jobId)
+  // Set useMockData to false to use real API data
+  const { data, loading, error } = useMatchAnalysis(jobId, false)
 
   if (loading) {
     return (
