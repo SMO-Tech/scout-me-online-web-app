@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { PassEvent } from '@/types/matchAnalysis';
 
 interface FootballPitchPassMapProps {
-  passEvents: PassEvent[];
+  data: import('@/types/matchAnalysis').MatchAnalysisData;
 }
 
 type FilterMode = 'all' | 'successful' | 'failed';
 
-const FootballPitchPassMap: React.FC<FootballPitchPassMapProps> = ({ passEvents }) => {
+const FootballPitchPassMap: React.FC<FootballPitchPassMapProps> = ({ data }) => {
+  const { passEvents } = data;
   const [filterMode, setFilterMode] = useState<FilterMode>('all');
 
   // Filter passes based on selected mode

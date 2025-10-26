@@ -4,10 +4,11 @@ import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Responsive
 import { BallTrackingPoint } from '@/types/matchAnalysis';
 
 interface BallTrackingVisualizationProps {
-  ballTracking: BallTrackingPoint[];
+  data: import('@/types/matchAnalysis').MatchAnalysisData;
 }
 
-const BallTrackingVisualization: React.FC<BallTrackingVisualizationProps> = ({ ballTracking }) => {
+const BallTrackingVisualization: React.FC<BallTrackingVisualizationProps> = ({ data }) => {
+  const { ballTracking } = data;
   const homePoints = ballTracking.filter(p => p.possession === 'home');
   const awayPoints = ballTracking.filter(p => p.possession === 'away');
   const neutralPoints = ballTracking.filter(p => p.possession === 'neutral');

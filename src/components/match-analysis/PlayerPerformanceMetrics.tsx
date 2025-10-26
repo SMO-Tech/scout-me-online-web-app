@@ -4,12 +4,13 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { PlayerStats } from '@/types/matchAnalysis';
 
 interface PlayerPerformanceMetricsProps {
-  players: PlayerStats[];
+  data: import('@/types/matchAnalysis').MatchAnalysisData;
 }
 
 type MetricType = 'passAccuracy' | 'totalPasses' | 'distanceCovered' | 'possessionTime';
 
-const PlayerPerformanceMetrics: React.FC<PlayerPerformanceMetricsProps> = ({ players }) => {
+const PlayerPerformanceMetrics: React.FC<PlayerPerformanceMetricsProps> = ({ data }) => {
+  const { playerStats: players } = data;
   const [selectedMetric, setSelectedMetric] = useState<MetricType>('passAccuracy');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 

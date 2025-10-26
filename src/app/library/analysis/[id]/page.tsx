@@ -13,9 +13,9 @@ import { useMatchAnalysis } from '@/hooks/useMatchAnalysis'
 export default function MatchAnalysisPage() {
   const params = useParams()
   const jobId = params.id as string
-  const { matchData, isLoading, error } = useMatchAnalysis(jobId)
+  const { data, loading, error } = useMatchAnalysis(jobId)
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-100">
         <DashboardNav />
@@ -34,7 +34,20 @@ export default function MatchAnalysisPage() {
         <DashboardNav />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <p className="text-xl text-red-600">{error}</p>
+            <p className="text-xl text-red-600">{error.message}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <DashboardNav />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p className="text-xl text-gray-600">No match data available</p>
           </div>
         </div>
       </div>
@@ -48,23 +61,23 @@ export default function MatchAnalysisPage() {
         <h1 className="text-3xl font-bold mb-8 text-center">Match Analysis</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <MatchSummaryWidget matchData={matchData} />
-          <PlayerPerformanceMetrics matchData={matchData} />
+          <MatchSummaryWidget data={data} />
+          <PlayerPerformanceMetrics data={data} />
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-4">Pass Map Analysis</h2>
-          <FootballPitchPassMap matchData={matchData} />
+          <FootballPitchPassMap data={data} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-semibold mb-4">Ball Tracking</h2>
-            <BallTrackingVisualization matchData={matchData} />
+            <BallTrackingVisualization data={data} />
           </div>
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-semibold mb-4">Pass Analysis</h2>
-            <PassAnalysisChart matchData={matchData} />
+            <PassAnalysisChart data={data} />
           </div>
         </div>
       </div>
