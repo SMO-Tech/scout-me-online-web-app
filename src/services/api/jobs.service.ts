@@ -1,80 +1,37 @@
-import axios from 'axios'
-import { API_CONFIG, STORAGE_KEYS } from '../config'
+import axios from './axios'
+import { JobsSummaryResponse } from '@/types/jobs'
+import { STORAGE_KEYS } from '@/services/config'
 
-export const fetchUserJobs = async () => {
-  try {
-    const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-    const userId = localStorage.getItem(STORAGE_KEYS.USER_ID)
-    
-    console.log('Debugging fetchUserJobs:', {
-      token: token ? 'Token present' : 'No token',
-      userId: userId,
-      baseUrl: API_CONFIG.BASE_URL,
-      endpoint: API_CONFIG.ENDPOINTS.JOBS.LIST
-    })
+export const fetchUserJobs = async (): Promise<JobsSummaryResponse> => {
+  // Get user ID from local storage
+  const userId = localStorage.getItem(STORAGE_KEYS.USER_ID)
+  
+  if (!userId) {
+    throw new Error('User ID not found. Please log in again.')
+  }
 
-    if (!token || !userId) {
-      console.error('Missing authentication credentials')
-      throw new Error('Authentication required: No token or user ID')
-    }
+  const response = await axios.get(`/api/jobs/summary/?user_id=${userId}`)
+  return response.data
+}
 
-    // Detailed request configuration logging
-    const requestConfig = {
-      method: 'get',
-      url: `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.JOBS.LIST}?user_id=${userId}`,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      params: {
-        user_id: userId
-      }
-    }
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date).replace(/(\d+)/, (match) => {
+    const day = parseInt(match);
+    const suffix = ['th', 'st', 'nd', 'rd'][(day % 10 > 3 || (day % 100 - day % 10 === 10)) ? 0 : day % 10];
+    return `${day}${suffix}`;
+  });
+}
 
-    console.log('Request Configuration:', {
-      url: requestConfig.url,
-      headers: {
-        Authorization: requestConfig.headers.Authorization ? 'Bearer [TOKEN]' : 'No token',
-        'Content-Type': requestConfig.headers['Content-Type']
-      },
-      params: requestConfig.params
-    })
-
-    try {
-      const response = await axios(requestConfig)
-
-      console.log('Full API Response:', {
-        status: response.status,
-        data: response.data
-      })
-
-      // Validate response structure
-      if (!response.data || !response.data.data || !response.data.data.recent_jobs) {
-        console.error('Unexpected response structure:', response.data)
-        throw new Error('Invalid response format from server')
-      }
-
-      return response.data
-    } catch (axiosError: any) {
-      console.error('Axios Error Details:', {
-        message: axiosError.message,
-        response: axiosError.response ? {
-          status: axiosError.response.status,
-          data: axiosError.response.data,
-          headers: axiosError.response.headers
-        } : 'No response',
-        request: axiosError.request ? 'Request was made' : 'No request',
-        config: axiosError.config
-      })
-
-      throw axiosError
-    }
-  } catch (error: any) {
-    console.error('Error in fetchUserJobs:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    })
-    throw error
+export const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'completed': return 'bg-green-100 text-green-800'
+    case 'pending': return 'bg-yellow-100 text-yellow-800'
+    case 'failed': return 'bg-red-100 text-red-800'
+    default: return 'bg-gray-100 text-gray-800'
   }
 }

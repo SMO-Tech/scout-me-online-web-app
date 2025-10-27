@@ -4,27 +4,28 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
-  // 1. Conditionally apply output: "export"
-  output: isProd ? "export" : undefined, 
+  // Enable static export
+  output: 'export',
 
-  // 2. Update assetPrefix configuration
-  assetPrefix: isProd ? '/' : undefined,
+  // Configure for S3 hosting
+  assetPrefix: '/',
+  
+  // Disable server-side features not compatible with static export
+  trailingSlash: true,
 
-  // General settings (always apply)
+  // General settings
   images: {
     unoptimized: true,
     domains: ['lh3.googleusercontent.com'], // Allow Google profile images
   },
-  trailingSlash: true,
   
-  // Disable ESLint during build
+  // Disable ESLint and TypeScript checks during build
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Disable type checking during build
   typescript: {
     ignoreBuildErrors: true,
-  },
+  }
 };
 
 export default nextConfig;

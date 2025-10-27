@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://app.wizard.net.co/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://app.wizard.net.co/api';
 
 // Type definitions
 export interface UserData {

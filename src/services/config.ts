@@ -1,6 +1,6 @@
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://app.wizard.net.co',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'https://app.wizard.net.co',
   ENDPOINTS: {
     AUTH: {
       LOGIN: '/api/auth/django/login/',

@@ -7,7 +7,8 @@
     "build": "next build",
     "export": "next build && next export",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "deploy:s3": "chmod +x deploy-to-s3.sh && ./deploy-to-s3.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

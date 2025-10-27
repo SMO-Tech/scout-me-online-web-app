@@ -1,68 +1,27 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { checkAuthAndRedirect } from '@/lib/auth/authGuard'
 import DashboardNav from '@/components/layout/DashboardNav'
-import { fetchUserJobs } from '@/services/api/jobs.service'
+import { fetchUserJobs, formatDate, getStatusColor } from '@/services/api/jobs.service'
 import { JobSummary } from '@/types/jobs'
-import { STORAGE_KEYS } from '@/services/config'
-import authService from '@/services/api/auth.service'
 import { FiEye, FiVideo, FiInfo } from 'react-icons/fi'
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    // Add ordinal suffix to day
-  }).format(date).replace(/(\d+)/, (match) => {
-    const day = parseInt(match);
-    const suffix = ['th', 'st', 'nd', 'rd'][(day % 10 > 3 || (day % 100 - day % 10 === 10)) ? 0 : day % 10];
-    return `${day}${suffix}`;
-  });
-};
-
 export default function LibraryPage() {
-  const [jobs, setJobs] = useState<JobSummary[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const [jobs, setJobs] = useState<JobSummary[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const checkAuthentication = () => {
-      // Only check localStorage on the client side
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-        const userId = localStorage.getItem(STORAGE_KEYS.USER_ID)
-        const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA)
-        const isAuthenticated = authService.isAuthenticated()
+    // Check authentication on mount
+    checkAuthAndRedirect('/library')
 
-        console.log('Comprehensive Authentication Check:', {
-          token: token ? 'Token present' : 'No token',
-          userId: userId,
-          userData: userData ? 'User data present' : 'No user data',
-          isAuthenticated: isAuthenticated
-        })
-
-        // More comprehensive authentication check
-        if (!token || !userId || !userData || !isAuthenticated) {
-          console.warn('Authentication failed. Redirecting to login.')
-          localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-          localStorage.removeItem(STORAGE_KEYS.USER_ID)
-          localStorage.removeItem(STORAGE_KEYS.USER_DATA)
-          router.replace('/auth')
-          return false
-        }
-      }
-      return true
-    }
-
+    // Fetch user jobs
     const loadJobs = async () => {
-      if (!checkAuthentication()) return
-
       try {
-        setIsLoading(true)
+        setLoading(true)
         const jobsData = await fetchUserJobs()
         
         console.log('Jobs Fetched:', {
@@ -79,11 +38,6 @@ export default function LibraryPage() {
           // The request was made and the server responded with a status code
           if (err.response.status === 401) {
             // Token is invalid or expired
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
-              localStorage.removeItem(STORAGE_KEYS.USER_ID)
-              localStorage.removeItem(STORAGE_KEYS.USER_DATA)
-            }
             router.replace('/auth')
             setError('Your session has expired. Please log in again.')
           } else {
@@ -97,21 +51,12 @@ export default function LibraryPage() {
           setError('An unexpected error occurred. Please try again.')
         }
       } finally {
-        setIsLoading(false)
+        setLoading(false)
       }
     }
 
     loadJobs()
   }, [router])
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800'
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'failed': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
 
   const handleViewResults = (jobId: number) => {
     router.push(`/library/job/${jobId}`)
@@ -121,12 +66,12 @@ export default function LibraryPage() {
     router.push(`/library/analysis/${jobUuid}`)
   }
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <DashboardNav />
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-xl text-gray-600">Loading your analysis jobs...</p>
+          <p className="text-xl text-gray-600 dark:text-gray-300">Loading your analysis jobs...</p>
         </div>
       </div>
     )
@@ -134,10 +79,10 @@ export default function LibraryPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         <DashboardNav />
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-xl text-red-600">{error}</p>
+          <p className="text-xl text-red-600 dark:text-red-400">{error}</p>
           <button 
             onClick={() => router.replace('/auth')}
             className="mt-4 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
@@ -150,14 +95,16 @@ export default function LibraryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
       <DashboardNav />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Your Analysis Library</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+          Match Library
+        </h1>
         
         {jobs.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-xl text-gray-600">No analysis jobs found. Start your first analysis!</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">No analysis jobs found. Start your first analysis!</p>
             <button 
               onClick={() => router.push('/dashboard/form')}
               className="mt-4 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
@@ -166,142 +113,63 @@ export default function LibraryPage() {
             </button>
           </div>
         ) : (
-          <>
-            {/* Web View - Table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                <thead className="bg-gray-100 border-b">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">League</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {jobs.map((job) => (
-                    <tr key={job.id} className="hover:bg-gray-50 transition">
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {job.team_home} vs {job.team_away}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{job.league}</div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{formatDate(job.match_date)}</div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span 
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(job.status)}`}
-                        >
-                          {job.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <a 
-                            href={job.video_path} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-blue-600 hover:text-blue-900 flex items-center"
-                            title="View Source Video"
-                          >
-                            <FiVideo className="mr-1" /> Video
-                          </a>
-                          <button 
-                            onClick={() => handleViewResults(job.id)}
-                            disabled={job.status !== 'completed'}
-                            className={`
-                              flex items-center
-                              ${job.status === 'completed' 
-                                ? 'text-purple-600 hover:text-purple-900' 
-                                : 'text-gray-400 cursor-not-allowed'
-                              }
-                            `}
-                            title="View Results"
-                          >
-                            <FiEye className="mr-1" /> Results
-                          </button>
-                          
-                          <button 
-                            onClick={() => handleViewDetails(job.job_uuid)}
-                            className="text-blue-600 hover:text-blue-900 flex items-center"
-                            title="View Details"
-                          >
-                            <FiInfo className="mr-1" /> Details
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile View - Cards */}
-            <div className="md:hidden grid gap-4">
-              {jobs.map((job) => (
-                <div 
-                  key={job.id} 
-                  className="bg-white shadow-md rounded-lg overflow-hidden"
-                >
-                  <div className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-semibold">
-                        {job.team_home} vs {job.team_away}
-                      </h2>
-                      <span 
-                        className={`px-3 py-1 rounded-full text-xs uppercase ${getStatusColor(job.status)}`}
-                      >
-                        {job.status}
-                      </span>
-                    </div>
-                    
-                    <div className="text-sm text-gray-600 space-y-1 mb-4">
-                      <p><strong>League:</strong> {job.league}</p>
-                      <p><strong>Match Date:</strong> {formatDate(job.match_date)}</p>
-                      <p><strong>Submitted:</strong> {new Date(job.created_at).toLocaleDateString()}</p>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <a 
-                        href={job.video_path} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-blue-600 hover:text-blue-800 flex items-center"
-                      >
-                        <FiVideo className="mr-1" /> View Video
-                      </a>
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => handleViewResults(job.id)}
-                          disabled={job.status !== 'completed'}
-                          className={`
-                            px-4 py-2 rounded-lg text-white font-semibold transition flex items-center
-                            ${job.status === 'completed' 
-                              ? 'bg-purple-600 hover:bg-purple-700' 
-                              : 'bg-gray-400 cursor-not-allowed'
-                            }
-                          `}
-                        >
-                          <FiEye className="mr-1" /> Results
-                        </button>
-                        <button 
-                          onClick={() => handleViewDetails(job.job_uuid)}
-                          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition flex items-center"
-                        >
-                          <FiInfo className="mr-1" /> Details
-                        </button>
-                      </div>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {jobs.map((job) => (
+              <div 
+                key={job.id} 
+                className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    {job.team_home} vs {job.team_away}
+                  </h2>
+                  <span 
+                    className={`px-3 py-1 rounded-full text-xs uppercase ${getStatusColor(job.status)}`}
+                  >
+                    {job.status}
+                  </span>
+                </div>
+                
+                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1 mb-4">
+                  <p><strong>League:</strong> {job.league}</p>
+                  <p><strong>Match Date:</strong> {formatDate(job.match_date)}</p>
+                  <p><strong>Submitted:</strong> {new Date(job.created_at).toLocaleDateString()}</p>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <a 
+                    href={job.video_path} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center"
+                  >
+                    <FiVideo className="mr-1" /> View Video
+                  </a>
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => handleViewResults(job.id)}
+                      disabled={job.status !== 'completed'}
+                      className={`
+                        px-4 py-2 rounded-lg text-white font-semibold transition flex items-center
+                        ${job.status === 'completed' 
+                          ? 'bg-purple-600 hover:bg-purple-700' 
+                          : 'bg-gray-400 cursor-not-allowed'
+                        }
+                      `}
+                    >
+                      <FiEye className="mr-1" /> Results
+                    </button>
+                    <button 
+                      onClick={() => handleViewDetails(job.job_uuid)}
+                      className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition flex items-center"
+                    >
+                      <FiInfo className="mr-1" /> Details
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
