@@ -19,6 +19,7 @@ export default function DashboardNav() {
 
   const { user } = useAuth();
   useEffect(() => {
+    console.log('user on session',user)
     if (user === null) router.replace('/auth'); // redirect if logged out
   }, [user]);
 
