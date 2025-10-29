@@ -18,6 +18,8 @@ export default function DashboardNav() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
+  console.log('Firebase user:', auth.currentUser);
+
 
   // Redirect if not logged in
   useEffect(() => {
