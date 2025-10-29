@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/lib/AuthContext";
 
 export const metadata: Metadata = {
   title: "Scout Me Online",
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <ThemeProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

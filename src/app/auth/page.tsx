@@ -2,88 +2,50 @@
 import { auth, facebookProvider, googleProvider } from '@/lib/firebaseConfig';
 import { getAdditionalUserInfo, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 import { FcGoogle } from "react-icons/fc";
+import axios from 'axios'
 import { FaFacebook } from 'react-icons/fa';
-import AuthCard from '@/components/auth/AuthCard';
-import SignupForm from '@/components/auth/SignupForm';
-import { Toaster } from 'react-hot-toast';
-import authService from '@/services/api/auth.service';
-import toast from 'react-hot-toast';
-import axios from 'axios';
-
 const Page = () => {
-  const router = useRouter();
-  const [error, setError] = useState('');
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter()
+  const [error, setError] = useState('')
 
-  // Handle Google Authentication
   const handleGoogleAuth = async () => {
     try {
-      setIsLoading(true);
-      const res = await signInWithPopup(auth, googleProvider);
+      const res = await signInWithPopup(auth, googleProvider)
+      // Extract user info
       const user = res.user;
-      const { displayName, email, photoURL } = user;
-      const credentials = await user.getIdTokenResult();
-      
-      if (!email || !displayName) {
-        throw new Error('Failed to get required user information from Google');
+      const { displayName, email, photoURL, uid, phoneNumber } = user;
+
+      // Check if first-time sign-in
+      const info = getAdditionalUserInfo(res);
+      console.log(info)
+      const isNewUser = info?.isNewUser;
+      console.log("User Info:", { displayName, email, photoURL, uid });
+      console.log("First time user?", isNewUser);
+
+      //Call our API for saving user Data
+      if (isNewUser) {
+        await axios.post('http://app.wizard.net.co//api/register/', {
+          "user_sub": uid,
+          "name": displayName,
+          "email": email,
+          "phoneno": phoneNumber,
+          "auth_provider": "google",
+          "avatar": photoURL
+        })
       }
+      //after succes full login redirect to dashboard
+      router.push('/dashboard')
 
-      // Use the original avatar URL
-      const avatarUrl = photoURL || null;
-
-      // Format the expiration date to ISO string
-      const expirationDate = new Date(credentials.expirationTime).toISOString();
-
-      // Prepare OAuth data
-      const oauthData = {
-        oauth_id: `google_${user.uid}`,
-        email: email,
-        name: displayName,
-        auth_provider: 'google' as const,
-        avatar: avatarUrl,
-        access_token: credentials.token,
-        refresh_token: user.refreshToken || null,
-        token_expires: expirationDate
-      };
-
-      console.log('Sending OAuth data:', oauthData);
-
-      try {
-        // Register with our backend
-        const response = await authService.registerOAuth(oauthData);
-        
-        // Show success message
-        toast.success('Successfully signed in with Google!');
-        
-        // Refresh to ensure middleware picks up the new cookie
-        router.refresh();
-        
-        // Redirect to dashboard using replace
-        router.replace('/dashboard');
-        return;
-      } catch (error: any) {
-        console.error('OAuth Error:', error);
-        // Check if it's a network error
-        if (!navigator.onLine || error.message.includes('Network Error')) {
-          throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
-        }
-        throw error;
-      }
-    } catch (e: any) {
-      setError(e.message || 'Authentication failed. Please try again.');
-      console.error('Google Auth Error:', e);
-    } finally {
-      setIsLoading(false);
+    } catch (e) {
+      setError('Something went wrong' + e)
+      console.log(e)
     }
-  };
+  }
 
-  // Handle Facebook Authentication
   const handleFacebookAuth = async () => {
     try {
-      setIsLoading(true);
       // 1. Trigger the Facebook sign-in popup
       const res = await signInWithPopup(auth, facebookProvider);
 
@@ -91,191 +53,68 @@ const Page = () => {
       const user = res.user;
       const { displayName, email, photoURL, uid, phoneNumber } = user;
 
-      // 3. Check if first-time sign-in
+      // 3. Check if first-time sign-in (same as Google)
       const info = getAdditionalUserInfo(res);
+      console.log(info);
       const isNewUser = info?.isNewUser;
 
       console.log("User Info:", { displayName, email, photoURL, uid });
       console.log("First time user?", isNewUser);
 
-      // Prepare OAuth data similar to Google
-      const oauthData = {
-        oauth_id: `facebook_${uid}`,
-        email: email || '',
-        name: displayName || '',
-        auth_provider: 'facebook' as const,
-        avatar: photoURL || null,
-        access_token: await user.getIdToken(),
-        refresh_token: user.refreshToken || null,
-        token_expires: (await user.getIdTokenResult()).expirationTime
-      };
+      // 4. Call your API for saving user Data if it's a new user
+      // if (isNewUser) {
+      //   // NOTE on Data: Facebook may not always provide 'phoneNumber'
+      //   // You may need to adjust your API call or database to handle a null phone number.
+      //   await axios.post('http://app.wizard.net.co//api/register/', {
+      //     "user_sub": uid,
+      //     "name": displayName,
+      //     "email": email,
+      //     // Firebase user object might not have a phone number from OAuth, 
+      //     // so we use optional chaining/defaulting here.
+      //     "phoneno": phoneNumber || null,
+      //     "auth_provider": "facebook",
+      //     "avatar": photoURL
+      //   });
+      // }
 
-      try {
-        // Register with our backend
-        const response = await authService.registerOAuth(oauthData);
-        
-        // Show success message
-        toast.success('Successfully signed in with Facebook!');
-        
-        // Refresh to ensure middleware picks up the new cookie
-        router.refresh();
-        
-        // Redirect to dashboard using replace
-        router.replace('/dashboard');
-        return;
-      } catch (error: any) {
-        console.error('Facebook OAuth Error:', error);
-        // Check if it's a network error
-        if (!navigator.onLine || error.message.includes('Network Error')) {
-          throw new Error('Unable to connect to the server. Please check your internet connection and try again.');
-        }
-        throw error;
-      }
-    } catch (e: any) {
-      setError(e.message || 'Facebook authentication failed. Please try again.');
-      console.error('Facebook Auth Error:', e);
-    } finally {
-      setIsLoading(false);
+      // 5. After successful login redirect to dashboard
+      router.push('/dashboard');
+
+    } catch (e) {
+        setError('Something went wrong: ' + e);
     }
   };
-
-  // Handle Apple Authentication
-  const handleAppleAuth = async () => {
-    // TODO: Implement Apple authentication
-    setError('Apple authentication coming soon!');
-  };
-
-  // Handle Form Submission
-  const handleFormSubmit = async (data: any) => {
-    try {
-      if (data.mode === 'signup') {
-        setMode('signup');
-        return;
-      }
-
-      if (mode === 'signup') {
-        try {
-          setIsLoading(true);
-          setError('');
-          
-          // Register user
-          await authService.register({
-            username: data.username,
-            email: data.email,
-            password: data.password,
-            password_confirm: data.password_confirm,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            phoneno: data.phoneno || undefined
-          });
-
-          // Show success message
-          toast.success('Account created successfully! Please sign in.');
-          
-          // Switch to login mode
-          setMode('login');
-          return;
-        } catch (e: any) {
-          setError(e.message || 'Registration failed. Please try again.');
-          console.error('Registration Error:', e);
-          return;
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      setIsLoading(true);
-      setError('');
-
-      // Handle login
-      const response = await authService.login({
-        username: data.username,
-        password: data.password
-      });
-
-      // Show success message
-      toast.success('Successfully logged in!');
-      
-      // Handle remember me
-      if (data.rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-        localStorage.setItem('username', data.username);
-      } else {
-        localStorage.removeItem('rememberMe');
-        localStorage.removeItem('username');
-      }
-      
-      // Refresh to ensure middleware picks up the new cookie
-      router.refresh();
-      
-      // Use replace instead of push to prevent back navigation
-      router.replace('/dashboard');
-    } catch (e: any) {
-      setError(e.message || 'Authentication failed. Please check your credentials and try again.');
-      console.error('Form Submit Error:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle Forgot Password
-  const handleForgotPassword = () => {
-    // TODO: Implement forgot password functionality
-    setError('Password reset functionality coming soon!');
-  };
-
   return (
-    <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 5000,
-          style: {
-            background: '#333',
-            color: '#fff',
-          },
-          success: {
-            duration: 3000,
-            style: {
-              background: '#4aed88',
-              color: '#fff',
-            },
-          },
-          error: {
-            duration: 5000,
-            style: {
-              background: '#ff4b4b',
-              color: '#fff',
-            },
-          },
-        }}
-      />
-      <div className="w-full max-w-md">
-        {mode === 'login' ? (
-          <AuthCard
-            mode={mode}
-            onGoogleAuth={handleGoogleAuth}
-            onFacebookAuth={handleFacebookAuth}
-            onAppleAuth={handleAppleAuth}
-            onForgotPassword={handleForgotPassword}
-            onSubmit={handleFormSubmit}
-            error={error}
-            isLoading={isLoading}
-          />
-        ) : (
-          <SignupForm
-            onSubmit={handleFormSubmit}
-            onGoogleAuth={handleGoogleAuth}
-            onFacebookAuth={handleFacebookAuth}
-            onAppleAuth={handleAppleAuth}
-            onSignIn={() => setMode('login')}
-            error={error}
-            isLoading={isLoading}
-          />
-        )}
+    (
+      <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">
+        {/* Auth Card */}
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-10 w-full max-w-md flex flex-col items-center text-center animate-fadeIn">
+          <h1 className="text-white text-4xl font-extrabold tracking-wide mb-4">
+            Scout<span className="text-purple-300">Me</span>
+          </h1>
+          <p className="text-gray-200 text-base mb-8">
+            Sign in securely to get started with your player analytics.
+          </p>
+
+          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+
+          <button
+            onClick={handleGoogleAuth}
+            className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
+          >
+            <FcGoogle size={24} />
+            Continue with Google
+          </button>
+          <button
+            onClick={handleFacebookAuth}
+            className="flex items-center  mt-5 justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
+          >
+            <FaFacebook  size={24} />
+            Continue with Facebook
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    ))
 }
 
-export default Page;
+export default Page

@@ -5,9 +5,11 @@ import FormField from '@/components/ui/FormField'
 import ManuealPlayerLineUp, { Player } from '@/components/ui/ManuealPlayerLineUp'
 import * as yup from 'yup'
 import jobsService from '@/services/api/jobs/jobs.service'
-import authService from '@/services/api/auth.service'
 import toast from 'react-hot-toast'
+import { AuthProvider, useAuth } from '@/lib/AuthContext'
 const Page = () => {
+  // get user form AuthContext
+  const {user} = useAuth()
   const [step, setStep] = useState(1)
   const [error, setError] = useState('')
   // Centralized form state
@@ -117,10 +119,11 @@ const Page = () => {
 
           setIsSubmitting(true);
           try {
-            const currentUser = authService.getCurrentUser();
-            if (!currentUser?.id) {
+            if (!user) {
               throw new Error('Please login to continue');
             }
+           
+            const userId = user.uid
 
             const jobData = {
               video_filename: formData.matchURL.split('v=')[1] + '.mp4',
@@ -129,7 +132,7 @@ const Page = () => {
               team_home: formData.teamHome,
               team_away: formData.teamAway,
               league: formData.league,
-              user_id: currentUser.id
+              user_id: Number(user.uid)
             };
 
             const response = await jobsService.createJob(jobData);
@@ -217,8 +220,9 @@ const Page = () => {
                 labelName="Match Date"
                 inputType="date"
                 value={formData.matchDate}
-                onChange={(e) => updateFormData('matchDate', e.target.value)}
-              />
+                onChange={(e) => updateFormData('matchDate', e.target.value)} 
+                placeholder={''}              
+                />
               <FormField
                 labelHtmlFor="teamHome"
                 labelName="Home Team"

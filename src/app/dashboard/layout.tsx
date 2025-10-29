@@ -1,9 +1,10 @@
 'use client'
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import authService from '@/services/api/auth.service';
+
 import React from "react";
 import MyNavbar from "@/components/layout/MyNavbar";
+import { useAuth } from '@/lib/AuthContext';
 
 export default function DashboardLayout({
   children,
@@ -12,12 +13,9 @@ export default function DashboardLayout({
 }) {
   const router = useRouter()
 
-  useEffect(() => {
-    // Check if user is authenticated
-    if (!authService.isAuthenticated()) {
-      router.push('/auth');
-    }
-  }, [router]);
+  const { user } = useAuth()
+
+  if(!user) router.replace('/auth')
 
   return (
     <div className="min-h-screen bg-gray-100">
