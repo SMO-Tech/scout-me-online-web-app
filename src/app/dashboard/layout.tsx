@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     // Check if user is authenticated
