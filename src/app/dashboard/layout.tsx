@@ -15,7 +15,10 @@ export default function DashboardLayout({
 
   const { user } = useAuth()
 
-  if(!user) router.replace('/auth')
+  useEffect(() => {
+    if (user === undefined) return; // Firebase still loading session
+    if (user === null) router.replace("/auth");
+  }, [user, router]);
 
   return (
     <div className="min-h-screen bg-gray-100">

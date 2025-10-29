@@ -17,11 +17,7 @@ export default function DashboardNav() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useAuth();
-  useEffect(() => {
-    console.log('user on session',user)
-    if (user === null) router.replace('/auth'); // redirect if logged out
-  }, [user]);
+  const {user} = useAuth()
 
 
   // Redirect if not logged in
