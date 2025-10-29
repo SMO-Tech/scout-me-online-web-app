@@ -25,16 +25,16 @@ const Page = () => {
       console.log("First time user?", isNewUser);
 
       //Call our API for saving user Data
-      if (isNewUser) {
-        await axios.post('http://app.wizard.net.co//api/register/', {
-          "user_sub": uid,
-          "name": displayName,
-          "email": email,
-          "phoneno": phoneNumber,
-          "auth_provider": "google",
-          "avatar": photoURL
-        })
-      }
+      // if (isNewUser) {
+      //   await axios.post('http://app.wizard.net.co//api/register/', {
+      //     "user_sub": uid,
+      //     "name": displayName,
+      //     "email": email,
+      //     "phoneno": phoneNumber,
+      //     "auth_provider": "google",
+      //     "avatar": photoURL
+      //   })
+      // }
       //after succes full login redirect to dashboard
       router.push('/dashboard')
 
