@@ -2,9 +2,9 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { 
-  FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiHeart, 
-  FiCreditCard, FiBookOpen, FiChevronDown 
+import {
+  FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiHeart,
+  FiCreditCard, FiBookOpen, FiChevronDown
 } from 'react-icons/fi';
 import { auth } from '@/lib/firebaseConfig';
 import toast from 'react-hot-toast';
@@ -18,7 +18,9 @@ export default function DashboardNav() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
-  console.log('Firebase user:', auth.currentUser);
+  useEffect(() => {
+    if (user === null) router.replace('/auth'); // redirect if logged out
+  }, [user]);
 
 
   // Redirect if not logged in
