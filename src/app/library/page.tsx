@@ -2,61 +2,22 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { checkAuthAndRedirect } from '@/lib/auth/authGuard'
+
 import DashboardNav from '@/components/layout/DashboardNav'
 import { fetchUserJobs, formatDate, getStatusColor } from '@/services/api/jobs.service'
 import { JobSummary } from '@/types/jobs'
 import { FiEye, FiVideo, FiInfo } from 'react-icons/fi'
+import { useAuth } from '@/lib/AuthContext'
 
 export default function LibraryPage() {
   const router = useRouter()
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Check authentication on mount
-    checkAuthAndRedirect('/library')
-
-    // Fetch user jobs
-    const loadJobs = async () => {
-      try {
-        setLoading(true)
-        const jobsData = await fetchUserJobs()
-        
-        console.log('Jobs Fetched:', {
-          totalJobs: jobsData.data.recent_jobs.length,
-          jobs: jobsData.data.recent_jobs
-        })
-
-        setJobs(jobsData.data.recent_jobs)
-      } catch (err: any) {
-        console.error('Error fetching jobs:', err)
-        
-        // More detailed error handling
-        if (err.response) {
-          // The request was made and the server responded with a status code
-          if (err.response.status === 401) {
-            // Token is invalid or expired
-            router.replace('/auth')
-            setError('Your session has expired. Please log in again.')
-          } else {
-            setError(err.response.data.message || 'Failed to load jobs. Please try again.')
-          }
-        } else if (err.request) {
-          // The request was made but no response was received
-          setError('No response from server. Please check your internet connection.')
-        } else {
-          // Something happened in setting up the request
-          setError('An unexpected error occurred. Please try again.')
-        }
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadJobs()
-  }, [router])
+  const {user} = useAuth()
+  if(!user){
+    return router.replace('/auth')
+  }
 
   const handleViewResults = (jobId: number) => {
     router.push(`/library/job/${jobId}`)
