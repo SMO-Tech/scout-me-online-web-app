@@ -13,7 +13,8 @@ type heders = CreateAxiosDefaults<any>['headers']
 
 export const getClient = async (headers?: heders)=>{
     const auth =  getAuth()
-    const token = auth.currentUser?.getIdToken()
+    const token = await auth.currentUser?.getIdToken()
+    console.log(token)
   
     if(!token) return axios.create({baseURL});
 

@@ -11,8 +11,12 @@ import { getClient } from '@/lib/api/client';
 const Page = () => {
   const router = useRouter()
   const [error, setError] = useState('')
+  const [loadingG, setIsLoadingG] = useState(false)
+  const [loadingF, setIsLoadingF] = useState(false)
 
   const handleGoogleAuth = async () => {
+    setIsLoadingG(true)
+    setError('')
     try {
       //  Trigger Google Sign-In popup
       const res = await signInWithPopup(auth, googleProvider);
@@ -25,6 +29,7 @@ const Page = () => {
       const info = getAdditionalUserInfo(res);
       const isNewUser = info?.isNewUser;
 
+
       //  Get the Firebase ID token
       const token = await user.getIdToken(true);
 
@@ -35,26 +40,30 @@ const Page = () => {
           const res = await client.post('/user/register', {
             "name": displayName,
             "email": email,
-            "phone": phoneNumber,
+            "phone": `{}`,
             "photoUrl": photoURL,
             "firebaseUID": uid
           })
           console.log(res.data)
 
-        } catch (e: any) {
+        } catch (e:any) {
           console.log(e.response.data)
         }
       }
 
       // Redirect after backend finishes
       router.push("/dashboard");
-    } catch (e) {
+      setIsLoadingG(false)
+    } catch (e:any) {
+      setIsLoadingG(false)
       setError("Something went wrong: " + e.message);
     }
   };
 
 
   const handleFacebookAuth = async () => {
+    setError('')
+    setIsLoadingF(true)
     try {
       // 1. Trigger the Facebook sign-in popup
       const res = await signInWithPopup(auth, facebookProvider);
@@ -77,27 +86,29 @@ const Page = () => {
       const token = await auth.currentUser?.getIdToken();
 
       // 4. Call your API for saving user Data if it's a new user
-      if (isNewUser) {
-        try {
-          const client = await getClient()
-          const res = await client.post('/user/register', {
-            "name": displayName,
-            "email": email,
-            "phone": `{}`,
-            "photoUrl": photoURL,
-            "firebaseUID": uid
-          })
-          console.log(res.data)
+      // if (isNewUser) {
+      try {
+        const client = await getClient()
+        const res = await client.post('/user/register', {
+          "name": displayName,
+          "email": email,
+          "phone": `{}`,
+          "photoUrl": photoURL,
+          "firebaseUID": uid
+        })
+        console.log(res.data)
 
-        } catch (e: any) {
-          console.log(e.response.data)
-        }
+      } catch (e:any) {
+        console.log(e.response.data)
       }
+      // }
 
       // 5. After successful login redirect to dashboard
       router.push('/dashboard');
+       setIsLoadingF(false)
 
     } catch (e) {
+       setIsLoadingF(false)
       setError('Something went wrong: ' + e);
     }
   };
@@ -120,14 +131,16 @@ const Page = () => {
             className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
           >
             <FcGoogle size={24} />
-            Continue with Google
+            {!loadingG? 'Continue with Google' : 'loading...' }
+            
           </button>
           <button
             onClick={handleFacebookAuth}
             className="flex items-center  mt-5 justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
           >
             <FaFacebook size={24} />
-            Continue with Facebook
+             {!loadingF? 'Continue with Facebook' : 'loading...' }
+            
           </button>
         </div>
       </div>
