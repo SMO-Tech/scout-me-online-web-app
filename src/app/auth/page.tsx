@@ -35,7 +35,7 @@ const Page = () => {
           const res = await client.post('/user/register', {
             "name": displayName,
             "email": email,
-            "phone": `{}`,
+            "phone": phoneNumber,
             "photoUrl": photoURL,
             "firebaseUID": uid
           })
