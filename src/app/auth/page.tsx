@@ -29,6 +29,8 @@ const Page = () => {
       const info = getAdditionalUserInfo(res);
       const isNewUser = info?.isNewUser;
 
+      console.log('phoneNumber', phoneNumber)
+
 
       //  Get the Firebase ID token
       const token = await user.getIdToken(true);
@@ -40,9 +42,9 @@ const Page = () => {
           const res = await client.post('/user/register', {
             "name": displayName,
             "email": email,
-            "phone": `{}`,
+            "phone": phoneNumber || '',
             "photoUrl": photoURL,
-            "firebaseUID": uid
+            "UID": uid
           })
           console.log(res.data)
 
@@ -92,9 +94,9 @@ const Page = () => {
         const res = await client.post('/user/register', {
           "name": displayName,
           "email": email,
-          "phone": `{}`,
+          "phone": phoneNumber || '',
           "photoUrl": photoURL,
-          "firebaseUID": uid
+          "UID": uid
         })
         console.log(res.data)
 
