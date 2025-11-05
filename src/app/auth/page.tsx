@@ -42,7 +42,7 @@ const Page = () => {
           const res = await client.post('/user/register', {
             "name": displayName,
             "email": email,
-            "phone": phoneNumber || '',
+            "phone": phoneNumber,
             "photoUrl": photoURL,
             "UID": uid
           })
@@ -94,7 +94,7 @@ const Page = () => {
         const res = await client.post('/user/register', {
           "name": displayName,
           "email": email,
-          "phone": phoneNumber || '',
+          "phone": phoneNumber,
           "photoUrl": photoURL,
           "UID": uid
         })
