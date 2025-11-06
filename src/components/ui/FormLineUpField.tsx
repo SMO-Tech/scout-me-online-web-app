@@ -21,7 +21,7 @@ const FormLineUpField: React.FC<Props> = ({
     onPlayerPlayerPositionChange
 }) => {
     return (
-        <div className="flex gap-1 sm:flex-row items-start justify-center md:items-center flex-col">
+        <div className="flex gap-1 sm:flex-row items-start md:items-center justify-center flex-col">
             <p className='text-gray-800 w-15'>{playerNumber}</p>
 
             <input
@@ -47,11 +47,15 @@ const FormLineUpField: React.FC<Props> = ({
                 className="w-full px-3 py-2 border border-gray-300 text-gray-800 rounded  focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-300"
                 value={positionValue}
                 onChange={(e) => onPlayerPlayerPositionChange(e.target.value)}
+
             >
+                <option value="" disabled hidden>
+                    Select Position
+                </option>
                 {
-                    playerPostition.map((position) => {
+                    playerPostition.map((position, index) => {
                         return (
-                            <option>{position}</option>
+                            <option key={index} value={position} >{position}</option>
                         )
                     })
                 }

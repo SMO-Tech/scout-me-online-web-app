@@ -1,5 +1,4 @@
 export const playerPostition = [
-  "Select",
   "Keeper",
   "Defender", // Used for Centre-Back, the main defensive position
   "Fullback", // Used for the wide defender

@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext'
 import { FaFileUpload } from 'react-icons/fa'
 import { playerPostition } from '@/lib/constant'
 import { getClient } from '@/lib/api/client'
+import axios from 'axios'
 const Page = () => {
   // get user form AuthContext
   const { user } = useAuth()
@@ -18,7 +19,7 @@ const Page = () => {
   // Centralized form state
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLineUpSubmissionAuto, setIsLineUpSubmissionAuto] = useState(false)
+  const [isLineUpSubmissionAuto, setIsLineUpSubmissionAuto] = useState<boolean | undefined>(undefined)
   const { replace } = useRouter()
   interface FormData {
     matchURL: string,
@@ -65,18 +66,60 @@ const Page = () => {
 
         // STEP 2 — Lineup method selection
         case 2: {
+          // validate yes/no
           if (isLineUpSubmissionAuto === undefined) {
             setError("Please select how you'd like to provide the player lineup.");
             return;
           }
+          // if yes process image and update the player line 
           if (isLineUpSubmissionAuto) {
-            setError("Please select how you'd like to provide the player lineup.");
-            return;
+            // helper to convert File → Base64
+            const fileToBase64 = (file: File): Promise<string> =>
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = (error) => reject(error);
+              });
+
+            if (!formData.lineUpImage) return setError('Please upload a valid Image!')
+            try {
+              const base64string = await fileToBase64(formData.lineUpImage);
+              console.log(base64string)
+
+              const payload = {
+                version: "2.0",
+                routeKey: "POST /",
+                rawPath: "/",
+                rawQueryString: "",
+                headers: {
+                  "content-type": "application/json"
+                },
+                requestContext: {
+                  http: {
+                    method: "POST"
+                  }
+                },
+                body: JSON.stringify({ image: base64string }), // ✅ send base64 in body
+                isBase64Encoded: true
+              };
+
+              const url = process.env.NEXT_PUBLIC_IMAGE_ANALYSIS_URL
+              console.log(url)
+              console.log('payload', payload)
+              console.log(url)
+              const res = await axios.post(url!, payload)
+              console.log(res.data)
+              setStep((prev) => prev + 1);
+            } catch (e) {
+              console.log(e)
+              setError('Something went wrong, please try again!')
+            }
+          } else {
+            setStep((prev) => prev + 1);
           }
-          setStep((prev) => prev + 1);
-
         }
-
+        break;
         //  STEP 3 — Player data validation
         case 3: {
           const playerSchema = yup.array()
@@ -121,12 +164,12 @@ const Page = () => {
           setStep((prev) => prev + 1);
 
         }
+
       }
     } catch (err: unknown) {
       if (err instanceof yup.ValidationError) {
         setError(err.message)
       } else {
-        console.log(err.response.data)
         setError('Something went wrong please try again!')
       }
     }
