@@ -1,10 +1,9 @@
 'use client'
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
 import React from "react";
-import MyNavbar from "@/components/layout/MyNavbar";
 import { useAuth } from '@/lib/AuthContext';
+import DashboardNav from '@/components/layout/DashboardNav';
 
 export default function DashboardLayout({
   children,
@@ -22,10 +21,11 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <DashboardNav />
       {/* Main Content */}
-      <main className="w-full">
+      <div className="w-full">
         {children}
-      </main>
+      </div>
     </div>
   );
 }

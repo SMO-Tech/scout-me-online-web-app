@@ -2,7 +2,7 @@ import React from 'react'
 import FormLineUpField from './FormLineUpField'
 
 export interface Player {
-  playerName: string
+  name: string
   jerseyNumber: string
   position: string
 }
@@ -21,10 +21,10 @@ const ManuealPlayerLineUp: React.FC<Props> = ({ players, onPlayerChange }) => {
         <FormLineUpField
           key={number}
           playerNumber={number}
-          playerNameValue={players[index]?.playerName || ''}
+          playerNameValue={players[index]?.name || ''}
           jerseyNumberValue={players[index]?.jerseyNumber || ''}
           positionValue={players[index]?.position || ''}
-          onPlayerNameChange={(value) => onPlayerChange(index, 'playerName', value)}
+          onPlayerNameChange={(value) => onPlayerChange(index, 'name', value)}
           onPlayerJerseyNumberChange={(value) => onPlayerChange(index, 'jerseyNumber', value)}
           onPlayerPlayerPositionChange={(value) => onPlayerChange(index, 'position', value)}
         />

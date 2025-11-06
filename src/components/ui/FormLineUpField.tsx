@@ -1,3 +1,4 @@
+import { playerPostition } from "@/lib/constant";
 
 interface Props {
     playerNumber: string;
@@ -20,7 +21,7 @@ const FormLineUpField: React.FC<Props> = ({
     onPlayerPlayerPositionChange
 }) => {
     return (
-        <div className="flex gap-1 sm:flex-row flex-col">
+        <div className="flex gap-1 sm:flex-row items-start justify-center md:items-center flex-col">
             <p className='text-gray-800 w-15'>{playerNumber}</p>
 
             <input
@@ -37,7 +38,7 @@ const FormLineUpField: React.FC<Props> = ({
                 placeholder="Jersey Number"
                 min="0"
                 max="100"
-                className="w-20 px-3 py-2 border border-gray-300 text-gray-800 rounded focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-300"
+                className="w-40 px-3 py-2 border border-gray-300 text-gray-800 rounded focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-300"
                 value={jerseyNumberValue}
                 onChange={(e) => onPlayerJerseyNumberChange(e.target.value)}
             />
@@ -47,11 +48,13 @@ const FormLineUpField: React.FC<Props> = ({
                 value={positionValue}
                 onChange={(e) => onPlayerPlayerPositionChange(e.target.value)}
             >
-                <option value="">Select Position</option>
-                <option>Goalkeeper</option>
-                <option>Defender</option>
-                <option>Midfielder</option>
-                <option>Forward</option>
+                {
+                    playerPostition.map((position) => {
+                        return (
+                            <option>{position}</option>
+                        )
+                    })
+                }
             </select>
         </div>
     )

@@ -2,11 +2,11 @@
 import { auth, facebookProvider, googleProvider } from '@/lib/firebaseConfig';
 import { getAdditionalUserInfo, getAuth, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from 'react-icons/fa';
-import axios from 'axios';
 import { getClient } from '@/lib/api/client';
+import { useAuth } from '@/lib/AuthContext';
 
 const Page = () => {
   const router = useRouter()
@@ -48,7 +48,7 @@ const Page = () => {
           })
           console.log(res.data)
 
-        } catch (e:any) {
+        } catch (e: any) {
           console.log(e.response.data)
         }
       }
@@ -56,7 +56,7 @@ const Page = () => {
       // Redirect after backend finishes
       router.push("/dashboard");
       setIsLoadingG(false)
-    } catch (e:any) {
+    } catch (e: any) {
       setIsLoadingG(false)
       setError("Something went wrong: " + e.message);
     }
@@ -100,21 +100,28 @@ const Page = () => {
         })
         console.log(res.data)
 
-      } catch (e:any) {
+      } catch (e: any) {
         console.log(e.response.data)
       }
       // }
 
       // 5. After successful login redirect to dashboard
       router.push('/dashboard');
-       setIsLoadingF(false)
+      setIsLoadingF(false)
 
     } catch (e) {
-       setIsLoadingF(false)
+      setIsLoadingF(false)
       setError('Something went wrong: ' + e);
     }
   };
-  
+
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (user === undefined) return; // Firebase still loading session
+    if (user === null) router.replace("/auth");
+  }, [user, router]);
+
   return (
     (
       <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">
@@ -134,16 +141,16 @@ const Page = () => {
             className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
           >
             <FcGoogle size={24} />
-            {!loadingG? 'Continue with Google' : 'loading...' }
-            
+            {!loadingG ? 'Continue with Google' : 'loading...'}
+
           </button>
           <button
             onClick={handleFacebookAuth}
             className="flex items-center  mt-5 justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
           >
             <FaFacebook size={24} />
-             {!loadingF? 'Continue with Facebook' : 'loading...' }
-            
+            {!loadingF ? 'Continue with Facebook' : 'loading...'}
+
           </button>
         </div>
       </div>
