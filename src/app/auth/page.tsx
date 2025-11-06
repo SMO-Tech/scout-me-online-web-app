@@ -114,6 +114,7 @@ const Page = () => {
       setError('Something went wrong: ' + e);
     }
   };
+  
   return (
     (
       <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">

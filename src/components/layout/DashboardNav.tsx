@@ -46,10 +46,9 @@ export default function DashboardNav() {
   };
 
   const navItems = [
-    { label: 'New Upload', icon: <FiUpload className="w-5 h-5" />, href: '/dashboard' },
+    { label: 'New Upload', icon: <FiUpload className="w-5 h-5" />, href: '/dashboard/form' },
     { label: 'Library', icon: <FiBookOpen className="w-5 h-5" />, href: '/library' },
     { label: 'Plans', icon: <FiCreditCard className="w-5 h-5" />, href: '/plans' },
-    { label: 'Favorites', icon: <FiHeart className="w-5 h-5" />, href: '/favorites' },
   ];
 
   // Helper for initials
