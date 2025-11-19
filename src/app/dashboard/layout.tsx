@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import React from "react";
 import { useAuth } from '@/lib/AuthContext';
 import DashboardNav from '@/components/layout/DashboardNav';
+import Footer from '@/components/Footer';
 
 export default function DashboardLayout({
   children,
@@ -26,6 +27,7 @@ export default function DashboardLayout({
       <div className="w-full">
         {children}
       </div>
+      <Footer />
     </div>
   );
 }

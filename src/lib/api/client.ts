@@ -1,5 +1,5 @@
 import axios, { CreateAxiosDefaults } from "axios";
-import { getAuth } from "firebase/auth";
+
 
 
 const  baseURL = process.env.NEXT_PUBLIC_FIREBASE_BASE_URL
@@ -12,9 +12,10 @@ const client = axios.create({
 type heders = CreateAxiosDefaults<any>['headers']
 
 export const getClient = async (headers?: heders)=>{
-    const auth =  getAuth()
-    const token = await auth.currentUser?.getIdToken()
-    console.log(token)
+    let token = null;
+    if(typeof window !== 'undefined'){
+        token = localStorage.getItem("authToken");
+    }
   
     if(!token) return axios.create({baseURL});
 

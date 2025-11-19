@@ -6,6 +6,7 @@ import { HiSparkles } from 'react-icons/hi'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Image from 'next/image'
+import Footer from '@/components/Footer'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
@@ -21,14 +22,14 @@ const Page = () => {
   const [isVisible, setIsVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  
+
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLElement>(null)
   const section2Ref = useRef<HTMLElement>(null)
-  
+
   // Use window scroll instead of container ref to avoid issues
   const { scrollYProgress } = useScroll()
-  
+
   // Smooth spring animation for scroll - faster response
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 300, // Increased from 100 for faster response
@@ -60,7 +61,7 @@ const Page = () => {
       setIsLoading(false)
       setTimeout(() => setIsVisible(true), 50)
     }, 800) // Reduced from 2000ms to 800ms
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -77,14 +78,14 @@ const Page = () => {
                 <HiSparkles className="text-4xl text-purple-400 animate-pulse" />
               </div>
             </div>
-            
+
             {/* Loading Text */}
             <h2 className="text-2xl font-bold text-white mb-2 animate-pulse">ScoutMe.cloud</h2>
             <p className="text-gray-400 text-sm">Loading your experience...</p>
-            
+
             {/* Progress Bar */}
             <div className="w-48 h-1 bg-gray-800 rounded-full mx-auto mt-6 overflow-hidden">
-              <motion.div 
+              <motion.div
                 className="h-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
                 initial={{ width: '0%' }}
                 animate={{ width: '100%' }}
@@ -100,22 +101,22 @@ const Page = () => {
   return (
     <div ref={containerRef} className="min-h-screen bg-black overflow-x-hidden">
       {/* Animated Background Gradient that changes on scroll */}
-      <motion.div 
+      <motion.div
         className="fixed inset-0 z-0"
         style={{ background: backgroundGradient }}
       />
-      
+
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-black/30 backdrop-blur-lg border-b border-purple-500/20 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => router.push('/')}>
-              <Image 
-                src="/logo.png" 
-                alt="ScoutMe.cloud Logo" 
-                width={100} 
-                height={80} 
+              <Image
+                src="/logo.png"
+                alt="ScoutMe.cloud Logo"
+                width={100}
+                height={80}
                 className="rounded-lg  "
               />
               {/* <span className="text-white font-bold text-xl">ScoutMe.cloud</span> */}
@@ -133,22 +134,22 @@ const Page = () => {
 
             {/* CTA Buttons */}
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={() => router.push('/auth')}
                 className="hidden md:block text-gray-300 hover:text-white transition-colors duration-300 font-medium"
               >
                 Sign In
               </button>
-              <button 
+              <button
                 onClick={() => router.push('/auth')}
                 className="hidden md:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/30"
               >
                 <HiSparkles className="text-lg" />
                 Sign Up
               </button>
-              
+
               {/* Mobile Menu Button */}
-          <button
+              <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden text-white p-2 hover:bg-purple-600/20 rounded-lg transition-colors"
               >
@@ -176,9 +177,9 @@ const Page = () => {
       </nav>
 
       {/* Hero Section */}
-      <motion.section 
+      <motion.section
         ref={heroRef}
-        id="home" 
+        id="home"
         className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-to-b from-black via-purple-950/30 to-black"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -186,11 +187,11 @@ const Page = () => {
       >
         {/* Football Field Background Video */}
         <motion.div className="absolute inset-0 opacity-40">
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
           >
             <source src="/videos/demo.mp4" type="video/mp4" />
@@ -198,7 +199,7 @@ const Page = () => {
         </motion.div>
 
         {/* Additional Football Imagery Overlay */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 pointer-events-none opacity-30"
           style={{
             backgroundImage: `
@@ -211,13 +212,13 @@ const Page = () => {
         />
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
             <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight">
-              Premier League 
+              Premier League
               <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">
                 Performance Analytics
@@ -251,9 +252,9 @@ const Page = () => {
       </motion.section>
 
       {/* Section 2: The Core Problem & Solution */}
-      <motion.section 
+      <motion.section
         ref={section2Ref}
-        id="how-it-works" 
+        id="how-it-works"
         className="relative min-h-screen flex items-center justify-center overflow-hidden py-20"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -271,7 +272,7 @@ const Page = () => {
         </motion.div>
 
         {/* Animated Grid Background Overlay with parallax */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 opacity-10 pointer-events-none"
           style={{ y: section2GridY }}
         >
@@ -283,7 +284,7 @@ const Page = () => {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6">
           {/* Headlines */}
-          <motion.div 
+          <motion.div
             className="text-center mb-20"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -298,7 +299,7 @@ const Page = () => {
               </span>
             </h2>
             <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-              Great footage is useless if the right people never see it. Other tools just give you data; 
+              Great footage is useless if the right people never see it. Other tools just give you data;
               <span className="text-purple-400 font-semibold"> we give you exposure.</span>
             </p>
           </motion.div>
@@ -306,7 +307,7 @@ const Page = () => {
           {/* Three-Step How It Works - 3D Cards */}
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {/* Step 1: Upload */}
-            <motion.div 
+            <motion.div
               className="group relative"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -334,7 +335,7 @@ const Page = () => {
                   {/* Content */}
                   <h3 className="text-2xl font-bold text-white mb-4 text-center">Upload Anything</h3>
                   <p className="text-gray-400 text-center leading-relaxed">
-                    If you can film it, we can analyze it. Drag-and-drop video from your phone, camera, drone, 
+                    If you can film it, we can analyze it. Drag-and-drop video from your phone, camera, drone,
                     or paste a link from YouTube or Hudl. <span className="text-purple-400 font-semibold">No special equipment needed.</span>
                   </p>
 
@@ -348,7 +349,7 @@ const Page = () => {
             </motion.div>
 
             {/* Step 2: Analyze */}
-            <motion.div 
+            <motion.div
               className="group relative"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -370,10 +371,10 @@ const Page = () => {
                     </div>
                   </div>
 
-        {/* Content */}
+                  {/* Content */}
                   <h3 className="text-2xl font-bold text-white mb-4 text-center">AI Does the Work</h3>
                   <p className="text-gray-400 text-center leading-relaxed">
-                    Our engine analyzes every frame, tagging players, tracking <span className="text-blue-400 font-semibold">100+ stats</span> (on and off the ball), 
+                    Our engine analyzes every frame, tagging players, tracking <span className="text-blue-400 font-semibold">100+ stats</span> (on and off the ball),
                     and auto-clipping your best moments into shareable highlights.
                   </p>
 
@@ -387,7 +388,7 @@ const Page = () => {
             </motion.div>
 
             {/* Step 3: Discover */}
-            <motion.div 
+            <motion.div
               className="group relative"
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -412,7 +413,7 @@ const Page = () => {
                   {/* Content */}
                   <h3 className="text-2xl font-bold text-white mb-4 text-center">Your Profile is Live</h3>
                   <p className="text-gray-400 text-center leading-relaxed">
-                    <span className="text-cyan-400 font-semibold">This is the magic.</span> Your new stats and highlights are instantly added to your 
+                    <span className="text-cyan-400 font-semibold">This is the magic.</span> Your new stats and highlights are instantly added to your
                     permanent ScoutMe.cloud profile, making you visible to our network of registered clubs and scouts.
                   </p>
 
@@ -424,14 +425,14 @@ const Page = () => {
           </div>
 
           {/* Bottom CTA */}
-          <motion.div 
+          <motion.div
             className="text-center mt-20"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, amount: 0.5 }}
             transition={{ duration: 0.4, delay: 0.3 }}
           >
-            <button 
+            <button
               onClick={() => router.push('/auth')}
               className="group relative px-12 py-5 bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 text-white text-lg font-bold rounded-full overflow-hidden transition-all duration-500 hover:scale-110 hover:shadow-2xl hover:shadow-purple-500/50"
             >
@@ -503,9 +504,9 @@ const Page = () => {
             viewport={{ once: false, amount: 0.5 }}
             transition={{ duration: 0.4 }}
           >
-            <motion.h2 
+            <motion.h2
               className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-tight"
-              animate={{ 
+              animate={{
                 backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
               }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -540,7 +541,7 @@ const Page = () => {
               >
                 {/* Glow Effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                
+
                 {/* Card Content */}
                 <div className="relative bg-gradient-to-br from-purple-900/50 to-pink-900/30 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-8 md:p-10 h-full shadow-2xl overflow-hidden">
                   {/* Animated Corner Accent */}
@@ -551,7 +552,7 @@ const Page = () => {
                   />
 
                   {/* Icon */}
-                  <motion.div 
+                  <motion.div
                     className="w-20 h-20 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/50"
                     whileHover={{ rotate: 360, scale: 1.1 }}
                     transition={{ duration: 0.6 }}
@@ -646,7 +647,7 @@ const Page = () => {
               >
                 {/* Glow Effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-3xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                
+
                 {/* Card Content */}
                 <div className="relative bg-gradient-to-br from-blue-900/50 to-cyan-900/30 backdrop-blur-xl border border-blue-500/30 rounded-3xl p-8 md:p-10 h-full shadow-2xl overflow-hidden">
                   {/* Animated Corner Accent */}
@@ -657,7 +658,7 @@ const Page = () => {
                   />
 
                   {/* Icon */}
-                  <motion.div 
+                  <motion.div
                     className="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/50"
                     whileHover={{ rotate: -360, scale: 1.1 }}
                     transition={{ duration: 0.6 }}
@@ -969,7 +970,7 @@ const Page = () => {
                           </linearGradient>
                         </defs>
                       </svg>
-                      
+
                       {/* Score Number */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <motion.div
@@ -1028,7 +1029,7 @@ const Page = () => {
                   </p>
 
                   <p className="text-base text-gray-400 leading-relaxed mb-8">
-                    It&apos;s the <span className="text-purple-400 font-semibold">first data-driven rating</span> designed to show recruiters your true potential and impact on the game. 
+                    It&apos;s the <span className="text-purple-400 font-semibold">first data-driven rating</span> designed to show recruiters your true potential and impact on the game.
                     Use our AI Coach to get personalized feedback on how to improve your score and elevate your game.
                   </p>
 
@@ -1213,7 +1214,7 @@ const Page = () => {
                   viewport={{ once: false }}
                   transition={{ delay: 0.3 }}
                 >
-                  <span className="text-green-400 font-semibold">ScoutMe.cloud</span> did more than just cut our team&apos;s film. 
+                  <span className="text-green-400 font-semibold">ScoutMe.cloud</span> did more than just cut our team&apos;s film.
                   It built a profile for every player that we could send directly to college coaches.{' '}
                   <span className="text-blue-400 font-semibold">Three of our players received offers</span> specifically because a scout found their verified stats on the platform.{' '}
                   <span className="text-purple-400 font-semibold">It&apos;s a game-changer for visibility.</span>
@@ -1400,111 +1401,7 @@ const Page = () => {
       </motion.section>
 
       {/* Footer */}
-      <motion.footer
-        className="relative bg-black border-t border-gray-800 py-12"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: false }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-6xl mx-auto px-6">
-          {/* Footer Links */}
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false }}
-            transition={{ delay: 0.2 }}
-          >
-            <div>
-              <h4 className="text-white font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="/" className="hover:text-purple-400 transition-colors">Home</a></li>
-                <li><a href="#how-it-works" className="hover:text-purple-400 transition-colors">How We Analyze</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Blog</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">For Players</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="/players" className="hover:text-purple-400 transition-colors">Get Started</a></li>
-                <li><a href="/auth" className="hover:text-purple-400 transition-colors">Create Profile</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Success Stories</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">For Scouts</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="/scouts" className="hover:text-purple-400 transition-colors">Find Talent</a></li>
-                <li><a href="/coaches" className="hover:text-purple-400 transition-colors">Coach Dashboard</a></li>
-                <li><a href="/auth" className="hover:text-purple-400 transition-colors">Connect</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Terms & Conditions</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">FAQ</a></li>
-              </ul>
-            </div>
-          </motion.div>
-
-          {/* Bottom Bar */}
-          <motion.div
-            className="pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: false }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="flex items-center gap-4">
-              <Image 
-                src="/logo.png" 
-                alt="ScoutMe.cloud Logo" 
-                width={50} 
-                height={50} 
-                className="rounded-lg"
-              />
-              <div className="text-gray-400 text-sm">
-                Copyright © 2025 ScoutMe.cloud All Rights Reserved
-              </div>
-            </div>
-            <div className="flex items-center gap-6">
-              <motion.a
-                href="#"
-                className="text-gray-400 hover:text-purple-400 transition-colors"
-                whileHover={{ scale: 1.1 }}
-              >
-                <span className="sr-only">Twitter</span>
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                </svg>
-              </motion.a>
-              <motion.a
-                href="#"
-                className="text-gray-400 hover:text-purple-400 transition-colors"
-                whileHover={{ scale: 1.1 }}
-              >
-                <span className="sr-only">LinkedIn</span>
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                </svg>
-              </motion.a>
-              <motion.a
-                href="#"
-                className="text-gray-400 hover:text-purple-400 transition-colors"
-                whileHover={{ scale: 1.1 }}
-              >
-                <span className="sr-only">Instagram</span>
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987 6.62 0 11.987-5.367 11.987-11.987C24.014 5.367 18.637.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323c-.875.807-2.026 1.297-3.323 1.297zm7.83-9.281h-1.68V5.367h1.68v2.34zm-3.361 5.72c0-1.297-1.054-2.351-2.351-2.351s-2.351 1.054-2.351 2.351 1.054 2.351 2.351 2.351 2.351-1.054 2.351-2.351z"/>
-                </svg>
-              </motion.a>
-            </div>
-          </motion.div>
-        </div>
-      </motion.footer>
+      <Footer />
 
       {/* Add custom animations */}
       <style jsx global>{`
@@ -1612,7 +1509,7 @@ const Page = () => {
           background: linear-gradient(to bottom, #a855f7, #60a5fa);
         }
       `}</style>
-        </div>
+    </div>
   )
 }
 
