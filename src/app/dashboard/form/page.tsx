@@ -18,7 +18,6 @@ const Page = () => {
   const [loading, setLoading] = useState(false)
   // Centralized form state
   const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLineUpSubmissionAuto, setIsLineUpSubmissionAuto] = useState<boolean | undefined>(undefined)
   const { replace } = useRouter()
   interface FormData {
@@ -42,11 +41,12 @@ const Page = () => {
   const handlePrevious = () => setStep(prev => Math.max(1, prev - 1))
 
   const handleNext = async () => {
-    setError('');
-    setLoading(true)
+    setError("");
+    setLoading(true);
+
     try {
       switch (step) {
-        //  STEP 1 — YouTube link validation
+        // STEP 1 — YouTube validation
         case 1: {
           const step1Schema = yup.object({
             matchURL: yup
@@ -57,123 +57,117 @@ const Page = () => {
                 "Please enter a valid YouTube link."
               ),
           });
-          await step1Schema.validate({
-            matchURL: formData.matchURL,
-          });
+
+          await step1Schema.validate({ matchURL: formData.matchURL });
           setStep((prev) => prev + 1);
           break;
         }
 
-        // STEP 2 — Lineup method selection
+        // STEP 2 — image vs manual lineup
         case 2: {
-          // validate yes/no
           if (isLineUpSubmissionAuto === undefined) {
             setError("Please select how you'd like to provide the player lineup.");
             return;
           }
-          // if yes process image and update the player line 
+
+          // Auto image logic
           if (isLineUpSubmissionAuto) {
-            // helper to convert File → Base64
+            if (!formData.lineUpImage) {
+              setError("Please upload a valid Image!");
+              return;
+            }
+
+            // File → Base64
             const fileToBase64 = (file: File): Promise<string> =>
               new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = () => resolve(reader.result as string);
-                reader.onerror = (error) => reject(error);
+                reader.onerror = reject;
               });
 
-            if (!formData.lineUpImage) return setError('Please upload a valid Image!')
-            try {
-              const base64string = await fileToBase64(formData.lineUpImage);
-              console.log(base64string)
+            const base64string = await fileToBase64(formData.lineUpImage);
 
-              const payload = {
-                version: "2.0",
-                routeKey: "POST /",
-                rawPath: "/",
-                rawQueryString: "",
-                headers: {
-                  "content-type": "application/json"
-                },
-                requestContext: {
-                  http: {
-                    method: "POST"
-                  }
-                },
-                body: JSON.stringify({ image: base64string }), // ✅ send base64 in body
-                isBase64Encoded: true
-              };
+            const payload = {
+              version: "2.0",
+              routeKey: "POST /",
+              rawPath: "/",
+              rawQueryString: "",
+              headers: { "content-type": "application/json" },
+              requestContext: { http: { method: "POST" } },
+              body: JSON.stringify({ image: base64string }),
+              isBase64Encoded: true,
+            };
 
-              const url = process.env.NEXT_PUBLIC_IMAGE_ANALYSIS_URL
-              console.log(url)
-              console.log('payload', payload)
-              console.log(url)
-              const res = await axios.post(url!, payload)
-              console.log(res.data)
-              setStep((prev) => prev + 1);
-            } catch (e) {
-              console.log(e)
-              setError('Something went wrong, please try again!')
-            }
-          } else {
-            setStep((prev) => prev + 1);
+            const url = process.env.NEXT_PUBLIC_IMAGE_ANALYSIS_URL!;
+            const res = await axios.post(url, payload);
+            console.log(res.data)
+
+            const parsed = JSON.parse(res.data.body);
+            // prepare players
+            const players: Player[] = parsed.structured_output.starting_xi.map((p:any) => ({
+              name: p.name || '',
+              jerseyNumber: p.number ? String(p.number) : '',
+              position: p.position || '',
+            }));
+          
+
+            // update lineup
+            setFormData((prev) => ({
+              ...prev,
+              players,
+            }));
           }
+
+          setStep((prev) => prev + 1);
+          break;
         }
-        break;
-        //  STEP 3 — Player data validation
+
+        // STEP 3 — player validation + submit
         case 3: {
-          const playerSchema = yup.array()
-            .of(
-              yup.object().shape({
-                name: yup.string().required("Player name is required!"),
-                jerseyNumber: yup
-                  .number()
-                  .typeError("Jersey number must be a number!")
-                  .required("Jersey number is required!"),
-                position: yup
-                  .string()
-                  .oneOf(playerPostition, "Position must be one of the allowed roles!")
-                  .required("Position is required!"),
-              })
-            )
-            .required("Players list is required")
-            .min(11, "You must provide exactly 11 players")
-            .max(11, "You must provide exactly 11 players");
+          const playerSchema = yup.array().of(
+            yup.object().shape({
+              name: yup.string().required(),
+              jerseyNumber: yup.number().typeError("Jersey number must be a number!").required(),
+              position: yup.string()
+                .oneOf(playerPostition, "Position must be one of the allowed roles!")
+                .required(),
+            })
+          );
 
           await playerSchema.validate(formData.players);
-          const client = await getClient()
-          // prepare payload 
+
+          const client = await getClient();
           const payload = {
             videoUrl: formData.matchURL,
             lineUpUrl: formData.lineUpImageURL,
             players: formData.players.map((p) => ({
               ...p,
-              jerseyNumber: Number(p.jerseyNumber), // convert here
+              jerseyNumber: Number(p.jerseyNumber),
             })),
           };
 
-          console.log(payload)
-          const { data } = await client.post('/match/request', payload)
-          console.log('match requested succesfully')
-          toast.success("Your match has been submitted for analysis. We'll notify you once it's ready! ⚡", {
-            duration: 4000,
-            icon: "✅",
-          });
-          replace('/dashboard')
+          await client.post("/match/request", payload);
+
+          toast.success("Your match has been submitted!", { duration: 4000, icon: "✅" });
+          replace("/dashboard");
 
           setStep((prev) => prev + 1);
-
+          break;
         }
-
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       if (err instanceof yup.ValidationError) {
-        setError(err.message)
+        setError(err.message);
       } else {
-        setError('Something went wrong please try again!')
+        setError("Something went wrong please try again!");
       }
+    } finally {
+      // ALWAYS turn loading off here
+      setLoading(false);
     }
-  }
+  };
+
 
 
   // Generic update handler for any field
@@ -299,11 +293,10 @@ const Page = () => {
             Previous
           </button>
           <button
-            className={`text-black border-gray-300 border hover:bg-green-300 w-24 p-1 rounded hover:cursor-pointer relative ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`text-black border-gray-300 border hover:bg-green-300 w-24 p-1 rounded hover:cursor-pointer relative`}
             onClick={handleNext}
-            disabled={isSubmitting}
           >
-            {isSubmitting ? (
+            {loading ? (
               <>
                 <span className="opacity-0">{step !== 3 ? 'Next' : 'Submit'}</span>
                 <div className="absolute inset-0 flex items-center justify-center">

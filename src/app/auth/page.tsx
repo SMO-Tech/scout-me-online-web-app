@@ -34,6 +34,7 @@ const Page = () => {
 
       //  Get the Firebase ID token
       const token = await user.getIdToken(true);
+      console.log(uid)
 
       // 5 If first-time user, register in backend
       if (isNewUser) {
