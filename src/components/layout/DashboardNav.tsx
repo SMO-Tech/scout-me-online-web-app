@@ -47,7 +47,7 @@ export default function DashboardNav() {
 
   const navItems = [
     { label: 'New Upload', icon: <FiUpload className="w-5 h-5" />, href: '/dashboard/form' },
-    { label: 'Library', icon: <FiBookOpen className="w-5 h-5" />, href: '/library' },
+    { label: 'Library', icon: <FiBookOpen className="w-5 h-5" />, href: '/dashboard/library' },
     { label: 'Plans', icon: <FiCreditCard className="w-5 h-5" />, href: '/plans' },
   ];
 
@@ -55,7 +55,7 @@ export default function DashboardNav() {
   const getInitial = (user: User) => user.displayName?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <nav className="bg-white  shadow-lg shadow-black">
+    <nav className="bg-white  shadow-lg ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -105,7 +105,7 @@ export default function DashboardNav() {
                 {isProfileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100">
                     <Link
-                      href="/profile"
+                      href="/dashboard/profile"
                       className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
@@ -174,7 +174,7 @@ export default function DashboardNav() {
             {user && (
               <div className="border-t border-gray-100 pt-2 mt-2">
                 <Link
-                  href="/profile"
+                  href="/dashboard/profile/"
                   className="flex items-center space-x-3 text-gray-700 hover:bg-gray-50 px-3 py-3 rounded-lg transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
