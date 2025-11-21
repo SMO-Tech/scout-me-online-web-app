@@ -1,10 +1,11 @@
 import React from 'react'
 import DashboardNav from '@/components/layout/DashboardNav'
 import ClientPlayerTrackingPage from './ClientPlayerTrackingPage'
+import { STATIC_JOB_UUIDS } from '@/lib/staticJobUuids'
 
 export function generateStaticParams() {
-  // Provide a minimal static path for export
-  return [{ id: 'example-job' }]
+  // Return all static job UUIDs for export
+  return STATIC_JOB_UUIDS.map((id) => ({ id }))
 }
 
 export default function PlayerTrackingPage({ params }: { params: { id: string } }) {
