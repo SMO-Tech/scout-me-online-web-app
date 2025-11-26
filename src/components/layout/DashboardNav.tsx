@@ -1,6 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { IoManOutline } from "react-icons/io5";
 import { useState, useRef, useEffect } from 'react';
 import {
   FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiHeart,
@@ -10,7 +11,7 @@ import { auth } from '@/lib/firebaseConfig';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { User } from 'firebase/auth';
-
+import { HiMiniUserGroup } from "react-icons/hi2";
 export default function DashboardNav() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -47,8 +48,9 @@ export default function DashboardNav() {
 
   const navItems = [
     { label: 'New Upload', icon: <FiUpload className="w-5 h-5" />, href: '/dashboard/form' },
-    { label: 'Library', icon: <FiBookOpen className="w-5 h-5" />, href: '/dashboard/library' },
-    { label: 'Plans', icon: <FiCreditCard className="w-5 h-5" />, href: '/plans' },
+    { label: 'Matches', icon: <FiBookOpen className="w-5 h-5" />, href: '/dashboard/matches' },
+    { label: 'Players', icon: <IoManOutline className="w-5 h-5" />, href: '/plans' },
+    { label: 'Clubs', icon: <HiMiniUserGroup  className="w-5 h-5" />, href: '/clubs' },
   ];
 
   // Helper for initials

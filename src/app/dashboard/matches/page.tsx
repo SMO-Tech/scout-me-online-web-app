@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getClient } from "@/lib/api/client";
+import Link from "next/link";
 
 interface Match {
   id: number;
@@ -93,7 +94,8 @@ export default function LibraryPage() {
                   </h2>
                   <div className="space-y-2">
                     {grouped[status].map((match) => (
-                      <div
+                      <Link
+                      href={`/dashboard/matches/${match.id}`}
                         key={match.id}
                         className="flex justify-between items-center bg-white p-4 rounded-lg shadow hover:shadow-md transition"
                       >
@@ -110,7 +112,7 @@ export default function LibraryPage() {
                         >
                           {match.status}
                         </span>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
