@@ -2,7 +2,7 @@ import axios, { CreateAxiosDefaults } from "axios";
 
 
 
-const  baseURL = process.env.NEXT_PUBLIC_FIREBASE_BASE_URL
+const  baseURL = process.env.NEXT_PUBLIC_BASE_URL
 const client = axios.create({
     baseURL : baseURL
 })

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import {
   FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiHeart,
-  FiCreditCard, FiBookOpen, FiChevronDown
+  FiCreditCard, FiBookOpen, FiChevronDown, FiUsers
 } from 'react-icons/fi';
 import { auth } from '@/lib/firebaseConfig';
 import toast from 'react-hot-toast';
@@ -47,8 +47,9 @@ export default function DashboardNav() {
 
   const navItems = [
     { label: 'New Upload', icon: <FiUpload className="w-5 h-5" />, href: '/dashboard/form' },
-    { label: 'Library', icon: <FiBookOpen className="w-5 h-5" />, href: '/dashboard/library' },
-    { label: 'Plans', icon: <FiCreditCard className="w-5 h-5" />, href: '/plans' },
+    { label: 'Matches', icon: <FiBookOpen className="w-5 h-5" />, href: '/dashboard/library' },
+    { label: 'Scouting profiles', icon: <FiCreditCard className="w-5 h-5" />, href: '/dashboard/scouting-profiles' },
+    { label: 'Clubs', icon: <FiUsers className="w-5 h-5" />, href: '/dashboard/clubs' },
   ];
 
   // Helper for initials
