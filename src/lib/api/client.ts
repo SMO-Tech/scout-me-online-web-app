@@ -1,10 +1,10 @@
 import axios, { CreateAxiosDefaults } from "axios";
 
+// Production API endpoint
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://api.scoutme.cloud";
 
-
-const  baseURL = process.env.NEXT_PUBLIC_FIREBASE_BASE_URL
 const client = axios.create({
-    baseURL : baseURL
+    baseURL: baseURL
 })
 
 

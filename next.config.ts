@@ -4,13 +4,10 @@ import type { NextConfig } from "next";
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
-  // Enable static export
-  output: 'export',
+  // Note: Removed 'output: export' to support dynamic routes like /library/[id]
+  // For static hosting (S3), use query params or deploy to Vercel/Amplify instead
 
-  // Configure for S3 hosting
-  assetPrefix: '/',
-  
-  // Disable server-side features not compatible with static export
+  // Keep trailing slash for cleaner URLs
   trailingSlash: true,
 
   // General settings
