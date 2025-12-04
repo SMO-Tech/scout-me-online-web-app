@@ -2,11 +2,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
-import { useAuth } from "@/lib/AuthContext";
-import { FiSearch, FiFilter, FiUser, FiMapPin, FiCalendar, FiTrendingUp, FiEye, FiStar, FiLock } from "react-icons/fi";
+import { FiSearch, FiFilter, FiUser, FiMapPin, FiCalendar, FiTrendingUp, FiEye, FiStar } from "react-icons/fi";
 
 interface PlayerProfile {
-  id: number;
+  id: string;
   name: string;
   age?: number;
   position?: string;
@@ -75,52 +74,31 @@ const KEY_ATTRIBUTES = [
 
 export default function ScoutingProfilesPage() {
   const router = useRouter();
-  const { user } = useAuth();
   const [profiles, setProfiles] = useState<PlayerProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isSubscribed, setIsSubscribed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("highestPerformer");
   const [showSortMenu, setShowSortMenu] = useState(false);
   
-  // Basic filter states (available to all users)
+  // Filter states
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedLevel, setSelectedLevel] = useState<string>("");
   const [selectedGender, setSelectedGender] = useState<string>("");
   const [selectedProfileType, setSelectedProfileType] = useState<string>("");
   const [selectedAgeMin, setSelectedAgeMin] = useState<string>("");
   const [selectedAgeMax, setSelectedAgeMax] = useState<string>("");
-
-  // Premium filter states (only for subscribed users)
   const [selectedPosition, setSelectedPosition] = useState<string>("");
   const [selectedAttribute, setSelectedAttribute] = useState<string>("");
   const [attributeMinValue, setAttributeMinValue] = useState<string>("");
-
-  // Fetch user subscription status
-  useEffect(() => {
-    const checkSubscription = async () => {
-      try {
-        const client = await getClient();
-        const res = await client.get("/user/subscription");
-        setIsSubscribed(res.data.isSubscribed || false);
-      } catch (err) {
-        console.error("Failed to fetch subscription status", err);
-        setIsSubscribed(false);
-      }
-    };
-    if (user) {
-      checkSubscription();
-    }
-  }, [user]);
 
   const fetchProfiles = async () => {
     setLoading(true);
     try {
       const client = await getClient();
-      // TODO: Update this endpoint to match your API
-      const res = await client.get("/player/profiles/");
-      setProfiles(res.data.data || []);
+      const res = await client.get("player");
+      // API returns: { status: "success", message: "...", data: [...] }
+      setProfiles(res.data?.data || []);
     } catch (err) {
       console.error("Failed to fetch player profiles", err);
       setProfiles([]);
@@ -180,27 +158,23 @@ export default function ScoutingProfilesPage() {
         (!selectedAgeMax || age <= parseInt(selectedAgeMax))
       );
 
-      // Premium filters (only for subscribed users)
-      let matchesPremiumFilters = true;
-      if (isSubscribed) {
-        const matchesPosition = !selectedPosition || profile.position === selectedPosition;
-        
-        let matchesAttribute = true;
-        if (selectedAttribute && profile.attributes) {
-          const attributeValue = profile.attributes[selectedAttribute];
-          if (attributeValue !== undefined) {
-            const minValue = attributeMinValue ? parseInt(attributeMinValue) : 0;
-            matchesAttribute = attributeValue >= minValue;
-          } else {
-            matchesAttribute = false;
-          }
+      // Position filter
+      const matchesPosition = !selectedPosition || profile.position === selectedPosition;
+      
+      // Attribute filter
+      let matchesAttribute = true;
+      if (selectedAttribute && profile.attributes) {
+        const attributeValue = profile.attributes[selectedAttribute];
+        if (attributeValue !== undefined) {
+          const minValue = attributeMinValue ? parseInt(attributeMinValue) : 0;
+          matchesAttribute = attributeValue >= minValue;
+        } else {
+          matchesAttribute = false;
         }
-        
-        matchesPremiumFilters = matchesPosition && matchesAttribute;
       }
 
       return matchesSearch && matchesCountry && matchesLevel && matchesGender && 
-             matchesProfileType && matchesAge && matchesPremiumFilters;
+             matchesProfileType && matchesAge && matchesPosition && matchesAttribute;
     });
 
     // Sort profiles - default to highest performer
@@ -225,7 +199,7 @@ export default function ScoutingProfilesPage() {
     return sorted;
   }, [profiles, searchQuery, selectedCountry, selectedLevel, selectedGender, selectedProfileType, 
       selectedAgeMin, selectedAgeMax, selectedPosition, selectedAttribute, attributeMinValue, 
-      isSubscribed, sortBy]);
+      sortBy]);
 
   const clearFilters = () => {
     setSelectedCountry("");
@@ -250,12 +224,6 @@ export default function ScoutingProfilesPage() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Scouting Profiles</h1>
           <p className="text-sm text-gray-600 mt-1">Discover talented players from around the world</p>
-          {!isSubscribed && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-purple-600 bg-purple-50 px-4 py-2 rounded-lg border border-purple-200">
-              <FiStar className="w-4 h-4" />
-              <span>Upgrade to premium to unlock advanced filters and position-based search</span>
-            </div>
-          )}
         </div>
 
         {/* Search and Filter Bar */}
@@ -446,73 +414,60 @@ export default function ScoutingProfilesPage() {
                 </div>
               </div>
 
-              {/* Premium Filters (Only for Subscribed Users) */}
-              {isSubscribed ? (
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center gap-2 mb-4">
-                    <FiStar className="w-4 h-4 text-purple-600" />
-                    <h3 className="text-sm font-semibold text-gray-700">Premium Filters</h3>
+              {/* Position and Attribute Filters */}
+              <div className="pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Position Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                    <select
+                      value={selectedPosition}
+                      onChange={(e) => setSelectedPosition(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="">All Positions</option>
+                      {POSITION_OPTIONS.map((position) => (
+                        <option key={position} value={position}>{position}</option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Position Filter */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
-                      <select
-                        value={selectedPosition}
-                        onChange={(e) => setSelectedPosition(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      >
-                        <option value="">All Positions</option>
-                        {POSITION_OPTIONS.map((position) => (
-                          <option key={position} value={position}>{position}</option>
-                        ))}
-                      </select>
-                    </div>
 
-                    {/* Attribute Filter */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Key Attribute</label>
-                      <select
-                        value={selectedAttribute}
-                        onChange={(e) => setSelectedAttribute(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      >
-                        <option value="">Select Attribute</option>
-                        {KEY_ATTRIBUTES.map((attr) => (
-                          <option key={attr} value={attr}>
-                            {attr.charAt(0).toUpperCase() + attr.slice(1).replace(/([A-Z])/g, ' $1')}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                  {/* Attribute Filter */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Key Attribute</label>
+                    <select
+                      value={selectedAttribute}
+                      onChange={(e) => setSelectedAttribute(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    >
+                      <option value="">Select Attribute</option>
+                      {KEY_ATTRIBUTES.map((attr) => (
+                        <option key={attr} value={attr}>
+                          {attr.charAt(0).toUpperCase() + attr.slice(1).replace(/([A-Z])/g, ' $1')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                    {/* Attribute Min Value */}
-                    {selectedAttribute && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Min {selectedAttribute.charAt(0).toUpperCase() + selectedAttribute.slice(1).replace(/([A-Z])/g, ' $1')} Value
-                        </label>
-                        <input
-                          type="number"
-                          placeholder="0-100"
-                          value={attributeMinValue}
-                          onChange={(e) => setAttributeMinValue(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                  </div>
+                  {/* Attribute Min Value */}
+                  {selectedAttribute && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Min {selectedAttribute.charAt(0).toUpperCase() + selectedAttribute.slice(1).replace(/([A-Z])/g, ' $1')} Value
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="0-100"
+                        value={attributeMinValue}
+                        onChange={(e) => setAttributeMinValue(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        min="0"
+                        max="100"
+                      />
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="pt-4 border-t border-gray-200 bg-purple-50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 text-purple-700">
-                    <FiLock className="w-4 h-4" />
-                    <span className="text-sm font-medium">Premium filters (Position & Attributes) are available for subscribed users only</span>
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* Clear Filters Button */}
               {hasActiveFilters && (
