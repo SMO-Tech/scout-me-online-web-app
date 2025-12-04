@@ -10,6 +10,7 @@ import { FaFileUpload } from 'react-icons/fa'
 import { playerPostition } from '@/lib/constant'
 import { getClient } from '@/lib/api/client'
 import axios from 'axios'
+import { auth } from '@/lib/firebaseConfig'
 
 // Comprehensive list of countries
 const ALL_COUNTRIES = [
@@ -151,7 +152,7 @@ const Page = () => {
             }),
             matchLevel: yup.string()
               .required("Match level is required")
-              .oneOf(['Professional', 'semiProfessional', 'academicTopTier', 'academicAmateur', 'sundayLeague'], "Please select a valid match level"),
+              .oneOf(['PROFESSIONAL', 'SEMI_PROFESSIONAL', 'ACADEMIC_TOP_TIER', 'ACADEMIC_AMATEUR', 'SUNDAY_LEAGUE'], "Please select a valid match level"),
           });
 
           await step2Schema.validate({
@@ -251,78 +252,195 @@ const Page = () => {
             })
           );
 
-          // Validate only the team that was selected for lineup
-          const teamToValidate = selectedTeamForLineup || 'home';
-          const playersToValidate = teamToValidate === 'home' ? formData.homePlayers : formData.awayPlayers;
-          
-          // Check if all required fields are filled
-          const incompletePlayers = playersToValidate.filter(p => !p.firstName || !p.lastName || !p.jerseyNumber || !p.position);
-          if (incompletePlayers.length > 0) {
-            setError(`Please fill in all details for all 11 players in the ${teamToValidate === 'home' ? 'My' : 'Opponent'} team lineup.`);
+          // Validate My Team (Home) - REQUIRED
+          const incompleteHomePlayers = formData.homePlayers.filter(p => !p.firstName || !p.lastName || !p.jerseyNumber || !p.position);
+          if (incompleteHomePlayers.length > 0) {
+            setError(`Please fill in all details for all 11 players in My Team lineup.`);
             return;
           }
 
-          // Check for invalid positions before validation
-          const invalidPositions = playersToValidate
+          // Check for invalid positions in My Team
+          const invalidHomePositions = formData.homePlayers
             .map((p, idx) => ({ player: idx + 1, position: p.position.trim() }))
             .filter(({ position }) => position && !playerPostition.includes(position));
           
-          if (invalidPositions.length > 0) {
-            const invalidList = invalidPositions.map(({ player, position }) => `Player ${player}: "${position}"`).join(', ');
+          if (invalidHomePositions.length > 0) {
+            const invalidList = invalidHomePositions.map(({ player, position }) => `My Team - Player ${player}: "${position}"`).join(', ');
             setError(`Invalid positions found: ${invalidList}. Please select from the dropdown.`);
             return;
           }
 
-          await playerSchema.validate(playersToValidate);
+          // Validate My Team with schema
+          await playerSchema.validate(formData.homePlayers);
 
-          // Validate substitutions if any are filled (optional but must be valid if filled)
-          const subsToValidate = teamToValidate === 'home' ? formData.homeSubs : formData.awaySubs;
-          const filledSubs = subsToValidate.filter(p => p.firstName || p.lastName || p.jerseyNumber || p.position);
-          if (filledSubs.length > 0) {
+          // Validate Opponent Team (Away) - OPTIONAL
+          // Only validate if user has started filling in opponent players
+          const filledAwayPlayers = formData.awayPlayers.filter(p => p.firstName || p.lastName || p.jerseyNumber || p.position);
+          if (filledAwayPlayers.length > 0) {
+            // If any opponent player field is filled, all 11 must be complete
+            const incompleteAwayPlayers = formData.awayPlayers.filter(p => !p.firstName || !p.lastName || !p.jerseyNumber || !p.position);
+            if (incompleteAwayPlayers.length > 0) {
+              setError(`If you start filling in Opponent Team players, please complete all 11 players. Otherwise, leave all opponent fields empty.`);
+              return;
+            }
+
+            // Check for invalid positions in Opponent Team
+            const invalidAwayPositions = formData.awayPlayers
+              .map((p, idx) => ({ player: idx + 1, position: p.position.trim() }))
+              .filter(({ position }) => position && !playerPostition.includes(position));
+            
+            if (invalidAwayPositions.length > 0) {
+              const invalidList = invalidAwayPositions.map(({ player, position }) => `Opponent Team - Player ${player}: "${position}"`).join(', ');
+              setError(`Invalid positions found: ${invalidList}. Please select from the dropdown.`);
+              return;
+            }
+
+            // Validate Opponent Team with schema
+            await playerSchema.validate(formData.awayPlayers);
+          }
+
+          // Validate substitutions for My Team if any are filled (optional but must be valid if filled)
+          const filledHomeSubs = formData.homeSubs.filter(p => p.firstName || p.lastName || p.jerseyNumber || p.position);
+          if (filledHomeSubs.length > 0) {
             // If any substitution field is filled, all fields for that sub must be filled
-            const incompleteSubs = filledSubs.filter(p => !p.firstName || !p.lastName || !p.jerseyNumber || !p.position);
-            if (incompleteSubs.length > 0) {
-              setError("If you add substitutions, please fill in all details (first name, last name, jersey number, and position) for each substitution.");
+            const incompleteHomeSubs = filledHomeSubs.filter(p => !p.firstName || !p.lastName || !p.jerseyNumber || !p.position);
+            if (incompleteHomeSubs.length > 0) {
+              setError("If you add substitutions for My Team, please fill in all details (first name, last name, jersey number, and position) for each substitution.");
               return;
             }
             // Validate positions for filled substitutions
-            const invalidSubPositions = filledSubs
+            const invalidHomeSubPositions = filledHomeSubs
               .map((p, idx) => ({ sub: idx + 1, position: p.position.trim() }))
               .filter(({ position }) => position && !playerPostition.includes(position));
-            if (invalidSubPositions.length > 0) {
-              const invalidList = invalidSubPositions.map(({ sub, position }) => `Sub ${sub}: "${position}"`).join(', ');
+            if (invalidHomeSubPositions.length > 0) {
+              const invalidList = invalidHomeSubPositions.map(({ sub, position }) => `My Team - Sub ${sub}: "${position}"`).join(', ');
               setError(`Invalid positions in substitutions: ${invalidList}. Please select from the dropdown.`);
               return;
             }
-            await playerSchema.validate(filledSubs);
+            await playerSchema.validate(filledHomeSubs);
+          }
+
+          // Validate substitutions for Opponent Team if any are filled (optional but must be valid if filled)
+          const filledAwaySubs = formData.awaySubs.filter(p => p.firstName || p.lastName || p.jerseyNumber || p.position);
+          if (filledAwaySubs.length > 0) {
+            // If any substitution field is filled, all fields for that sub must be filled
+            const incompleteAwaySubs = filledAwaySubs.filter(p => !p.firstName || !p.lastName || !p.jerseyNumber || !p.position);
+            if (incompleteAwaySubs.length > 0) {
+              setError("If you add substitutions for Opponent Team, please fill in all details (first name, last name, jersey number, and position) for each substitution.");
+              return;
+            }
+            // Validate positions for filled substitutions
+            const invalidAwaySubPositions = filledAwaySubs
+              .map((p, idx) => ({ sub: idx + 1, position: p.position.trim() }))
+              .filter(({ position }) => position && !playerPostition.includes(position));
+            if (invalidAwaySubPositions.length > 0) {
+              const invalidList = invalidAwaySubPositions.map(({ sub, position }) => `Opponent Team - Sub ${sub}: "${position}"`).join(', ');
+              setError(`Invalid positions in substitutions: ${invalidList}. Please select from the dropdown.`);
+              return;
+            }
+            await playerSchema.validate(filledAwaySubs);
           }
 
           const client = await getClient();
+          
+          // Transform clubs data to match API format
+          const clubs = [
+            {
+              name: formData.homeTeam.clubName.trim(),
+              country: formData.homeTeam.country.trim(),
+              jerseyColor: formData.homeTeam.jerseyColor.trim(),
+              teamType: "yourTeam" as const,
+            },
+            {
+              name: formData.awayTeam.clubName.trim(),
+              country: formData.awayTeam.country.trim(),
+              jerseyColor: formData.awayTeam.jerseyColor.trim(),
+              teamType: "opponentTeam" as const,
+            },
+          ];
+
+          // Transform players data to match API format
+          // Combine all players (home + away + subs) with teamType
+          // Filter out empty players (players with missing required fields)
+          const players = [
+            // Home team players - filter out empty players
+            ...formData.homePlayers
+              .filter(p => p.firstName && p.lastName && p.jerseyNumber && p.position)
+              .map((p) => ({
+                firstName: p.firstName.trim(),
+                lastName: p.lastName.trim(),
+                jerseyNumber: Number(p.jerseyNumber),
+                ...(p.dateOfBirth && p.dateOfBirth.trim() ? { dateOfBirth: p.dateOfBirth.trim() } : {}),
+                position: p.position.trim(),
+                country: formData.homeTeam.country.trim(),
+                teamType: "yourTeam" as const,
+              })),
+            // Away team players - filter out empty players
+            ...formData.awayPlayers
+              .filter(p => p.firstName && p.lastName && p.jerseyNumber && p.position)
+              .map((p) => ({
+                firstName: p.firstName.trim(),
+                lastName: p.lastName.trim(),
+                jerseyNumber: Number(p.jerseyNumber),
+                ...(p.dateOfBirth && p.dateOfBirth.trim() ? { dateOfBirth: p.dateOfBirth.trim() } : {}),
+                position: p.position.trim(),
+                country: formData.awayTeam.country.trim(),
+                teamType: "opponentTeam" as const,
+              })),
+            // Home team substitutions
+            ...formData.homeSubs
+              .filter(p => p.firstName && p.lastName && p.jerseyNumber && p.position)
+              .map((p) => ({
+                firstName: p.firstName.trim(),
+                lastName: p.lastName.trim(),
+                jerseyNumber: Number(p.jerseyNumber),
+                ...(p.dateOfBirth && p.dateOfBirth.trim() ? { dateOfBirth: p.dateOfBirth.trim() } : {}),
+                position: p.position.trim(),
+                country: formData.homeTeam.country.trim(),
+                teamType: "yourTeam" as const,
+              })),
+            // Away team substitutions
+            ...formData.awaySubs
+              .filter(p => p.firstName && p.lastName && p.jerseyNumber && p.position)
+              .map((p) => ({
+                firstName: p.firstName.trim(),
+                lastName: p.lastName.trim(),
+                jerseyNumber: Number(p.jerseyNumber),
+                ...(p.dateOfBirth && p.dateOfBirth.trim() ? { dateOfBirth: p.dateOfBirth.trim() } : {}),
+                position: p.position.trim(),
+                country: formData.awayTeam.country.trim(),
+                teamType: "opponentTeam" as const,
+              })),
+          ];
+
           const payload = {
-            videoUrl: formData.matchURL,
-            lineUpUrl: formData.lineUpImageURL,
-            matchLevel: formData.matchLevel,
-            homePlayers: formData.homePlayers.map((p) => ({
-              ...p,
-              jerseyNumber: Number(p.jerseyNumber),
-            })),
-            awayPlayers: formData.awayPlayers.map((p) => ({
-              ...p,
-              jerseyNumber: Number(p.jerseyNumber),
-            })),
-            homeSubs: formData.homeSubs.filter(p => p.firstName && p.lastName && p.jerseyNumber && p.position).map((p) => ({
-              ...p,
-              jerseyNumber: Number(p.jerseyNumber),
-            })),
-            awaySubs: formData.awaySubs.filter(p => p.firstName && p.lastName && p.jerseyNumber && p.position).map((p) => ({
-              ...p,
-              jerseyNumber: Number(p.jerseyNumber),
-            })),
-            homeTeam: formData.homeTeam,
-            awayTeam: formData.awayTeam,
+            videoUrl: formData.matchURL.trim(),
+            ...(formData.lineUpImageURL && formData.lineUpImageURL.trim() ? { lineUpImage: formData.lineUpImageURL.trim() } : {}),
+            matchLevel: formData.matchLevel.trim(),
+            clubs,
+            players,
           };
 
-          await client.post("/match/request", payload);
+          // Refresh Firebase token before making the request
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            const freshToken = await currentUser.getIdToken(true);
+            localStorage.setItem("authToken", freshToken);
+          }
+
+          // Check if token exists
+          const token = localStorage.getItem("authToken");
+          if (!token) {
+            setError("You are not authenticated. Please log in again.");
+            toast.error("Authentication required. Please log in again.");
+            return;
+          }
+
+          // Log payload for debugging (remove in production)
+          console.log("Submitting match with payload:", JSON.stringify(payload, null, 2));
+          console.log("Auth token exists:", !!token);
+
+          await client.post("/match", payload);
 
           toast.success("Your match has been submitted!", { duration: 4000, icon: "✅" });
           replace("/dashboard");
@@ -334,17 +452,60 @@ const Page = () => {
     } catch (err: any) {
       if (err instanceof yup.ValidationError) {
         setError(err.message);
-      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('CONNECTION_REFUSED') || err.message?.includes('Network Error')) {
-        setError("Cannot connect to the server. Please make sure the backend server is running and check your API configuration.");
+      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('CONNECTION_REFUSED') || err.message?.includes('Network Error') || err.code === 'ECONNREFUSED') {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
+        const errorMsg = baseURL 
+          ? `Cannot connect to the server at ${baseURL}. Please make sure the backend server is running.`
+          : "API base URL is not configured. Please set NEXT_PUBLIC_BASE_URL in your environment variables.";
+        setError(errorMsg);
         toast.error("Connection error: Backend server is not reachable. Please check if the server is running.");
+        console.error("API Error Details:", {
+          message: err.message,
+          code: err.code,
+          baseURL: baseURL || "NOT SET",
+          config: err.config?.url,
+        });
       } else if (err.response) {
         // Server responded with error status
-        const errorMessage = err.response.data?.message || err.response.data?.error || "Server error occurred";
+        const responseData = err.response.data;
+        let errorMessage = responseData?.message || responseData?.error || "Server error occurred";
+        
+        // Handle "User not found" error specifically
+        if (errorMessage.toLowerCase().includes('user not found') || errorMessage.toLowerCase().includes('user not found!')) {
+          errorMessage = "User not found. Please make sure you're logged in and your account is registered. Try logging out and logging back in.";
+          toast.error("Authentication issue: User not found. Please try logging in again.");
+        }
+        
+        // Handle validation errors - check for common validation error formats
+        if (responseData?.errors || responseData?.details || responseData?.validation) {
+          const validationErrors = responseData.errors || responseData.details || responseData.validation;
+          
+          // If it's an array of errors
+          if (Array.isArray(validationErrors)) {
+            errorMessage = validationErrors.map((err: any) => 
+              typeof err === 'string' ? err : err.message || err.msg || JSON.stringify(err)
+            ).join('\n');
+          } 
+          // If it's an object with field-specific errors
+          else if (typeof validationErrors === 'object') {
+            const fieldErrors = Object.entries(validationErrors)
+              .map(([field, message]) => `${field}: ${message}`)
+              .join('\n');
+            errorMessage = `Validation failed:\n${fieldErrors}`;
+          }
+        }
+        
         setError(errorMessage);
-        toast.error(errorMessage);
+        toast.error(errorMessage.length > 100 ? "Error occurred. Check the error message below." : errorMessage);
+        console.error("Server Error Response:", {
+          status: err.response.status,
+          data: responseData,
+          payload: err.config?.data ? JSON.parse(err.config.data) : null,
+        });
       } else {
         setError(err.message || "Something went wrong please try again!");
         toast.error("An error occurred. Please try again.");
+        console.error("Unexpected Error:", err);
       }
     } finally {
       // ALWAYS turn loading off here
@@ -523,11 +684,11 @@ const Page = () => {
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-300"
                 >
                   <option value="">Select Match Level</option>
-                  <option value="Professional">Professional</option>
-                  <option value="semiProfessional">Semi Professional</option>
-                  <option value="academicTopTier">Academic Top Tier</option>
-                  <option value="academicAmateur">Academic Amateur</option>
-                  <option value="sundayLeague">Sunday League</option>
+                  <option value="PROFESSIONAL">PROFESSIONAL</option>
+                  <option value="SEMI_PROFESSIONAL">SEMI_PROFESSIONAL</option>
+                  <option value="ACADEMIC_TOP_TIER">ACADEMIC_TOP_TIER</option>
+                  <option value="ACADEMIC_AMATEUR">ACADEMIC_AMATEUR</option>
+                  <option value="SUNDAY_LEAGUE">SUNDAY_LEAGUE</option>
                 </select>
               </div>
             </div>

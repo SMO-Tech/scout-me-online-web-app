@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
 import { FiPlus, FiSearch, FiFilter, FiUsers, FiMapPin, FiCalendar, FiEye, FiShare2, FiCopy, FiCheck } from "react-icons/fi";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 interface Club {
   id: string;
@@ -66,7 +67,8 @@ export default function ClubsPage() {
     setLoading(true);
     try {
       const client = await getClient();
-      const res = await client.get("/clubs");
+      const res = await client.get("/club/");
+      console
       // API returns: { status: "success", message: "...", data: [...] }
       setClubs(res.data?.data || []);
     } catch (err) {
@@ -341,12 +343,12 @@ export default function ClubsPage() {
             </div>
 
             {/* Club Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols- sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredAndSortedClubs.map((club) => (
-                <div
-                  key={club.id}
+                <Link
+                  href={`/dashboard/clubs/${club.id}`}
                   className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1 border border-gray-200"
-                  onClick={() => router.push(`/dashboard/clubs/${club.id}`)}
+
                 >
                   {/* Club Logo/Placeholder */}
                   <div className="h-48 bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center relative">
@@ -364,7 +366,7 @@ export default function ClubsPage() {
                   </div>
 
                   {/* Club Content */}
-                  <div className="p-5">
+                  <div className="p-8">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{club.name}</h3>
                     
                     {/* Basic Info */}
@@ -390,7 +392,7 @@ export default function ClubsPage() {
                       </button>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </>
