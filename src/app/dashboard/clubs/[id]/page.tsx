@@ -103,7 +103,7 @@ export default function ClubDetailPage() {
       
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Back Button */}
+        {/* Back Buton */}
         <button
           onClick={() => router.push("/dashboard/clubs")}
           className="flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-6 transition-colors"
