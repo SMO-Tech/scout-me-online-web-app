@@ -47,7 +47,7 @@ const ALL_COUNTRIES = [
 // Gender options
 const GENDER_OPTIONS = ["Male", "Female"];
 
-export default function LibraryPage() {
+export default function Matches() {
   const router = useRouter();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
