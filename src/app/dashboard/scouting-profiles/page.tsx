@@ -177,27 +177,44 @@ export default function ScoutingProfilesPage() {
                     Unclaimed
                   </button>
                 )}
-                {/* COMPARE CHECKBOX */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleCompare(profile.id);
-                  }}
-                  disabled={
-                    compareList.length === 2 &&
-                    !compareList.includes(profile.id)
-                  }
-                  className={`absolute top-3 left-3 w-5 h-5 rounded border flex items-center justify-center text-xs font-bold transition
-    ${compareList.includes(profile.id)
-                      ? "bg-purple-600 border-purple-600 text-white"
-                      : compareList.length === 2
-                        ? "bg-gray-100 border-gray-300 text-transparent cursor-not-allowed opacity-50"
-                        : "bg-white border-gray-300 text-transparent hover:border-purple-400"
+                <div className="absolute top-3 left-3 flex items-center space-x-1 z-10">
+                  {/* COMPARE CHECKBOX BUTTON */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleCompare(profile.id);
+                    }}
+                    disabled={
+                      compareList.length === 2 &&
+                      !compareList.includes(profile.id)
                     }
-  `}
-                >
-                  ✓
-                </button>
+                    // Positioning classes (absolute top-3 left-3) removed from here
+                    className={`w-5 h-5 rounded border flex items-center justify-center text-xs font-bold transition flex-shrink-0
+        ${compareList.includes(profile.id)
+                        ? "bg-purple-600 border-purple-600 text-white"
+                        : compareList.length === 2
+                          ? "bg-gray-100 border-gray-300 text-transparent cursor-not-allowed opacity-50"
+                          : "bg-white border-gray-300 text-transparent hover:border-purple-400"
+                      } 
+      `}
+                  >
+                    ✓
+                  </button>
+
+                  {/* The word "Compare" placed next to the button */}
+                  <span
+                    className={`text-sm font-medium transition-colors duration-200 hidden sm:block
+        ${compareList.includes(profile.id)
+                        ? "text-purple-600" // Text turns purple when selected
+                        : compareList.length === 2
+                          ? "text-gray-400 cursor-not-allowed" // Text is grayed out when disabled
+                          : "text-gray-700 hover:text-purple-600" // Normal state
+                      }
+      `}
+                  >
+                    Compare
+                  </span>
+                </div>
 
 
 
