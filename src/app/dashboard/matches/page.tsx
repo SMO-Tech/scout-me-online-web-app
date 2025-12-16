@@ -74,6 +74,7 @@ export default function Matches() {
       const client = await getClient();
       const res = await client.get("/match/");
       setMatches(res.data.data || []);
+      console.log(res.data)
     } catch (err) {
       console.error("Failed to fetch matches", err);
       setMatches([]);
