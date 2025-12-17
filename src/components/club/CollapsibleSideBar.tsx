@@ -4,6 +4,7 @@ import { FiChevronLeft } from "react-icons/fi";
 import ClubHeaderCard from "./ClubHeaderCard";
 import FormationStats from "./FormationStats";
 import CustomSearch from "./CustomeSearch";
+import WinLoseStat from "./WinLoseStat";
 
 // 1. Define the props expected from the parent (ClubDetailPage)
 interface SidebarProps {
@@ -66,6 +67,7 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({ isExpanded, toggleSidebar 
                 
                 {/* We pass the prop down to children so they can hide text/change layout */}
                 <ClubHeaderCard isExpanded={isExpanded} />
+                <WinLoseStat isExpanded={isExpanded} />
                 <FormationStats isExpanded={isExpanded} />
                 <CustomSearch isExpanded={isExpanded} />
                 
