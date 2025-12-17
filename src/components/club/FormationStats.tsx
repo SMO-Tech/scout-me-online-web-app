@@ -15,10 +15,7 @@ const FormationStats: React.FC<Props> = ({ isExpanded }) => {
     // Mini view when collapsed (optional, helps keep sidebar clean)
     if (!isExpanded) {
         return (
-            <div className="mt-4 flex flex-col items-center justify-center p-2 text-gray-500 hover:text-purple-400 transition cursor-pointer" title="Formation Stats">
-                <FiActivity size={24} />
-                <span className="text-[10px] mt-1 font-bold">64%</span>
-            </div>
+            null
         );
     }
 
