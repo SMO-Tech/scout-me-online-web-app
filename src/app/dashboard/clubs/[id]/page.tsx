@@ -1,51 +1,47 @@
 'use client';
 
 import { useState } from "react";
-import { FiMenu } from "react-icons/fi";
+import { FiArrowLeft, FiMenu } from "react-icons/fi";
 import CollapsibleSidebar, { TabType } from "@/components/club/CollapsibleSideBar";
 import AnalyticsView from "@/components/club/Views/AnalytisView";
+import ProfileView from "@/components/club/Views/ProfileView";
+import MatchesView from "@/components/club/Views/MatchView";
+import { useRouter } from "next/navigation";
 
-
-// Placeholder Views for Profile and Events
-const ProfileView = () => (
-  <div className="p-10 bg-[#1b1c28] border border-[#3b3e4e] rounded-xl text-center text-gray-400 animate-fadeIn">
-    <h2 className="text-2xl font-bold text-white mb-2">Club Profile</h2>
-    <p>General club information, history, and settings will go here.</p>
-  </div>
-);
-
-const EventsView = () => (
-  <div className="p-10 bg-[#1b1c28] border border-[#3b3e4e] rounded-xl text-center text-gray-400 animate-fadeIn">
-    <h2 className="text-2xl font-bold text-white mb-2">Upcoming Events</h2>
-    <p>Match schedules, training sessions, and calendar integration.</p>
-  </div>
-);
 
 export default function ClubDetailPage() {
   // 1. Sidebar State
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+  const router = useRouter()
+
   // 2. Tab State (Default to 'analytics' since that's what we built)
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
 
   return (
     <div className="min-h-screen bg-[#14151b] text-white p-4 sm:p-8">
       <div className="max-w-[1920px] mx-auto">
-        
+        {/* Back */}
+        <button
+          onClick={() => router.push("/dashboard/clubs")}
+          className="flex bg-gray-700 p-2 rounded-lg items-center gap-2 text-gray-200 mb-6"
+        >
+          <FiArrowLeft /> Back to Clubs
+        </button>
+
         {/* Mobile Trigger */}
         <div className="lg:hidden mb-6 flex items-center gap-3">
-            <button 
-                onClick={() => setIsMobileOpen(true)}
-                className="p-2 bg-[#1b1c28] border border-[#3b3e4e] rounded-lg text-white hover:bg-[#252834] transition flex items-center gap-2"
-            >
-                <FiMenu size={20} />
-                <span className="text-sm font-semibold">Menu</span>
-            </button>
-            <span className="text-gray-500 text-sm">|</span>
-            <span className="text-purple-400 font-bold uppercase tracking-wide text-sm">
-                {activeTab}
-            </span>
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 bg-[#1b1c28] border border-[#3b3e4e] rounded-lg text-white hover:bg-[#252834] transition flex items-center gap-2"
+          >
+            <FiMenu size={20} />
+            <span className="text-sm font-semibold">Menu</span>
+          </button>
+          <span className="text-gray-500 text-sm">|</span>
+          <span className="text-purple-400 font-bold uppercase tracking-wide text-sm">
+            {activeTab}
+          </span>
         </div>
 
         {/* Main Grid Layout */}
@@ -57,7 +53,7 @@ export default function ClubDetailPage() {
               : "80px minmax(0, 1fr)",
           }}
         >
-          
+
           {/* SIDEBAR CONTROLLER */}
           <CollapsibleSidebar
             isExpanded={isSidebarOpen}
@@ -71,9 +67,9 @@ export default function ClubDetailPage() {
 
           {/* DYNAMIC CONTENT AREA */}
           <main className="min-w-0">
-             {activeTab === 'profile' && <ProfileView />}
-             {activeTab === 'analytics' && <AnalyticsView />}
-             {activeTab === 'events' && <EventsView />}
+            {activeTab === 'profile' && <ProfileView />}
+            {activeTab === 'analytics' && <AnalyticsView />}
+            {activeTab === 'events' && <MatchesView />}
           </main>
 
         </div>

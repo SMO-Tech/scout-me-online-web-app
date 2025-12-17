@@ -15,13 +15,17 @@ import FormationStats from "../FormationStats";
 export default function AnalyticsView() {
   return (
     <div className="space-y-6 animate-fadeIn"> {/* Added animation class */}
-      
+
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_350px] gap-6">
         <div className="space-y-6">
-          {/* Metrics */}
+          {/* D. CIRCULAR METRICS ROW */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {STATIC_METRICS.map((metric) => (
-              <CircularMetricCard key={metric.title} metric={metric} />
+              <CircularMetricCard
+                key={metric.title}
+                metric={metric}
+                matchesPlayed={5} // <--- Pass the number of matches here
+              />
             ))}
           </div>
 
@@ -30,7 +34,7 @@ export default function AnalyticsView() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white">Data: Shooting from last 5 matches</h2>
               <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Image src="/images/new-logo.png" alt="logo" width={80} height={24} className="opacity-90" />
+                <Image src="/images/new-logo.png" alt="logo" width={80} height={24} className="opacity-90" />
               </div>
             </div>
             <div className="h-96 w-full">
