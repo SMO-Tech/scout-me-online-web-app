@@ -4,7 +4,7 @@ export const STATIC_METRICS = [
         value: "60x",
         total: 100, // Total attempts
         made: 60,   // Attempts made
-        breakdown: "10x / 30x / 20x", // Breakdown of type/location
+        breakdown: "10x", // Breakdown of type/location
         color: "#4ADE80", // Green (for goal-oriented stats)
     },
     {
@@ -12,7 +12,7 @@ export const STATIC_METRICS = [
         value: "17x",
         total: 100,
         made: 17,
-        breakdown: "5x / 5x / 7x",
+        breakdown: "5x",
         color: "#1E90FF", // Blue
     },
     {
@@ -20,7 +20,7 @@ export const STATIC_METRICS = [
         value: "43x",
         total: 100,
         made: 43,
-        breakdown: "6x / 18x / 19x",
+        breakdown: "6x",
         color: "#B388FF", // Purple/Violet
     },
     {

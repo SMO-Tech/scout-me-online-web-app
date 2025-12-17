@@ -346,6 +346,7 @@ export default function ClubsPage() {
             <div className="grid grid-cols- sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredAndSortedClubs.map((club) => (
                 <Link
+                key={club.id}
                   href={`/dashboard/clubs/${club.id}`}
                   className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-1 border border-gray-200"
 

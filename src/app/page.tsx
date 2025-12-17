@@ -6,7 +6,7 @@ import { HiSparkles } from 'react-icons/hi'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Image from 'next/image'
-import Footer from '@/components/Footer'
+import Footer from '@/components/layout/Footer'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
