@@ -69,7 +69,7 @@ export default function ClubDetailPage() {
           {/* DYNAMIC CONTENT AREA */}
           <main className="min-w-0">
             {activeTab === 'profile' && <ProfileView />}
-            {activeTab === 'analytics' && <AnalyticsView />}
+            {activeTab === 'analytics' && <AnalyticsView  />}
             {activeTab === 'events' && <MatchesView />}
           </main>
 

@@ -46,7 +46,7 @@ export default function DashboardNav() {
   };
 
   const navItems = [
-    { label: 'New Upload', icon: <FiUpload className="w-5 h-5" />, href: '/dashboard/form' },
+    { label: 'New Upload', icon: <FiUpload color='#61E9FF' className="w-5 h-5" />, href: '/dashboard/form' },
     { label: 'Matches', icon: <FiBookOpen className="w-5 h-5" />, href: '/dashboard/matches' },
     { label: 'Scouting profiles', icon: <FiCreditCard className="w-5 h-5" />, href: '/dashboard/scouting-profiles' },
     { label: 'Clubs', icon: <FiUsers className="w-5 h-5" />, href: '/dashboard/clubs' },
