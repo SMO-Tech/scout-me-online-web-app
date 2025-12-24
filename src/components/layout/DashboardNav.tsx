@@ -61,8 +61,8 @@ export default function DashboardNav() {
           <Image
             src="/images/match.png"
             alt="Matches"
-            width={34}
-            height={34}
+            width={40}
+            height={40}
             className="relative z-10 w-full h-full"
           />
         </div>
@@ -76,8 +76,8 @@ export default function DashboardNav() {
           <Image
             src="/images/player.png"
             alt="Scouting"
-            width={24}
-            height={24}
+            width={40}
+            height={40}
             className="relative z-10 w-full h-full"
           />
         </div>
@@ -91,8 +91,8 @@ export default function DashboardNav() {
           <Image
             src="/images/club.png"
             alt="Clubs"
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="relative z-10 w-full h-full"
           />
         </div>
@@ -105,7 +105,7 @@ export default function DashboardNav() {
   const getInitial = (user: User) => user.displayName?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <nav className="bg-black backdrop-blur-md shadow-lg border-b border-gray-700/30">
+    <nav className="bg-black backdrop-blur-md h-20 flex justify-between items-center shadow-lg border-b border-gray-700/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
