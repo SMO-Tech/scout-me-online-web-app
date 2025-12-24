@@ -30,7 +30,8 @@ const CircularMetricCard: React.FC<MetricCardProps> = ({
   matchesPlayed = 5
 }) => {
 
-  const focus = useSyncExternalStore(subscribe, getSnapshot);
+  // The third argument () => false tells the server to default focus to 'false'
+  const focus = useSyncExternalStore(subscribe, getSnapshot, () => false);
 
   const parsedValue = Number(
     typeof metric.value === "string"

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import CollapsibleSidebar from "@/components/club/CollapsibleSideBar"
 import AnalyticsView from "@/components/club/Views/AnalytisView" // The analytics logic
 import PlayerProfileView from '@/components/Player/PlayerProfileView';
+import PlayerEventsView from '@/components/Player/PlayerEventsView';
 
 
 const PlayerDetailPage = () => {
@@ -65,6 +66,7 @@ const PlayerDetailPage = () => {
           <main className="min-w-0">
             {activeTab === 'profile' && <PlayerProfileView />}
             {activeTab === 'analytics' && <AnalyticsView />}
+            {activeTab === 'events' && <PlayerEventsView />}
           </main>
 
         </div>

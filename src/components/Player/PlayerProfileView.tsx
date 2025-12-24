@@ -1,44 +1,23 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { 
   FiUser, FiCalendar, FiMapPin, FiShield, 
   FiClock, FiDatabase, FiCopy, FiCheck, FiAlertCircle, FiLock 
 } from 'react-icons/fi'
-import { getClient } from '@/lib/api/client'
+import { useFetchPlayerProfile } from '@/hooks'
+// Import the custom hook we created
+
 
 const PlayerProfileView = () => {
   const params = useParams()
-  const playerId = params.id
-
-  const [player, setPlayer] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const playerId = params.id as string
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
-    const fetchPlayer = async () => {
-      if (!playerId) return
-      setLoading(true)
-      try {
-        const client = await getClient()
-        const response = await client.get(`/player/${playerId}`)
-        const playerData = response.data?.data || response.data || response
-        setPlayer(playerData)
-      } catch (error) {
-        console.error("Error fetching player:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchPlayer()
-  }, [playerId])
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  // 1. CALL THE CUSTOM HOOK
+  // This replaces your entire useEffect and manual fetchPlayer logic
+  const { data: player, isLoading } = useFetchPlayerProfile(playerId);
 
   const getAge = (dob?: string) => {
     if (!dob || dob === "01-01-1900") return "N/A";
@@ -53,8 +32,15 @@ const PlayerProfileView = () => {
     } catch (e) { return "N/A"; }
   };
 
-  if (loading) return <div className="p-8 animate-pulse bg-[#1b1c28] rounded-2xl h-64" />
-  if (!player) return <div className="p-12 text-center text-red-400">Profile not found.</div>
+  // 2. HANDLE LOADING STATE
+  if (isLoading) return <div className="p-8 animate-pulse bg-[#1b1c28] rounded-2xl h-64" />
+  
+  // 3. HANDLE EMPTY STATE
+  if (!player) return (
+    <div className="p-12 text-center bg-[#1b1c28] rounded-2xl border border-[#3b3e4e]">
+      <p className="text-gray-400">Player profile not found.</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -103,14 +89,14 @@ const PlayerProfileView = () => {
               </div>
               <div className="space-y-1">
                 <span className="text-gray-500 text-[10px] uppercase font-bold flex items-center gap-1.5"><FiClock className="text-purple-500" /> Registered</span>
-                <p className="text-sm font-semibold text-gray-200">{new Date(player.createdAt).getFullYear()}</p>
+                <p className="text-sm font-semibold text-gray-200">{player.createdAt ? new Date(player.createdAt).getFullYear() : 'N/A'}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. UNCLAIMED NOTICE (Coming Soon State) */}
+      {/* 2. UNCLAIMED NOTICE */}
       {player.status === "UNCLAIMED" && (
         <div className="bg-[#1b1c28] border border-orange-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 border-dashed">
           <div className="flex items-center gap-4 text-center md:text-left flex-col md:flex-row">
@@ -140,23 +126,7 @@ const PlayerProfileView = () => {
           <h3 className="text-xs font-black uppercase text-gray-500 mb-6 flex items-center gap-2 tracking-widest">
             <FiDatabase className="text-purple-500" /> Registry Details
           </h3>
-          <div className="space-y-5">
-            <div 
-              onClick={() => copyToClipboard(player.id)}
-              className="group p-3 bg-[#14151b] rounded-xl border border-[#3b3e4e] cursor-pointer hover:border-purple-500/50 transition-all relative"
-            >
-               <div className="flex justify-between items-center mb-1">
-                 <span className="text-gray-500 text-[9px] uppercase font-bold tracking-tighter">Unique Identifier</span>
-                 {copied ? <FiCheck className="text-green-500" size={12} /> : <FiCopy className="text-gray-600 group-hover:text-purple-500" size={12} />}
-               </div>
-               <p className="text-[11px] font-mono text-gray-400 truncate">
-                {player.id.substring(0, 18)}...
-               </p>
-               <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                 Click to copy full ID
-               </span>
-            </div>
-            
+          <div className="space-y-5">      
             <div className="flex justify-between items-center py-1 text-sm">
               <span className="text-gray-400">Ownership</span>
               <span className="text-white font-medium">{player.ownerId ? 'Assigned' : 'Open Access'}</span>

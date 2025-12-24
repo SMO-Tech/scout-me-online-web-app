@@ -149,7 +149,7 @@ const Page = () => {
               </button>
 
               {/* Mobile Menu Button */}
-          <button
+              <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden text-white p-2 hover:bg-purple-600/20 rounded-lg transition-colors"
               >
@@ -371,7 +371,7 @@ const Page = () => {
                     </div>
                   </div>
 
-        {/* Content */}
+                  {/* Content */}
                   <h3 className="text-2xl font-bold text-white mb-4 text-center">AI Does the Work</h3>
                   <p className="text-gray-400 text-center leading-relaxed">
                     Our engine analyzes every frame, tagging players, tracking <span className="text-blue-400 font-semibold">100+ stats</span> (on and off the ball),
@@ -1050,7 +1050,7 @@ const Page = () => {
                     ))}
                   </div>
                 </motion.div>
-          </div>
+              </div>
 
               {/* Bottom Stats Bar */}
               <motion.div

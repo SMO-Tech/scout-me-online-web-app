@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/lib/AuthContext";
 import { Toaster } from "react-hot-toast";
+import TanstackProvider from "@/lib/TanStackProvider";
 
 export const metadata: Metadata = {
   title: "Scout Me Online",
@@ -19,8 +20,10 @@ export default function RootLayout({
       <body className="antialiased">
         <ThemeProvider>
           <AuthProvider>
+            <TanstackProvider>
             {children}
             <Toaster position="top-right" />
+            </TanstackProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
