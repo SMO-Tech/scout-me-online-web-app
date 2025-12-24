@@ -7,6 +7,7 @@ import AnalyticsView from "@/components/club/Views/AnalytisView";
 import ProfileView from "@/components/club/Views/ProfileView";
 import MatchesView from "@/components/club/Views/MatchView";
 import { useRouter } from "next/navigation";
+import { DUMMY_METRICS } from "@/staticdata/club";
 
 
 export default function ClubDetailPage() {

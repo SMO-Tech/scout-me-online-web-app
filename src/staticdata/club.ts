@@ -39,3 +39,28 @@ export const STATIC_CLUB_DATA = {
     logoUrl: "https://example.com/hashtag-logo.png", 
     id: "HAS001",
 };
+
+// dummy-metrics.ts
+export const DUMMY_METRICS = [
+  {
+    title: "Attempts",
+    value: 45,
+    total: 45,
+    made: 0,          // not really used for this card
+    color: "#38bdf8",
+  },
+  {
+    title: "Goals",
+    value: 12,
+    total: 45,
+    made: 12,
+    color: "#a855f7",
+  },
+  {
+    title: "Assists",
+    value: 7,
+    total: 7,
+    made: 7,
+    color: "#22c55e",
+  },
+];

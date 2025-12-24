@@ -8,9 +8,6 @@ import ShotTrajectoryCard from "@/components/club/ShotTrajectory";
 import { STATIC_METRICS } from "@/staticdata/club";
 import Image from "next/image";
 import DetailedStatTables from "../DetailedStatTables";
-import ClubHeaderCard from "../ClubHeaderCard";
-import WinLoseStat from "../WinLoseStat";
-import FormationStats from "../FormationStats";
 
 export default function AnalyticsView() {
   return (
