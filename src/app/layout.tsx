@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/lib/AuthContext";
 import { Toaster } from "react-hot-toast";
 import TanstackProvider from "@/lib/TanStackProvider";
+import { nasaFont } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "Scout Me Online",
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className={`antialiased ${nasaFont.className}`}>
         <ThemeProvider>
           <AuthProvider>
             <TanstackProvider>

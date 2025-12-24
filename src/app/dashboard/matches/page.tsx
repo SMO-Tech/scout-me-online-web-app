@@ -2,8 +2,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
-import { 
-    FiPlus, FiSearch, FiFilter, FiEye, FiUserPlus, FiFlag 
+import {
+    FiPlus, FiSearch, FiFilter, FiEye, FiUserPlus, FiFlag
 } from "react-icons/fi";
 
 // ============================================================================
@@ -51,7 +51,7 @@ interface Match extends BaseMatch {
     teamName: string;
     opponentName: string;
     score: string;
-    country: string | undefined; 
+    country: string | undefined;
 }
 
 type SortOption = "recent" | "oldest" | "mostViewed";
@@ -62,7 +62,7 @@ type SortOption = "recent" | "oldest" | "mostViewed";
 
 export default function Matches() {
     const router = useRouter();
-    
+
     // State with explicit Types
     const [matches, setMatches] = useState<BaseMatch[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -74,7 +74,7 @@ export default function Matches() {
         setLoading(true);
         try {
             const client = await getClient();
-            const res = await client.get("/match/all-match"); 
+            const res = await client.get("/match/all-match");
             setMatches(res.data.data || []);
         } catch (err) {
             console.error("Failed to fetch matches", err);
@@ -95,18 +95,18 @@ export default function Matches() {
             const awayClub = match.matchClubs.find(c => !c.isUsersTeam);
             const homeScore = match.result?.homeScore ?? '-';
             const awayScore = match.result?.awayScore ?? '-';
-            
-            return { 
-                ...match, 
+
+            return {
+                ...match,
                 teamName: homeClub?.name || 'Home Team',
                 opponentName: awayClub?.name || 'Opponent',
                 score: `${homeScore} - ${awayScore}`,
-                country: homeClub?.country, 
+                country: homeClub?.country,
             };
         });
 
         const filtered = derived.filter((m) => {
-            const matchesSearch = !searchQuery || 
+            const matchesSearch = !searchQuery ||
                 m.teamName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 m.opponentName.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesLevel = !selectedLevel || m.level === selectedLevel;
@@ -122,13 +122,13 @@ export default function Matches() {
     }, [matches, searchQuery, selectedLevel, sortBy]);
 
     return (
-        <div className="min-h-screen bg-[#05060B] text-white p-4 sm:p-10 font-sans selection:bg-cyan-500/30">
+        <div className="min-h-screen bg-[#05060B] text-white p-4 sm:p-10 selection:bg-cyan-500/30">
             <div className="max-w-7xl mx-auto">
-                
+
                 {/* TOP NAV & TITLES */}
                 <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
                     <div className="space-y-2">
-                        <h1 className="text-5xl font-black italic tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">
+                        <h1 className="text-5xl font-black italic tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r text-white">
                             Match Events
                         </h1>
                         <p className="text-cyan-400/60 font-mono text-sm tracking-widest uppercase">
@@ -141,14 +141,14 @@ export default function Matches() {
                             <button className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-500/30 transition-all active:scale-95">
                                 Fast Event
                             </button>
-                            <button 
+                            <button
                                 onClick={() => router.push("/dashboard/form")}
                                 className="bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
                             >
                                 Create New Event
                             </button>
                         </div>
-                        
+
                         {/* ARRANGE BY (PILL DESIGN) */}
                         <div className="flex items-center gap-4 bg-[#0B0D19]/80 backdrop-blur-md p-2 rounded-2xl border border-white/5">
                             <span className="text-blue-500 font-bold text-[10px] uppercase tracking-widest pl-2">Arrange by:</span>
@@ -157,18 +157,15 @@ export default function Matches() {
                                     <button
                                         key={id}
                                         onClick={() => setSortBy(id)}
-                                        className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 ${
-                                            sortBy === id ? "bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : "bg-white/5 hover:bg-white/10"
-                                        }`}
+                                        className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 ${sortBy === id ? "bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : "bg-white/5 hover:bg-white/10"
+                                            }`}
                                     >
-                                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] border font-bold ${
-                                            sortBy === id ? "border-white" : "border-blue-500 text-blue-500"
-                                        }`}>
+                                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] border font-bold ${sortBy === id ? "border-white" : "border-blue-500 text-blue-500"
+                                            }`}>
                                             {idx + 1}
                                         </span>
-                                        <span className={`text-[10px] font-black uppercase tracking-tighter ${
-                                            sortBy === id ? "text-white" : "text-blue-500"
-                                        }`}>
+                                        <span className={`text-[10px] font-black uppercase tracking-tighter ${sortBy === id ? "text-white" : "text-blue-500"
+                                            }`}>
                                             {id.replace("mostViewed", "Popular")}
                                         </span>
                                     </button>
@@ -181,7 +178,7 @@ export default function Matches() {
                 {/* SEARCH SECTION */}
                 <div className="mb-12 relative group">
                     <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
-                    <input 
+                    <input
                         type="text"
                         placeholder="SEARCH MATCHES OR TEAMS..."
                         value={searchQuery}
@@ -204,10 +201,10 @@ export default function Matches() {
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="relative">
                                         <div className="w-12 h-12 rounded-full border-2 border-red-500 p-0.5">
-                                            <img 
-                                                src={`https://ui-avatars.com/api/?name=${match.user.name}&background=random`} 
-                                                className="w-full h-full rounded-full object-cover" 
-                                                alt="user" 
+                                            <img
+                                                src={`https://ui-avatars.com/api/?name=${match.user.name}&background=random`}
+                                                className="w-full h-full rounded-full object-cover"
+                                                alt="user"
                                             />
                                         </div>
                                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0B0D19] rounded-full"></div>
@@ -226,8 +223,8 @@ export default function Matches() {
 
                                 {/* Thumbnail */}
                                 <div className="relative aspect-video w-full rounded-3xl overflow-hidden mb-6 border border-white/5 shadow-inner group-hover:border-white/10 transition-colors">
-                                    <img 
-                                        src={match.lineUpImage || "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400"} 
+                                    <img
+                                        src={match.lineUpImage || "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400"}
                                         className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                                         alt="Match Preview"
                                     />
@@ -254,7 +251,7 @@ export default function Matches() {
                                             <span className="text-xs font-black italic">{match.views || 0}</span>
                                         </div>
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={() => router.push(`/dashboard/matches/${match.id}`)}
                                         className="bg-cyan-400 hover:bg-cyan-300 text-black px-10 py-2.5 rounded-xl font-black italic text-[10px] uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] active:scale-95"
                                     >
