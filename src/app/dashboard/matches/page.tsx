@@ -56,10 +56,6 @@ interface Match extends BaseMatch {
 
 type SortOption = "recent" | "oldest" | "mostViewed";
 
-// ============================================================================
-// 2. MAIN COMPONENT
-// ============================================================================
-
 export default function Matches() {
     const router = useRouter();
 
@@ -190,7 +186,7 @@ export default function Matches() {
                 {/* GRID */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-40 gap-4">
-                        <div className="w-12 h-12 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(34,211,238,0.2)]"></div>
+                        <div className="w-12 h-12 border-2 border-purple-700 border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(34,211,238,0.2)]"></div>
                         <span className="text-[10px] font-black tracking-[0.3em] text-cyan-400/40 uppercase">Loading Data</span>
                     </div>
                 ) : (
@@ -200,7 +196,7 @@ export default function Matches() {
                                 {/* User Header */}
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="relative">
-                                        <div className="w-12 h-12 rounded-full border-2 border-red-500 p-0.5">
+                                        <div className="w-12 h-12 rounded-full border-4 border-purple-600 p-0.5">
                                             <img
                                                 src={`https://ui-avatars.com/api/?name=${match.user.name}&background=random`}
                                                 className="w-full h-full rounded-full object-cover"
@@ -255,7 +251,7 @@ export default function Matches() {
                                         onClick={() => router.push(`/dashboard/matches/${match.id}`)}
                                         className="bg-cyan-400 hover:bg-cyan-300 text-black px-10 py-2.5 rounded-xl font-black italic text-[10px] uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] active:scale-95"
                                     >
-                                        Analyze Match
+                                        View Match
                                     </button>
                                 </div>
                             </div>
