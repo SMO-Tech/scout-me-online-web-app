@@ -1,161 +1,319 @@
 'use client'
-import { auth, facebookProvider, googleProvider } from '@/lib/firebaseConfig';
-import { getAdditionalUserInfo, getAuth, signInWithPopup } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from 'react-icons/fa';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation'; // Added useSearchParams
+import {
+  auth,
+  facebookProvider,
+  googleProvider
+} from '@/lib/firebaseConfig';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  getAdditionalUserInfo,
+  updateProfile,
+  sendPasswordResetEmail,
+  confirmPasswordReset // Added this
+} from 'firebase/auth';
 import { getClient } from '@/lib/api/client';
 import { useAuth } from '@/lib/AuthContext';
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
-const Page = () => {
-  const router = useRouter()
-  const [error, setError] = useState('')
-  const [loadingG, setIsLoadingG] = useState(false)
-  const [loadingF, setIsLoadingF] = useState(false)
+// ============================================================================
+// AUTH PAGE COMPONENT
+// ============================================================================
+const AuthPage = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams(); // To detect the code in the URL
+  const { user: currentUser } = useAuth();
 
-  const handleGoogleAuth = async () => {
-    setIsLoadingG(true)
-    setError('')
-    try {
-      //  Trigger Google Sign-In popup
-      const res = await signInWithPopup(auth, googleProvider);
+  // View State
+  const [isLogin, setIsLogin] = useState(true);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false); // New state for reset mode
 
-      //  Extract user info
-      const user = res.user;
-      const { displayName, email, photoURL, uid, phoneNumber } = user;
+  // Form State
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState(''); // New state for reset
+  const [username, setUsername] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
+  const [error, setError] = useState('');
 
-      //  Check if it’s a new user
-      const info = getAdditionalUserInfo(res);
-      const isNewUser = info?.isNewUser;
+  // Get the oobCode from URL
+  const oobCode = searchParams.get('oobCode');
 
-      console.log('phoneNumber', phoneNumber)
-
-
-      //  Get the Firebase ID token
-      const token = await user.getIdToken(true);
-      console.log(uid)
-
-      // 5 If first-time user, register in backend
-      if (isNewUser) {
-        try {
-          const client = await getClient()
-          const res = await client.post('/user/register', {
-            "name": displayName,
-            "email": email,
-            "phone": phoneNumber,
-            "photoUrl": photoURL,
-            "UID": uid
-          })
-          console.log(res.data)
-
-        } catch (e: any) {
-          console.log(e.response.data)
-        }
-      }
-
-      // Redirect after backend finishes
-      router.push("/dashboard");
-      setIsLoadingG(false)
-    } catch (e: any) {
-      setIsLoadingG(false)
-      setError("Something went wrong: " + e.message);
-    }
+  const actionCodeSettings = {
+    // URL changed to use window.location if possible, or fixed string
+    url: typeof window !== 'undefined' ? `${window.location.origin}/auth` : 'http://localhost:3000/auth',
+    handleCodeInApp: true,
   };
 
-
-  const handleFacebookAuth = async () => {
-    setError('')
-    setIsLoadingF(true)
-    try {
-      // 1. Trigger the Facebook sign-in popup
-      const res = await signInWithPopup(auth, facebookProvider);
-
-      // 2. Extract user info from the result
-      const user = res.user;
-      const { displayName, email, photoURL, uid, phoneNumber } = user;
-
-      // 3. Check if first-time sign-in (same as Google)
-      const info = getAdditionalUserInfo(res);
-      console.log(info);
-      const isNewUser = info?.isNewUser;
-
-      console.log("User Info:", { displayName, email, photoURL, uid });
-      console.log("First time user?", isNewUser);
-
-
-
-      // get the Firebase ID Token of the current user
-      const token = await auth.currentUser?.getIdToken();
-
-      // 4. Call your API for saving user Data if it's a new user
-      // if (isNewUser) {
-      try {
-        const client = await getClient()
-        const res = await client.post('/user/register', {
-          "name": displayName,
-          "email": email,
-          "phone": phoneNumber,
-          "photoUrl": photoURL,
-          "UID": uid
-        })
-        console.log(res.data)
-
-      } catch (e: any) {
-        console.log(e.response.data)
-      }
-      // }
-
-      // 5. After successful login redirect to dashboard
-      router.push('/dashboard');
-      setIsLoadingF(false)
-
-    } catch (e) {
-      setIsLoadingF(false)
-      setError('Something went wrong: ' + e);
-    }
-  };
-
-  const { user } = useAuth()
-
+  // Protect Route & Check for Reset Code
   useEffect(() => {
-    if (user === undefined) return; // Firebase still loading session
-    if (user === null) router.replace("/auth");
-  }, [user, router]);
+    if (currentUser && !oobCode) {
+      router.replace("/dashboard");
+    }
+    if (oobCode) {
+      setIsResettingPassword(true);
+    }
+  }, [currentUser, router, oobCode]);
 
-  return (
-    (
-      <div className="w-screen h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-indigo-800 flex flex-col items-center justify-center px-4">
-        {/* Auth Card */}
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-10 w-full max-w-md flex flex-col items-center text-center animate-fadeIn">
-          <h1 className="text-white text-4xl font-extrabold tracking-wide mb-4">
-            Scout<span className="text-purple-300">Me</span>
-          </h1>
-          <p className="text-gray-200 text-base mb-8">
-            Sign in securely to get started with your player analytics.
-          </p>
+  // --------------------------------------------------------------------------
+  // LOGIC: BACKEND SYNCHRONIZATION
+  // --------------------------------------------------------------------------
+  const syncWithBackend = async (user: any, name?: string) => {
+    try {
+      const client = await getClient();
+      await client.post('/user/register', {
+        "name": name || user.displayName || "New Scout",
+        "email": user.email,
+        "phone": user.phoneNumber || "",
+        "photoUrl": user.photoURL || "",
+        "UID": user.uid
+      });
+    } catch (e: any) {
+      console.error("Database Sync Error:", e.response?.data || e.message);
+    }
+  };
 
-          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+  // --------------------------------------------------------------------------
+  // LOGIC: AUTH HANDLERS
+  // --------------------------------------------------------------------------
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
-          <button
-            onClick={handleGoogleAuth}
-            className="flex items-center justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
-          >
-            <FcGoogle size={24} />
-            {!loadingG ? 'Continue with Google' : 'loading...'}
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+        toast.success("Welcome back to the Portal");
+      } else {
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(res.user, { displayName: username });
+        await syncWithBackend(res.user, username);
+        toast.success("Scout Profile Initialized");
+      }
+      router.push("/dashboard");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-          </button>
-          <button
-            onClick={handleFacebookAuth}
-            className="flex items-center  mt-5 justify-center gap-3 bg-white text-gray-800 font-semibold py-3 px-5 rounded-full shadow-md hover:bg-gray-100 transition-all duration-200 w-full"
-          >
-            <FaFacebook size={24} />
-            {!loadingF ? 'Continue with Facebook' : 'loading...'}
+  const handleSocialAuth = async (provider: any) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const res = await signInWithPopup(auth, provider);
+      const isNewUser = getAdditionalUserInfo(res)?.isNewUser;
 
-          </button>
+      if (isNewUser) {
+        await syncWithBackend(res.user);
+      }
+
+      toast.success("Identity Verified");
+      router.push("/dashboard");
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
+      toast.success("Reset link sent to your inbox");
+      setShowResetModal(false);
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
+  // NEW HANDLER: For the actual password update
+  const handleConfirmPasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!oobCode) return;
+    setIsLoading(true);
+
+    try {
+      await confirmPasswordReset(auth, oobCode, newPassword);
+      toast.success("Password updated! Please login.");
+      setIsResettingPassword(false);
+      router.replace('/auth');
+    } catch (err: any) {
+      toast.error("Link expired or invalid. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // RENDER RESET PASSWORD UI (When returning from email)
+  if (isResettingPassword) {
+    return (
+      <div className="min-h-screen bg-[#05060B] flex flex-col items-center justify-center px-4">
+        <div className="bg-[#0B0D19] border border-cyan-500/30 p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl">
+          <h1 className="text-white text-3xl font-black italic uppercase mb-2 tracking-tighter">New Password</h1>
+          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-8">Enter your new security credentials below.</p>
+          <form onSubmit={handleConfirmPasswordReset} className="space-y-6">
+            <input
+              type="password" required value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="NEW PASSWORD"
+              className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all"
+            />
+            <button
+              disabled={isLoading}
+              type="submit"
+              className="w-full bg-cyan-400 hover:bg-cyan-300 text-black font-black italic py-4 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all uppercase text-xs tracking-widest"
+            >
+              {isLoading ? 'Updating...' : 'Update Password'}
+            </button>
+          </form>
         </div>
       </div>
-    ))
-}
+    );
+  }
 
-export default Page
+  return (
+    <div className="min-h-screen bg-[#05060B] flex flex-col items-center justify-center px-4">
+      {/* Background Ambience */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* Auth Card */}
+      <div className="bg-[#0B0D19]/90 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] shadow-2xl p-8 w-full max-w-md relative z-10">
+
+        {/* Brand Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-white text-5xl font-black italic tracking-tighter uppercase leading-none">
+            Scout<span className="text-cyan-400">Me</span>
+          </h1>
+          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-3">
+            {isLogin ? "Terminal Identification" : "Register Personnel"}
+          </p>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-widest">
+            {error}
+          </div>
+        )}
+
+        {/* Auth Form */}
+        <form onSubmit={handleEmailAuth} className="space-y-4">
+          {!isLogin && (
+            <div className="space-y-1">
+              <label className="text-cyan-400 text-[10px] font-black uppercase tracking-widest ml-1">Username</label>
+              <input
+                type="text" required value={username} onChange={(e) => setUsername(e.target.value)}
+                className="w-full bg-black/40 border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all placeholder:text-gray-800"
+                placeholder="FULL NAME"
+              />
+            </div>
+          )}
+          <div className="space-y-1">
+            <label className="text-cyan-400 text-[10px] font-black uppercase tracking-widest ml-1">Email</label>
+            <input
+              type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-black/40 border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all placeholder:text-gray-800"
+              placeholder="SCOUT@ACADEMY.COM"
+            />
+          </div>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center pr-1">
+              <label className="text-cyan-400 text-[10px] font-black uppercase tracking-widest ml-1">Password</label>
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={() => setShowResetModal(true)}
+                  className="text-gray-300 hover:text-cyan-400 text-[9px] font-bold uppercase transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              )}
+            </div>
+            <input
+              type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-black/40 border border-white/5 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all"
+            />
+          </div>
+
+          <button
+            disabled={isLoading}
+            type="submit"
+            className="w-full bg-cyan-400 hover:bg-cyan-300 text-black font-black italic py-4 rounded-xl shadow-[0_4px_20px_rgba(34,211,238,0.2)] transition-all active:scale-[0.98] disabled:opacity-50 text-xs tracking-widest uppercase mt-4"
+          >
+            {isLoading ? 'Executing...' : isLogin ? 'Login' : 'Register'}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="relative flex items-center justify-center my-10">
+          <div className="border-t border-white/5 w-full"></div>
+          <span className="bg-[#0B0D19] px-4 text-[9px] text-gray-700 font-bold uppercase absolute tracking-[0.3em]">External Links</span>
+        </div>
+
+        {/* Social Buttons */}
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => handleSocialAuth(googleProvider)}
+            className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/5 py-3 rounded-xl hover:bg-white/10 transition-all"
+          >
+            <FcGoogle size={18} />
+            <span className="text-[10px] font-bold text-white uppercase tracking-widest">Google</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSocialAuth(facebookProvider)}
+            className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/5 py-3 rounded-xl hover:bg-white/10 transition-all"
+          >
+            <FaFacebook size={18} className="text-[#1877F2]" />
+            <span className="text-[10px] font-bold text-white uppercase tracking-widest">Facebook</span>
+          </button>
+        </div>
+
+        {/* Toggle Mode */}
+        <p className="mt-10 text-center">
+          <button
+            type="button"
+            onClick={() => { setIsLogin(!isLogin); setError(''); }}
+            className="text-[10px] font-bold text-gray-500 hover:text-cyan-400 uppercase tracking-widest transition-colors"
+          >
+            {isLogin ? "Create a new account!" : "Existing Member? Return to SignIn"}
+          </button>
+        </p>
+      </div>
+
+      {/* PASSWORD RESET MODAL */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0B0D19] border border-white/10 p-8 rounded-[2rem] w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-white text-xl font-black italic uppercase tracking-tighter mb-2">Reset Security Key</h3>
+            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-6 leading-relaxed">Enter your email to receive recovery instructions.</p>
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <input
+                type="email" required value={resetEmail} onChange={(e) => setResetEmail(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500/50 outline-none"
+                placeholder="SCOUT@EMAIL.COM"
+              />
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setShowResetModal(false)} className="flex-1 py-3 text-[10px] font-black uppercase text-gray-500 hover:text-white transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 bg-cyan-400 hover:bg-cyan-300 text-black py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Send link</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AuthPage;
