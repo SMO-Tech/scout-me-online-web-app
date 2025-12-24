@@ -9,9 +9,7 @@ import {
 } from 'react-icons/fi';
 import { useRouter } from "next/navigation";
 
-// ============================================================================
-// 1. INTERFACES (Matching the full Prisma query response)
-// ============================================================================
+
 interface CanonicalClub { id: string; logoUrl: string | null; }
 
 export interface MatchPlayerStats {

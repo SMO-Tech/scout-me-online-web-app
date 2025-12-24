@@ -105,15 +105,13 @@ export default function DashboardNav() {
   const getInitial = (user: User) => user.displayName?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <nav className="bg-[rgba(20,20,25,0.85)] backdrop-blur-md shadow-lg border-b border-gray-700/30">
+    <nav className="bg-black backdrop-blur-md shadow-lg border-b border-gray-700/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-white">
-                Scout<span className="text-purple-500">Me</span>
-              </span>
+              <Image className='mt-2' src={"/images/new-logo.png"} width={80} height={70} alt={'website logo'} />
             </Link>
           </div>
 
