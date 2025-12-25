@@ -46,14 +46,12 @@ const AuthPage = () => {
   const mode = searchParams.get("mode");
 
   const oobCode = searchParams.get("oobCode");
-
+  const url =process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   const actionCodeSettings = {
-    url:
-      typeof window !== "undefined"
-        ? `${window.location.origin}/auth`
-        : "http://localhost:3000/auth",
-    handleCodeInApp: true,
-  };
+  url: `${url}/auth`,
+  handleCodeInApp: true,
+};
+
 
   // Protect Route & Check for Reset Code
   useEffect(() => {
