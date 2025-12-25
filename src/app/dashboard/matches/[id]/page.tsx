@@ -184,7 +184,7 @@ const MatchDetailPage = () => {
     const [error, setError] = useState<string | null>(null);
 
     // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
-    /*
+
     useEffect(() => {
         if (!matchId) return;
 
@@ -209,7 +209,7 @@ const MatchDetailPage = () => {
 
         fetchMatchDetails();
     }, [matchId]);
-    */
+ 
 
     if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
 
