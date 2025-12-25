@@ -134,9 +134,9 @@ export default function Matches() {
 
                     <div className="flex flex-wrap items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <button className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-500/30 transition-all active:scale-95">
+                            {/* <button className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-cyan-500/30 transition-all active:scale-95">
                                 Fast Event
-                            </button>
+                            </button> */}
                             <button
                                 onClick={() => router.push("/dashboard/form")}
                                 className="bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
@@ -179,7 +179,7 @@ export default function Matches() {
                         placeholder="SEARCH MATCHES OR TEAMS..."
                         value={searchQuery}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                        className="w-full bg-[#0B0D19]/50 border border-white/5 rounded-2xl py-4 pl-14 pr-6 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:text-gray-700 backdrop-blur-sm"
+                        className="w-full bg-[#0B0D19]/50 border border-white/50 rounded-2xl py-4 pl-14 pr-6 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:text-gray-400 backdrop-blur-sm"
                     />
                 </div>
 
