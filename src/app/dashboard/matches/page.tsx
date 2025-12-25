@@ -5,6 +5,7 @@ import { getClient } from "@/lib/api/client";
 import {
     FiPlus, FiSearch, FiFilter, FiEye, FiUserPlus, FiFlag
 } from "react-icons/fi";
+import { dummyMatches } from "@/staticdata/match";
 
 // ============================================================================
 // 1. TYPES & INTERFACES (Strict TS)
@@ -29,7 +30,7 @@ interface UploaderData {
     name: string;
 }
 
-interface BaseMatch {
+export interface BaseMatch {
     id: string;
     userId: string;
     videoUrl: string;
@@ -60,8 +61,8 @@ export default function Matches() {
     const router = useRouter();
 
     // State with explicit Types
-    const [matches, setMatches] = useState<BaseMatch[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [matches, setMatches] = useState<BaseMatch[]>(dummyMatches);  // passing dummy Match Now
+    const [loading, setLoading] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [sortBy, setSortBy] = useState<SortOption>("recent");
     const [selectedLevel, setSelectedLevel] = useState<string>("");
@@ -80,9 +81,9 @@ export default function Matches() {
         }
     };
 
-    useEffect(() => {
-        fetchMatches();
-    }, []);
+    // useEffect(() => {
+    //     fetchMatches();
+    // }, []);
 
     // Derived Data & Filtering Logic
     const filteredAndSortedMatches = useMemo((): Match[] => {
