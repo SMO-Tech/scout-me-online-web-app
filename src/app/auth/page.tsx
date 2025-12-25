@@ -46,7 +46,7 @@ const AuthPage = () => {
   const mode = searchParams.get("mode");
 
   const oobCode = searchParams.get("oobCode");
-  const url =process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000d"
+  const url =process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   const actionCodeSettings = {
   url: `${url}/auth`,
   handleCodeInApp: true,
