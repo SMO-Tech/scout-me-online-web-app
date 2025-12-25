@@ -46,10 +46,10 @@ export default function DashboardNav() {
 
   const navItems = [
     {
-      label: 'New Upload',
+      label: 'New Analysis',
       icon: (
         <div className="relative w-6 h-6 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
-          <FiUpload color='#61E9FF' className="relative z-10 w-full h-full" />
+          <FiUpload color='#61E9FF' size={10} className="relative z-10 w-full h-full" />
         </div>
       ),
       href: '/dashboard/form'
@@ -105,7 +105,7 @@ export default function DashboardNav() {
   const getInitial = (user: User) => user.displayName?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <nav className="bg-black backdrop-blur-md h-20 flex justify-between items-center shadow-lg border-b border-gray-700/30">
+    <nav className="bg-black backdrop-blur-md h-20 items-center pt-3 shadow-lg border-b border-gray-700/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
