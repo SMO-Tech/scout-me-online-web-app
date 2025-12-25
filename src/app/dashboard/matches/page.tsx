@@ -81,9 +81,9 @@ export default function Matches() {
         }
     };
 
-    useEffect(() => {
-        fetchMatches();
-    }, []);
+    // useEffect(() => {
+    //     fetchMatches();
+    // }, []);
 
     // Derived Data & Filtering Logic
     const filteredAndSortedMatches = useMemo((): Match[] => {

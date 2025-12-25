@@ -185,30 +185,30 @@ const MatchDetailPage = () => {
 
     // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
 
-    useEffect(() => {
-        if (!matchId) return;
+    // useEffect(() => {
+    //     if (!matchId) return;
 
-        const fetchMatchDetails = async () => {
-            setLoading(true);
-            setError(null);
+    //     const fetchMatchDetails = async () => {
+    //         setLoading(true);
+    //         setError(null);
             
-            try {
-                const client = await getClient(); 
-                const response = await client.get(`/match/${matchId}`);
-                console.log(response.data)
-                setMatchData(response.data.data as MatchDetail);
-            } catch (err: any) {
-                console.error("Failed to fetch match details:", err);
-                const errorMessage = err.response?.data?.error || err.message || "Unknown error occurred.";
-                setError(errorMessage);
-                setMatchData(null);
-            } finally {
-                setLoading(false);
-            }
-        };
+    //         try {
+    //             const client = await getClient(); 
+    //             const response = await client.get(`/match/${matchId}`);
+    //             console.log(response.data)
+    //             setMatchData(response.data.data as MatchDetail);
+    //         } catch (err: any) {
+    //             console.error("Failed to fetch match details:", err);
+    //             const errorMessage = err.response?.data?.error || err.message || "Unknown error occurred.";
+    //             setError(errorMessage);
+    //             setMatchData(null);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchMatchDetails();
-    }, [matchId]);
+    //     fetchMatchDetails();
+    // }, [matchId]);
  
 
     if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
