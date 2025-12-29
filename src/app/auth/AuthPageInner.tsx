@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 // ============================================================================
 // AUTH PAGE COMPONENT
@@ -47,11 +48,11 @@ const AuthPage = () => {
   const mode = searchParams.get("mode");
 
   const oobCode = searchParams.get("oobCode");
-  const url =process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const url = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   const actionCodeSettings = {
-  url: `${url}/auth`,
-  handleCodeInApp: true,
-};
+    url: `${url}/auth`,
+    handleCodeInApp: true,
+  };
 
 
   // Protect Route & Check for Reset Code
@@ -249,11 +250,10 @@ const AuthPage = () => {
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="bg-[#0B0D19]/90 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] shadow-2xl p-8 w-full max-w-md relative z-10">
-        <div className="text-center mb-10">
-          <h1 className="text-white text-5xl font-black italic tracking-tighter uppercase leading-none">
-            Scout<span className="text-cyan-400">Me</span>
-          </h1>
-          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-3">
+        <div className="text-center items-center justify-center flex flex-col mb-10">
+
+          <Image onClick={() => router.push('/')} src={"/images/new-logo.png"} alt={"scout me logo"} width={200} height={80} />
+          <p className="text-gray-200 text-[10px] font-bold uppercase tracking-[0.4em] mt-3">
             {isLogin ? "Login" : "Register"}
           </p>
         </div>
@@ -348,7 +348,7 @@ const AuthPage = () => {
 
         <div className="relative flex items-center justify-center my-10">
           <div className="border-t border-white/5 w-full"></div>
-          <span className="bg-[#0B0D19] px-4 text-[9px] text-gray-700 font-bold uppercase absolute tracking-[0.3em]">
+          <span className="bg-[#0B0D19] px-4 text-[9px] text-gray-200 font-bold uppercase absolute tracking-[0.3em]">
             External Links
           </span>
         </div>
@@ -383,7 +383,7 @@ const AuthPage = () => {
               setIsLogin(!isLogin);
               setError("");
             }}
-            className="text-[10px] font-bold text-gray-500 hover:text-cyan-400 uppercase tracking-widest transition-colors"
+            className="text-[10px] font-bold text-gray-200 hover:text-cyan-400 uppercase tracking-widest transition-colors"
           >
             {isLogin
               ? "Create a new account!"
