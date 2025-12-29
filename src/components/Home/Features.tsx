@@ -42,7 +42,7 @@ const features: Feature[] = [
     
     ],
     icon: <FaSearch />,
-    image: '/assets/images/dashboard-2.jpeg'
+    image: '/images/dashboard-2.jpeg'
   },
   {
     id: 'ai-action-tagging',
@@ -52,7 +52,7 @@ const features: Feature[] = [
      
     ],
     icon: <FaTags />,
-    video: '/assets/videos/features/video 1.mp4'
+    video: '/videos/features/video 1.mp4'
   },
   {
     id: 'intelligent-heat-map',
@@ -62,7 +62,7 @@ const features: Feature[] = [
       
     ],
     icon: <FaMap />,
-    video: '/assets/videos/features/video 2.mp4'
+    video: '/videos/features/video 2.mp4'
   },
   {
     id: 'clarity-certainty',
@@ -72,7 +72,7 @@ const features: Feature[] = [
      
     ],
     icon: <FaCheckCircle />,
-    video: '/assets/videos/features/video 3.mp4'
+    video: '/videos/features/video 3.mp4'
   },
   {
     id: 'intelligent-goal-post',
@@ -82,7 +82,7 @@ const features: Feature[] = [
      
     ],
     icon: <FaFutbol />,
-    video: '/assets/videos/features/video 4.mp4'
+    video: '/videos/features/video 4.mp4'
   },
   {
     id: 'line-of-graph',
@@ -92,7 +92,7 @@ const features: Feature[] = [
       
     ],
     icon: <FaChartLine />,
-    video: '/assets/videos/features/video 5.mp4'
+    video: '/videos/features/video 5.mp4'
   },
   {
     id: 'instant-rankings',
@@ -102,7 +102,7 @@ const features: Feature[] = [
     
     ],
     icon: <FaTrophy />,
-    video: '/assets/videos/features/video 6.mp4'
+    video: '/videos/features/video 6.mp4'
   },
   {
     id: 'tagged-replays',
@@ -112,7 +112,7 @@ const features: Feature[] = [
     
     ],
     icon: <FaVideo />,
-    video: '/assets/videos/features/7.mp4'
+    video: '/videos/features/7.mp4'
   }
   
 ]

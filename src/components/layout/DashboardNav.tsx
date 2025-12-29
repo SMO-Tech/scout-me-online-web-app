@@ -105,7 +105,7 @@ export default function DashboardNav() {
   const getInitial = (user: User) => user.displayName?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <nav className="bg-black backdrop-blur-md h-20 items-center pt-3 shadow-lg border-b border-gray-700/30">
+    <nav className="bg-black backdrop-blur-md h-20 items-center pt-3 shadow-lg border-b border-gray-700/30 relative z-[1000]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
