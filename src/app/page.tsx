@@ -14,6 +14,7 @@ import SectionThree from '@/components/Home/SectionThree'
 import SectionFour from '@/components/Home/SectionFour'
 import UserJourney from '@/components/Home/UserJourney'
 import Achievements from '@/components/Home/Achievements'
+import Link from 'next/link'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
@@ -95,14 +96,14 @@ const Page = () => {
             <p className="text-gray-400 text-sm">Loading your experience...</p>
 
             {/* Progress Bar */}
-            {/* <div className="w-48 h-1 bg-gray-800 rounded-full mx-auto mt-6 overflow-hidden">
+            <div className="w-48 h-1 bg-gray-800 rounded-full mx-auto mt-6 overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
                 initial={{ width: '0%' }}
                 animate={{ width: '100%' }}
                 transition={{ duration: 0.8, ease: "easeInOut" }}
               />
-            </div> */}
+            </div>
 
           </div>
         </div>
@@ -139,20 +140,16 @@ const Page = () => {
 
             {/* Actions */}
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push('/auth')}
-                className="hidden md:block text-gray-300 hover:text-white transition font-medium"
-              >
-                Sign In
-              </button>
-
-              <button
-                onClick={() => router.push('/auth')}
-                className="hidden md:flex items-center gap-2 px-6 h-10 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full font-semibold transition transform hover:scale-105 shadow-lg shadow-purple-500/30"
-              >
-                <HiSparkles className="text-lg" />
-                Sign Up
-              </button>
+              <div className="flex items-center gap-4 sm:gap-6">
+                <a
+                  href="/auth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 sm:px-6 font-semibold text-white hover:text-gray-300 transition-colors duration-200 smofonts"
+                >
+                  Login / Register
+                </a>
+              </div>
 
               {/* Mobile Toggle */}
               <button
@@ -170,19 +167,15 @@ const Page = () => {
               }`}
           >
             <div className="py-4 space-y-3 text-gray-300">
-              <a href="#home" onClick={() => setMobileMenuOpen(false)} className="block py-2 hover:text-purple-400">Home</a>
-
-              <div className="pt-3 space-y-2">
-                <button onClick={() => router.push('/auth')} className="w-full py-2 text-center hover:text-white">
-                  Sign In
-                </button>
-
-                <button
-                  onClick={() => router.push('/auth')}
-                  className="w-full py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full font-semibold text-white"
+              <div className="flex items-center gap-4 sm:gap-6">
+                <a
+                  href="/auth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 sm:px-6 font-semibold text-white hover:text-gray-300 transition-colors duration-200 smofonts"
                 >
-                  Sign Up
-                </button>
+                  Login / Register
+                </a>
               </div>
             </div>
           </div>
