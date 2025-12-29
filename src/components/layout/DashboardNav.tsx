@@ -136,7 +136,7 @@ export default function DashboardNav() {
               </Link>
             ))}
 
-            {/* User Menu */}
+            
             {user && (
               <div className="relative" ref={dropdownRef}>
                 <button
