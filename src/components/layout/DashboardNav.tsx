@@ -48,8 +48,10 @@ export default function DashboardNav() {
     {
       label: 'New Analysis',
       icon: (
-        <div className="relative w-6 h-6 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
-          <FiUpload color='#61E9FF' size={10} className="relative z-10 w-full h-full" />
+       <div className="relative flex items-center justify-center w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+
+          <FiUpload color='#00FCFF' size={24} 
+ />
         </div>
       ),
       href: '/dashboard/form'
@@ -57,13 +59,15 @@ export default function DashboardNav() {
     {
       label: 'Matches',
       icon: (
-        <div className="relative w-6 h-6 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+
           <Image
-            src="/images/match.png"
+            src="/images/nav-field-icon.png"
             alt="Matches"
             width={40}
             height={40}
-            className="relative z-10 w-full h-full"
+            className="relative z-10 object-contain w-full h-full"
+
           />
         </div>
       ),
@@ -72,13 +76,15 @@ export default function DashboardNav() {
     {
       label: 'Scouting Profiles',
       icon: (
-        <div className="relative w-6 h-6 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+
           <Image
-            src="/images/player.png"
+            src="/images/nav-player-icon.png"
             alt="Scouting"
-            width={40}
-            height={40}
-            className="relative z-10 w-full h-full"
+            width={60}
+            height={60}
+            className="relative z-10 object-contain w-full h-full"
+
           />
         </div>
       ),
@@ -87,13 +93,15 @@ export default function DashboardNav() {
     {
       label: 'Clubs',
       icon: (
-        <div className="relative w-6 h-6 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+      <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+
           <Image
-            src="/images/club.png"
+            src="/images/nav-club-icon.png"
             alt="Clubs"
-            width={40}
-            height={40}
-            className="relative z-10 w-full h-full"
+            width={60}
+            height={60}
+            className="relative z-10 object-contain w-full h-full"
+
           />
         </div>
       ),
@@ -179,7 +187,7 @@ export default function DashboardNav() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-white hover:text-purple-400 focus:outline-none"
             >
-              {isMobileMenuOpen ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}
+              {isMobileMenuOpen ? <FiX color='#00FCFF' className="h-6 w-6" /> : <FiMenu color='#00FCFF' className="h-6 w-6" />}
             </button>
           </div>
         </div>

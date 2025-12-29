@@ -154,7 +154,7 @@ const Page = () => {
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition"
               >
-                {mobileMenuOpen ? <FiX className="text-2xl" /> : <FiMenu className="text-2xl" />}
+                {mobileMenuOpen ? <FiX color='#00FCFF' className="text-2xl" /> : <FiMenu color='#00FCFF' className="text-2xl" />}
               </button>
             </div>
           </div>
