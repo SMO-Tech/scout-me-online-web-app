@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import Image from 'next/image'
 import Footer from '@/components/layout/Footer'
+import Hero from '@/components/Home/Hero'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
@@ -176,80 +177,8 @@ const Page = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <motion.section
-        ref={heroRef}
-        id="home"
-        className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 bg-gradient-to-b from-black via-purple-950/30 to-black"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-      >
-        {/* Football Field Background Video */}
-        <motion.div className="absolute inset-0 opacity-40">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src="/videos/demo.mp4" type="video/mp4" />
-          </video>
-        </motion.div>
-
-        {/* Additional Football Imagery Overlay */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none opacity-30"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-              url('/videos/demo.mp4')
-            `,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        />
-
-        <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight">
-              Premier League
-              <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent">
-                Performance Analytics
-              </span>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-4xl mx-auto leading-relaxed">
-              AI-powered match analysis in just 1 hour. Get scouted faster with professional-grade insights.
-            </p>
-
-            <div className="flex justify-center space-x-6">
-              <motion.button
-                onClick={() => router.push('/auth')}
-                className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-full hover:scale-105 transition-transform"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Get Your Analysis
-              </motion.button>
-              <motion.button
-                onClick={() => router.push('/demo')}
-                className="px-10 py-4 border-2 border-white text-white font-bold rounded-full hover:bg-white/10 transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Watch Demo
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      </motion.section>
+      {/* solid - Hero */}
+      <Hero />
 
       {/* Section 2: The Core Problem & Solution */}
       <motion.section
