@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import React from "react";
 import { useAuth } from '@/lib/AuthContext';
@@ -15,6 +15,9 @@ export default function DashboardLayout({
 
   const { user } = useAuth()
 
+  const memoNav = useMemo(()=><DashboardNav />,[])
+  const memoFooter = useMemo(()=><Footer />,[])
+
   useEffect(() => {
     if (user === undefined) return; // Firebase still loading session
     if (user === null) router.replace("/auth");
@@ -22,12 +25,13 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <DashboardNav />
+      {/* memoised nav for dashboard */}
+      {memoNav}
       {/* Main Content */}
       <div className="w-full">
         {children}
       </div>
-      <Footer />
+      {memoFooter}
     </div>
   );
 }
