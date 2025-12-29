@@ -11,6 +11,7 @@ import Hero from '@/components/Home/Hero'
 import HowStatement from '@/components/Home/HowStatement'
 import Features from '@/components/Home/Features'
 import SectionThree from '@/components/Home/SectionThree'
+import SectionFour from '@/components/Home/SectionFour'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
@@ -185,6 +186,7 @@ const Page = () => {
       <HowStatement />
       <Features />
       <SectionThree />
+      <SectionFour />
   
 
       {/* Section 4: The AI Technology */}
