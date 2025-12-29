@@ -1,7 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
-import {FiMenu, FiX } from 'react-icons/fi'
+import { FiMenu, FiX } from 'react-icons/fi'
 import { HiSparkles } from 'react-icons/hi'
 import dynamic from 'next/dynamic'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
@@ -78,27 +78,32 @@ const Page = () => {
       <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center z-50">
         <div className="text-center">
           <div className="relative">
-            {/* Animated Logo */}
-            <div className="w-24 h-24 mx-auto mb-6 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl animate-spin-slow"></div>
-              <div className="absolute inset-2 bg-gradient-to-br from-gray-950 to-black rounded-xl flex items-center justify-center">
-                <HiSparkles className="text-4xl text-purple-400 animate-pulse" />
-              </div>
-            </div>
+
+            <video
+              className='rounded-2xl mb-10'
+              src="/videos/loading.mp4"
+              width={200}
+              height={200}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
 
             {/* Loading Text */}
             <h2 className="text-2xl font-bold text-white mb-2 animate-pulse">ScoutMe.cloud</h2>
             <p className="text-gray-400 text-sm">Loading your experience...</p>
 
             {/* Progress Bar */}
-            <div className="w-48 h-1 bg-gray-800 rounded-full mx-auto mt-6 overflow-hidden">
+            {/* <div className="w-48 h-1 bg-gray-800 rounded-full mx-auto mt-6 overflow-hidden">
               <motion.div
                 className="h-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
                 initial={{ width: '0%' }}
                 animate={{ width: '100%' }}
                 transition={{ duration: 0.8, ease: "easeInOut" }}
               />
-            </div>
+            </div> */}
+
           </div>
         </div>
       </div>
