@@ -165,7 +165,7 @@ const HowStatement = () => {
               objectPosition: 'center top',  // Anchor to top
             }}
           >
-            <source src="/videos/10 seconds 2nd section.mp4" type="video/mp4" />
+            <source src="/videos/how-bg.mp4" type="video/mp4" />
           </video>
         )}
         {/* Gradient overlay for better video visibility */}

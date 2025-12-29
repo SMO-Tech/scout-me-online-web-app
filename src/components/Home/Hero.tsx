@@ -65,7 +65,7 @@ const Hero = () => {
                   onError={handleVideoError}
                   className="w-full h-full object-cover"
                 >
-                  <source src="/videos/smo_mobile_3.mp4" type="video/mp4" />
+                  <source src="/videos/hero-bg-mobile.mp4" type="video/mp4" />
                 </video>
               </div>
               {/* Home indicator */}
@@ -88,7 +88,7 @@ const Hero = () => {
                     onError={handleVideoError}
                     className="w-full h-full object-cover"
                   >
-                    <source src="/videos/smo_web_3.mp4" type="video/mp4" />
+                    <source src="/videos/hero-bg-web.mp4" type="video/mp4" />
                   </video>
                 </div>
                 {/* Camera notch */}
