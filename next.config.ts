@@ -1,31 +1,23 @@
 import type { NextConfig } from "next";
 
-// Check if we are running in the 'production' environment
-const isProd = process.env.NODE_ENV === 'production';
-
 const nextConfig: NextConfig = {
-  // Enable static export
-  output: 'export',
+  // Ensures SSR & dynamic routing work normally
+  output: undefined, // or just remove this line entirely
 
-  // Configure for S3 hosting
-  assetPrefix: '/',
-  
-  // Disable server-side features not compatible with static export
-  trailingSlash: true,
-
-  // General settings
   images: {
     unoptimized: true,
-    domains: ['lh3.googleusercontent.com'], // Allow Google profile images
+    domains: ['lh3.googleusercontent.com'],
   },
-  
-  // Disable ESLint and TypeScript checks during build
+
+  trailingSlash: true,
+
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
 };
 
 export default nextConfig;

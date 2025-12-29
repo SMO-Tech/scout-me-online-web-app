@@ -2,7 +2,13 @@ import axios, { CreateAxiosDefaults } from "axios";
 
 
 
-const  baseURL = process.env.NEXT_PUBLIC_FIREBASE_BASE_URL
+const  baseURL = process.env.NEXT_PUBLIC_BASE_URL
+
+// Warn if baseURL is not set (only in development)
+if (typeof window !== 'undefined' && !baseURL && process.env.NODE_ENV === 'development') {
+  console.warn('⚠️ NEXT_PUBLIC_BASE_URL is not set. API calls will fail.');
+}
+
 const client = axios.create({
     baseURL : baseURL
 })

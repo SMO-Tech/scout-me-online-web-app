@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import React from "react";
 import { useAuth } from '@/lib/AuthContext';
 import DashboardNav from '@/components/layout/DashboardNav';
-import Footer from '@/components/Footer';
+import Footer from '@/components/layout/Footer';
 
 export default function DashboardLayout({
   children,
