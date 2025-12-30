@@ -48,7 +48,7 @@ export default function DashboardNav() {
     {
       label: 'New Analysis',
       icon: (
-        <div className="relative flex items-center justify-center w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative flex items-center justify-center w-8 h-8 ">
 
           <FiUpload color='#00FCFF' size={24}
           />
@@ -59,7 +59,7 @@ export default function DashboardNav() {
     {
       label: 'Matches',
       icon: (
-        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 ">
 
           <Image
             src="/images/nav-field-icon.png"
@@ -76,7 +76,7 @@ export default function DashboardNav() {
     {
       label: 'Scouting Profiles',
       icon: (
-        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 ">
 
           <Image
             src="/images/nav-player-icon.png"
@@ -93,7 +93,7 @@ export default function DashboardNav() {
     {
       label: 'Clubs',
       icon: (
-        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 ">
 
           <Image
             src="/images/nav-club-icon.png"
