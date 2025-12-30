@@ -259,9 +259,10 @@ const AuthPage = () => {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-widest">
+          <div className="bg-red-600/20 border border-red-500/40 text-red-400 text-[10px] font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-widest shadow-[0_0_15px_rgba(255,0,0,0.6)]">
             {error}
           </div>
+
         )}
 
         {/* resend email for email verification */}
