@@ -52,27 +52,17 @@ const features: Feature[] = [
      
     ],
     icon: <FaTags />,
-    video: '/videos/features/video 1.mp4'
+    video: '/videos/features/v2/Ai_action_tagging.mp4'
   },
   {
     id: 'intelligent-heat-map',
     title: 'Intelligent Heat Map',
-    description: 'An Intelligent Heat Map that learns where you create the most impact.',
+    description: 'An Intelligent Heat Map that gives you clarity and certainty on where you create the most impact.',
     details: [
       
     ],
     icon: <FaMap />,
-    video: '/videos/features/video 2.mp4'
-  },
-  {
-    id: 'clarity-certainty',
-    title: 'Get clarity & certainty',
-    description: 'Instant clarity and certainty on where player or the team succeed and where they don\'t.',
-    details: [
-     
-    ],
-    icon: <FaCheckCircle />,
-    video: '/videos/features/video 3.mp4'
+    video: '/videos/features/v2/intelligent heat map v2.mp4'
   },
   {
     id: 'intelligent-goal-post',
@@ -82,7 +72,7 @@ const features: Feature[] = [
      
     ],
     icon: <FaFutbol />,
-    video: '/videos/features/video 4.mp4'
+    video: '/videos/features/v2/Intelligent Goal Post.MP4'
   },
   {
     id: 'line-of-graph',
@@ -92,7 +82,7 @@ const features: Feature[] = [
       
     ],
     icon: <FaChartLine />,
-    video: '/videos/features/video 5.mp4'
+    video: '/videos/features/v2/Line_of_Graph.mp4'
   },
   {
     id: 'instant-rankings',
@@ -102,7 +92,7 @@ const features: Feature[] = [
     
     ],
     icon: <FaTrophy />,
-    video: '/videos/features/video 6.mp4'
+    video: '/videos/features/v2/Instant_performance_ranking.mp4'
   },
   {
     id: 'tagged-replays',
@@ -264,15 +254,22 @@ const Features = () => {
                       {(() => {
                         const activeFeature = features.find(f => f.id === expandedFeature) || features[0]
                         if (activeFeature?.video) {
+                          const videoExt = activeFeature.video.split('.').pop()?.toLowerCase()
+                          const videoType = videoExt === 'mp4' ? 'video/mp4' : 'video/quicktime'
+                          // Encode the video path to handle spaces and special characters
+                          const encodedVideoPath = activeFeature.video.split('/').map((part, index) => 
+                            index === 0 ? part : encodeURIComponent(part)
+                          ).join('/')
                           return (
                             <video
+                              key={encodedVideoPath}
                               autoPlay
                               loop
                               muted
                               playsInline
                               className="w-full h-full object-contain"
                             >
-                              <source src={activeFeature.video} type="video/mp4" />
+                              <source src={encodedVideoPath} type={videoType} />
                             </video>
                           )
                         }
