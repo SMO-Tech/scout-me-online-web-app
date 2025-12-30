@@ -48,10 +48,10 @@ export default function DashboardNav() {
     {
       label: 'New Analysis',
       icon: (
-       <div className="relative flex items-center justify-center w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative flex items-center justify-center w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
 
-          <FiUpload color='#00FCFF' size={24} 
- />
+          <FiUpload color='#00FCFF' size={24}
+          />
         </div>
       ),
       href: '/dashboard/form'
@@ -93,7 +93,7 @@ export default function DashboardNav() {
     {
       label: 'Clubs',
       icon: (
-      <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
 
           <Image
             src="/images/nav-club-icon.png"
@@ -137,7 +137,7 @@ export default function DashboardNav() {
               </Link>
             ))}
 
-            
+
             {user && (
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -201,7 +201,14 @@ export default function DashboardNav() {
             {user && (
               <div className="flex items-center space-x-3 px-3 py-3 border-b border-gray-700/30 mb-2">
                 {user.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName || 'User Avatar'} className="h-10 w-10 rounded-full" />
+                  <div className="p-[2px] rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName || 'User Avatar'}
+                      className="h-10 w-10 rounded-full bg-white"
+                    />
+                  </div>
+
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-purple-600/30 flex items-center justify-center">
                     <span className="text-lg font-semibold text-white">{getInitial(user)}</span>
