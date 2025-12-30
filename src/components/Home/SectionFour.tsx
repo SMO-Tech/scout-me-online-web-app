@@ -9,20 +9,20 @@ const SectionFour = () => {
   // Custom name mapping for logos
   const logoNames: Record<string, string> = {
     // Row 1
-    '/assets/images/ACF Fiorentina u15- Italy.svg.png': 'Fiorentina U15 (Italy)',
-    '/assets/images/APEA FC-Cyprus.png': 'APEA FC (Cyprus)',
-    '/assets/images/Brescia Calcio - Femminile-Italy.png': 'Brescia Calcio Femminile (Italy)',
-    '/assets/images/CSM_Pascani.png': 'CSM Pascani (Romania)',
-    '/assets/images/FC_Dynamo_Kyiv_logo.png': 'Dynamo Kyiv (Ukraine)',
+    '/images/fiorentina.png': 'Fiorentina U15 (Italy)',
+    '/images/apea.png': 'APEA FC (Cyprus)',
+    '/images/brescia.png': 'Brescia Calcio Femminile (Italy)',
+    '/images/pascani.png': 'CSM Pascani (Romania)',
+    '/images/dynamo.png': 'Dynamo Kyiv (Ukraine)',
     // Row 2
-    '/assets/images/Gulf United Fc - UAE.png': 'Gulf United FC (UAE)',
-    '/assets/images/Hashtag_Fc.png': 'Hashtag United (England)',
-    '/assets/images/PFC_Lokomotiv_Plovdiv_u13___u17_-Bulgaria.png': 'Lokomotiv Plovdiv U13 & U17 (Bulgaria)',
+    '/images/gulf-united.png': 'Gulf United FC (UAE)',
+    '/images/hashtag-fc.png': 'Hashtag United (England)',
+    '/images/pfc-lokomotiv.png': 'Lokomotiv Plovdiv U13 & U17 (Bulgaria)',
     // Row 3
-    '/assets/images/Pfc Ludogorets Razgrad u17 -Bulgaria.png': 'Ludogorets Razgrad U17 (Bulgaria)',
-    '/assets/images/Real Madrid Femenino (ladies)-Spain.png': 'Real Madrid Femenino (Spain)',
-    '/assets/images/SG Sacavenense.png': 'SG Sacavenense (Portugal)',
-    '/assets/images/TOP OSS FC- Netherlands.png': 'TOP OSS FC (Netherlands)',
+    '/images/pfc-ludogorets.png': 'Ludogorets Razgrad U17 (Bulgaria)',
+    '/images/real-madrid-femenino.png': 'Real Madrid Femenino (Spain)',
+    '/images/sg-sacavenense.png': 'SG Sacavenense (Portugal)',
+    '/images/TOP-OSS-FC-Netherlands.png': 'TOP OSS FC (Netherlands)',
   }
 
   const images = useMemo(
