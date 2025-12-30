@@ -757,7 +757,7 @@ const Page = () => {
                 4. Enter Player Lineup
               </h3>
               {/* Team Toggle */}
-              <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+              <div className="flex gap-2 bg-gray-900 p-1 rounded-lg">
                 <button
                   type="button"
                   onClick={() => setCurrentLineupTeam('home')}

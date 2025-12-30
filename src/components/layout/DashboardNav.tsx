@@ -48,10 +48,10 @@ export default function DashboardNav() {
     {
       label: 'New Analysis',
       icon: (
-       <div className="relative flex items-center justify-center w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative flex items-center justify-center w-8 h-8 ">
 
-          <FiUpload color='#00FCFF' size={24} 
- />
+          <FiUpload color='#00FCFF' size={24}
+          />
         </div>
       ),
       href: '/dashboard/form'
@@ -59,7 +59,7 @@ export default function DashboardNav() {
     {
       label: 'Matches',
       icon: (
-        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 ">
 
           <Image
             src="/images/nav-field-icon.png"
@@ -76,7 +76,7 @@ export default function DashboardNav() {
     {
       label: 'Scouting Profiles',
       icon: (
-        <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 ">
 
           <Image
             src="/images/nav-player-icon.png"
@@ -93,7 +93,7 @@ export default function DashboardNav() {
     {
       label: 'Clubs',
       icon: (
-      <div className="relative w-8 h-8 before:absolute before:inset-0 before:rounded-full before:bg-purple-500/30 before:blur-md before:z-0">
+        <div className="relative w-8 h-8 ">
 
           <Image
             src="/images/nav-club-icon.png"
@@ -113,7 +113,8 @@ export default function DashboardNav() {
   const getInitial = (user: User) => user.displayName?.charAt(0).toUpperCase() || 'U';
 
   return (
-    <nav className="bg-black backdrop-blur-md h-20 items-center pt-3 shadow-lg border-b border-gray-700/30 ">
+    <nav className="relative z-[999] bg-black backdrop-blur-md h-20 items-center pt-3 shadow-lg border-b border-gray-700/30 ">
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
@@ -129,14 +130,14 @@ export default function DashboardNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-purple-400 hover:bg-white/10 transition-colors"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-pink-400 hover:bg-white/10 transition-colors"
               >
                 {item.icon}
                 <span>{item.label}</span>
               </Link>
             ))}
 
-            
+
             {user && (
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -200,7 +201,14 @@ export default function DashboardNav() {
             {user && (
               <div className="flex items-center space-x-3 px-3 py-3 border-b border-gray-700/30 mb-2">
                 {user.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName || 'User Avatar'} className="h-10 w-10 rounded-full" />
+                  <div className="p-[2px] rounded-full bg-gradient-to-r from-blue-600 to-purple-600">
+                    <img
+                      src={user.photoURL}
+                      alt={user.displayName || 'User Avatar'}
+                      className="h-10 w-10 rounded-full bg-white"
+                    />
+                  </div>
+
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-purple-600/30 flex items-center justify-center">
                     <span className="text-lg font-semibold text-white">{getInitial(user)}</span>

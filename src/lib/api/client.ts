@@ -3,6 +3,7 @@ import axios, { CreateAxiosDefaults } from "axios";
 
 
 const  baseURL = process.env.NEXT_PUBLIC_BASE_URL
+console.log(baseURL)
 
 // Warn if baseURL is not set (only in development)
 if (typeof window !== 'undefined' && !baseURL && process.env.NODE_ENV === 'development') {
