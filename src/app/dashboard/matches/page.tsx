@@ -144,9 +144,9 @@ export default function Matches() {
                             {filteredAndSortedMatches.length} events found
                         </p>
                         <div>
-                        {selectedGender || selectedLevel || selectedLocation ? 
-                            <p className="mb-1 text-sm font-medium">Filters Applied</p> : null
-                        }
+                            {selectedGender || selectedLevel || selectedLocation ?
+                                <p className="mb-1 text-sm font-medium">Filters Applied</p> : <p className="mb-1 text-sm font-medium">Filters Applied :</p>
+                            }
 
                             <div className="flex flex-wrap gap-2">
 
@@ -165,7 +165,7 @@ export default function Matches() {
                                         onClick={() => setSelectedLocation("")}
                                         className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
                                     >
-                                         <FaLocationDot color="#00FFF3" size={20} />: {selectedLocation}
+                                        <FaLocationDot color="#00FFF3" size={20} />: {selectedLocation}
                                         <IoIosCloseCircle />
                                     </button>
                                 )}
@@ -232,6 +232,7 @@ export default function Matches() {
 
                 {/* SEARCH + FILTER */}
                 <div className="mb-12 flex items-center gap-3">
+                    {/* serach bar */}
                     <div className="relative group flex-1">
                         <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
                         <input
@@ -239,14 +240,14 @@ export default function Matches() {
                             placeholder="SEARCH MATCHES OR TEAMS..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-[#0B0D19]/50 border border-white/50 rounded-2xl py-4 pl-14 pr-6 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:text-gray-400 backdrop-blur-sm"
+                            className="w-full bg-[#0B0D19]/50 border border-white/50 rounded-2xl py-3 pl-14 pr-6 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:text-gray-400 backdrop-blur-sm"
                         />
                     </div>
-
+                    {/* fiter functions */}
                     <div className="relative">
                         <button
                             onClick={() => setShowFilter(p => !p)}
-                            className="px-4 py-3 rounded-2xl bg-[#0B0D19]/70 border border-cyan-500/40 text-xs font-bold uppercase tracking-wider hover:border-cyan-400 transition-all"
+                            className="p-3  rounded-2xl bg-[#0B0D19]/70 border border-cyan-500/40 text-sm font-bold uppercase tracking-wider hover:border-cyan-400 transition-all"
                         >
                             Filter
                         </button>
@@ -313,6 +314,8 @@ export default function Matches() {
 
                         )}
                     </div>
+
+
                 </div>
 
                 {/* GRID */}
@@ -336,7 +339,10 @@ export default function Matches() {
                                         </div>
                                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0B0D19] rounded-full"></div>
                                     </div>
-                                    <span className="text-blue-500 font-black text-sm uppercase">{match.user.name}</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-blue-500 font-black text-sm uppercase">{match.user.name}</span>
+                                        <span className="text-pink-400 font-black text-sm uppercase">Liverpo</span>
+                                    </div>
                                 </div>
 
                                 {/* IMAGE */}
