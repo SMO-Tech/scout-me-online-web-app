@@ -230,7 +230,7 @@ const AuthPage = () => {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="NEW PASSWORD"
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all"
+              className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-sm text-green-400 focus:border-cyan-500 outline-none transition-all"
             />
             <button
               disabled={isLoading}
@@ -296,7 +296,7 @@ const AuthPage = () => {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all placeholder:text-gray-800"
+                className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-green-400 focus:border-cyan-500 outline-none transition-all placeholder:text-green-700"
                 placeholder="FULL NAME"
               />
             </div>
@@ -310,7 +310,7 @@ const AuthPage = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all placeholder:text-gray-800"
+              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-green-400 focus:border-cyan-500 outline-none transition-all placeholder:text-green-800"
               placeholder="USER@ACADEMY.COM"
             />
           </div>
@@ -334,7 +334,7 @@ const AuthPage = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500 outline-none transition-all"
+              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-green focus:border-cyan-500 outline-none transition-all"
             />
           </div>
 
@@ -408,7 +408,7 @@ const AuthPage = () => {
                 required
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
-                className="w-full bg-white/5 border border-white/50 rounded-xl py-4 px-5 text-sm text-white focus:border-cyan-500/50 outline-none"
+                className="w-full bg-white/5 border border-white/50 rounded-xl py-4 px-5 text-sm text-green-400 placeholder:text-green-700 focus:border-cyan-500/50 outline-none"
                 placeholder="USER@EMAIL.COM"
               />
               <div className="flex gap-3">
