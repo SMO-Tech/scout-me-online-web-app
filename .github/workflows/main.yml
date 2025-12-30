@@ -39,11 +39,20 @@ jobs:
               git clone "$REPO_URL" .
             fi
             
+            # Stop the frontend process first to free port 3000
+            pm2 stop frontend || true
+            
+            # Kill any process on port 3000 (just in case)
+            sudo fuser -k 3000/tcp || true
+            
+            # Clean the old build artifacts to prevent chunk conflicts
+            rm -rf .next
+            
             # Install/update dependencies
             npm install
             
             # Build the Next.js project
             npm run build
             
-            # Restart or start the application with PM2
-            pm2 restart frontend || pm2 start npm --name frontend -- start
+            # Start or restart the application with PM2
+            pm2 start frontend || pm2 start npm --name frontend -- start
