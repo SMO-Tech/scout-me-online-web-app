@@ -1,1 +1,49 @@
 # workflow
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH (git pull on server)
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_SSH_PORT || 22 }}
+          envs: GH_TOKEN,GH_REPO
+          script: |
+            # Create directory if it doesn't exist
+            mkdir -p ~/scout-me-online-web-app
+            cd ~/scout-me-online-web-app
+            
+            # Clone or pull the repository (uses GH_TOKEN for private repos)
+            REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git"
+            
+            if [ -d .git ]; then
+              # Already a git repo, update remote URL and pull
+              git remote set-url origin "$REPO_URL"
+              git fetch origin main
+              git reset --hard origin/main
+            else
+              # First time setup - clone the repo
+              git clone "$REPO_URL" .
+            fi
+            
+            # Install/update dependencies
+            npm install
+            
+            # Build the Next.js project
+            npm run build
+            
+            # Restart or start the application with PM2
+            pm2 restart frontend || pm2 start npm --name frontend -- start
