@@ -46,7 +46,7 @@ jobs:
             sudo fuser -k 3000/tcp || true
             
             # Clean the old build artifacts to prevent chunk conflicts
-            rm -rf .next
+            sudo rm -rf .next
             
             # Install/update dependencies
             npm install
