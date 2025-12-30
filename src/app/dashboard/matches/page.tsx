@@ -153,7 +153,7 @@ export default function Matches() {
                                 {selectedGender && (
                                     <button
                                         onClick={() => setSelectedGender("")}
-                                        className="flex items-center gap-1 border hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
                                     >
                                         <PiGenderIntersexThin color="#00FFF3" size={20} />: {selectedGender}
                                         <IoIosCloseCircle />
@@ -163,7 +163,7 @@ export default function Matches() {
                                 {selectedLocation && (
                                     <button
                                         onClick={() => setSelectedLocation("")}
-                                        className="flex items-center gap-1 border hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
                                     >
                                          <FaLocationDot color="#00FFF3" size={20} />: {selectedLocation}
                                         <IoIosCloseCircle />
@@ -173,7 +173,7 @@ export default function Matches() {
                                 {selectedLevel && (
                                     <button
                                         onClick={() => setSelectedLevel("")}
-                                        className="flex items-center gap-1 border hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
                                     >
                                         <Image src={"/images/performance.png"} width={20} height={20} alt="Performance icon" />: {selectedLevel}
                                         <IoIosCloseCircle />
@@ -187,7 +187,7 @@ export default function Matches() {
                                             setSelectedLocation("");
                                             setSelectedLevel("");
                                         }}
-                                        className="flex items-center gap-1 border hover:border-white border-red-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-1 border hover:border-white border-pink-500 rounded-md px-2 py-1 text-sm"
                                     >
                                         Clear All
                                         <IoIosCloseCircle />

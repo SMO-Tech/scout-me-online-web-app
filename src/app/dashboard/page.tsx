@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import DashboardNav from '@/components/layout/DashboardNav';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRouter } from 'next/navigation';
+import { FiUpload } from 'react-icons/fi';
 
 
 export default function DashboardPage() {
@@ -34,7 +35,7 @@ export default function DashboardPage() {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white">Your journey to faster improvement & recognition starts here.
               </h1>
-              <p className="text-gray-300 text-sm mt-4">Upload your last match video URL and let our AI break down performance
+              <p className="text-gray-300 text-sm mt-4">Upload your last match  <span className='text-pink-400'>video URL</span> and let our AI break down performance
                 so players improve faster and get seen sooner.
               </p>
             </div>
@@ -42,24 +43,25 @@ export default function DashboardPage() {
             {/* No Stats / First Analysis Section */}
             <div className="mb-12 ">
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center flex flex-col items-center justify-center gap-4 ">
-                <p className="text-lg font-semibold text-gray-200">
+                {/* <p className="text-lg font-semibold text-gray-200">
                   Top players and coaches don’t guess.
                 </p>
                 <p className="text-gray-400 max-w-md">
                   They review every game, fix weaknesses,
                   and prepare smarter for the next performance.
 
-                </p>
+                </p> */}
 
                 <button
                   onClick={() => replace('/dashboard/form')}
                   disabled={isUploading}
-                  className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-pink-400 text-white rounded-lg hover:bg-green-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Analyse my game now
                 </button>
-                <p className='text-sm text-gray-400' >The more games analysed, the better the data becomes at spotting patterns
-                  and supporting better decisions.
+                  <FiUpload color='cyan' size={100} />
+                <p className='text-sm text-cyan-400' >The more games analysed, the better the data becomes at spotting patterns
+                  and supporting better decisions to improve your performance for next game.
                 </p>
               </div>
             </div>

@@ -130,7 +130,7 @@ export default function DashboardNav() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-purple-400 hover:bg-white/10 transition-colors"
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-white hover:text-pink-400 hover:bg-white/10 transition-colors"
               >
                 {item.icon}
                 <span>{item.label}</span>
