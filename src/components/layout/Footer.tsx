@@ -24,11 +24,11 @@ const Footer = () => {
           viewport={{ once: false }}
           transition={{ delay: 0.2 }}
         >
-          <a href="/privacy" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+          <a href="/privacy-policy" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
             Privacy Policy
           </a>
 
-          <a href="/terms" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+          <a href="/terms&conditions" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
             Terms & Conditions
           </a>
 
