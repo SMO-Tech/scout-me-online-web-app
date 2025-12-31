@@ -228,16 +228,11 @@ export default function ScoutingProfilesPage() {
             <p className="mt-4 text-gray-400 font-medium">Loading players...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
             {filteredProfiles.map((profile) => (
               <div
                 key={profile.id}
-                onClick={() =>
-                  router.push(
-                    `/dashboard/scouting-profiles/${profile.id}`
-                  )
-                }
-                className="group bg-gray-900 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden cursor-pointer transform hover:-translate-y-2 border border-gray-800 hover:border-purple-500/50 relative"
+                className="group bg-gray-900 rounded-xl shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden transform hover:-translate-y-1 border border-gray-800 hover:border-purple-500/50 relative flex h-28"
               >
                 {/* UNCLAIMED BADGE */}
                 {profile.status === "UNCLAIMED" && (
@@ -246,52 +241,16 @@ export default function ScoutingProfilesPage() {
                       e.stopPropagation();
                       setShowClaimModal(true);
                     }}
-                    className="absolute top-3 right-3 z-20 px-3 py-1 text-xs font-bold rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/30 backdrop-blur-sm"
+                    className="absolute top-2 right-2 z-20 px-2 py-0.5 text-xs font-bold rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 hover:bg-yellow-500/30 backdrop-blur-sm"
                   >
                     Unclaimed
                   </button>
                 )}
 
-                {/* Compare Checkbox */}
-                <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleCompare(profile.id);
-                    }}
-                    disabled={
-                      compareList.length === 2 &&
-                      !compareList.includes(profile.id)
-                    }
-                    className={`w-6 h-6 rounded border-2 flex items-center justify-center text-xs font-bold transition-all flex-shrink-0 backdrop-blur-sm
-                      ${compareList.includes(profile.id)
-                          ? "bg-gradient-to-r from-purple-600 to-cyan-500 border-transparent text-white shadow-lg shadow-purple-500/50"
-                          : compareList.length === 2
-                            ? "bg-gray-800/50 border-gray-600 text-transparent cursor-not-allowed opacity-50"
-                            : "bg-gray-800/50 border-gray-600 text-transparent hover:border-purple-400 hover:bg-gray-700/50"
-                        } 
-                    `}
-                  >
-                    ✓
-                  </button>
-                  <span
-                    className={`text-xs font-semibold transition-colors duration-200 hidden sm:block px-2 py-0.5 rounded backdrop-blur-sm
-                      ${compareList.includes(profile.id)
-                          ? "text-cyan-400 bg-cyan-500/10"
-                          : compareList.length === 2
-                            ? "text-gray-500 cursor-not-allowed"
-                            : "text-gray-400 hover:text-purple-400"
-                        }
-                    `}
-                  >
-                    Compare
-                  </span>
-                </div>
-
-                {/* Player Image Section */}
-                <div className="relative h-56 bg-gradient-to-br from-gray-800 via-gray-850 to-gray-900 flex items-center justify-center overflow-hidden">
+                {/* Left Section - Image (30%) */}
+                <div className="relative w-[30%] min-w-[100px] flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center overflow-hidden">
                   {/* Decorative pattern */}
-                  <div className="absolute inset-0 opacity-[0.05]" style={{
+                  <div className="absolute inset-0 opacity-[0.03]" style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
                   }} />
                   
@@ -302,42 +261,97 @@ export default function ScoutingProfilesPage() {
                   <img
                     src={profile.profileImage || '/images/default/player_default.PNG'}
                     alt={profile.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/images/default/player_default.PNG';
                     }}
                   />
                 </div>
 
-                {/* Player Info Section */}
-                <div className="p-5 border-t border-gray-800">
-                  {/* Name */}
-                  <h3 className="text-xl font-bold text-white mb-2 line-clamp-1 group-hover:text-cyan-400 transition-colors duration-300">
-                    {profile.name}
-                  </h3>
-
-                  {/* Position Badge */}
-                  {profile.position && (
-                    <div className="inline-block px-3 py-1 bg-gradient-to-r from-purple-600/20 to-cyan-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold rounded-lg mb-3 backdrop-blur-sm">
-                      {profile.position}
+                {/* Right Section - Info (70%) */}
+                <div className="flex-1 flex flex-col p-3 border-l border-gray-800 min-w-0">
+                  {/* Top Bar - Name and Position */}
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h4
+                        onClick={() => router.push(`/dashboard/scouting-profiles/${profile.id}`)}
+                        className="text-base  text-[8px] text-white mb-1 line-clamp-1 group-hover:text-cyan-400 transition-colors duration-300 cursor-pointer"
+                      >
+                        {profile.name}
+                      </h4>
+                      {profile.position && (
+                        <div className="inline-block px-1.5 py-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-semibold rounded backdrop-blur-sm">
+                          {profile.position}
+                        </div>
+                      )}
+                       <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/dashboard/scouting-profiles/${profile.id}`);
+                      }}
+                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white text-[10px] font-semibold rounded-lg transition-all duration-300 shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 transform hover:scale-105 whitespace-nowrap"
+                    >
+                      View More
+                    </button>
                     </div>
-                  )}
+                  </div>
 
-                  {/* Details */}
-                  <div className="mt-4 space-y-2 text-sm">
-                    {profile.location && (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <FiMapPin className="w-4 h-4 text-purple-400" />
-                        <span className="truncate">{profile.location}</span>
-                      </div>
-                    )}
+                
 
-                    {profile.age !== undefined && (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <FiCalendar className="w-4 h-4 text-cyan-400" />
-                        <span>{profile.age} years old</span>
-                      </div>
-                    )}
+                  {/* Bottom Bar - Location, Age, Compare */}
+                  <div className="flex items-center justify-between mt-auto gap-2">
+                    {/* Left side - Location and Age */}
+                    <div className="flex items-center gap-3 text-[11px] text-gray-400 flex-1 min-w-0">
+                      {profile.location && (
+                        <div className="flex items-center gap-1 min-w-0">
+                          <FiMapPin className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                          <span className="truncate max-w-[100px]">{profile.location}</span>
+                        </div>
+                      )}
+                      {profile.age !== undefined && (
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <FiCalendar className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+                          <span>{profile.age}y</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right side - Compare */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      {/* Compare Checkbox */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCompare(profile.id);
+                        }}
+                        disabled={
+                          compareList.length === 2 &&
+                          !compareList.includes(profile.id)
+                        }
+                        className={`w-4 h-4 rounded border-2 flex items-center justify-center text-[9px] font-bold transition-all flex-shrink-0 backdrop-blur-sm
+                          ${compareList.includes(profile.id)
+                              ? "bg-gradient-to-r from-purple-600 to-cyan-500 border-transparent text-white shadow-md shadow-purple-500/50"
+                              : compareList.length === 2
+                                ? "bg-gray-800/50 border-gray-600 text-transparent cursor-not-allowed opacity-50"
+                                : "bg-gray-800/50 border-gray-600 text-transparent hover:border-purple-400 hover:bg-gray-700/50"
+                            } 
+                        `}
+                      >
+                        ✓
+                      </button>
+                      <span
+                        className={`text-[10px] font-medium transition-colors duration-200 hidden md:block
+                          ${compareList.includes(profile.id)
+                              ? "text-cyan-400"
+                              : compareList.length === 2
+                                ? "text-gray-500 cursor-not-allowed"
+                                : "text-gray-400 hover:text-purple-400"
+                            }
+                        `}
+                      >
+                        Compare
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
