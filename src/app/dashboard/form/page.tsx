@@ -147,33 +147,33 @@ const Page = () => {
           break;
         }
 
-        // // STEP 2 — Validate team details and match level
-        // case 2: {
-        //   const step2Schema = yup.object({
-        //     homeTeam: yup.object({
-        //       clubName: yup.string().required("Your team club name is required"),
-        //       jerseyColor: yup.string().required("Your team jersey color is required"),
-        //       country: yup.string().required("Your team country is required"),
-        //     }),
-        //     awayTeam: yup.object({
-        //       clubName: yup.string().required("Opponent team club name is required"),
-        //       jerseyColor: yup.string().required("Opponent team jersey color is required"),
-        //       country: yup.string().required("Opponent team country is required"),
-        //     }),
-        //     matchLevel: yup.string()
-        //       .required("Match level is required")
-        //       .oneOf(['PROFESSIONAL', 'SEMI_PROFESSIONAL', 'ACADEMIC_TOP_TIER', 'ACADEMIC_AMATEUR', 'SUNDAY_LEAGUE'], "Please select a valid match level"),
-        //   });
+        // STEP 2 — Validate team details and match level
+        case 2: {
+          const step2Schema = yup.object({
+            homeTeam: yup.object({
+              clubName: yup.string().required("Your team club name is required"),
+              jerseyColor: yup.string().required("Your team jersey color is required"),
+              country: yup.string().required("Your team country is required"),
+            }),
+            awayTeam: yup.object({
+              clubName: yup.string().required("Opponent team club name is required"),
+              jerseyColor: yup.string().required("Opponent team jersey color is required"),
+              country: yup.string().required("Opponent team country is required"),
+            }),
+            matchLevel: yup.string()
+              .required("Match level is required")
+              .oneOf(['PROFESSIONAL', 'SEMI_PROFESSIONAL', 'ACADEMIC_TOP_TIER', 'ACADEMIC_AMATEUR', 'SUNDAY_LEAGUE'], "Please select a valid match level"),
+          });
 
-        //   await step2Schema.validate({
-        //     homeTeam: formData.homeTeam,
-        //     awayTeam: formData.awayTeam,
-        //     matchLevel: formData.matchLevel,
-        //   });
+          await step2Schema.validate({
+            homeTeam: formData.homeTeam,
+            awayTeam: formData.awayTeam,
+            matchLevel: formData.matchLevel,
+          });
 
-        //   setStep((prev) => prev + 1);
-        //   break;
-        // }
+          setStep((prev) => prev + 1);
+          break;
+        }
 
         // // STEP 3 — image upload or continue manually
         // case 3: {
