@@ -23,7 +23,9 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <LoadingSpinner />
+      <div className='bg-black h-screen flex items-center justify-center'>
+        <LoadingSpinner />
+      </div>
     );
   }
 
