@@ -317,7 +317,6 @@ import {
     FiPlay, FiPause, FiSearch, FiVideo,
     FiCheckCircle, FiXCircle, FiFilter, FiX
 } from 'react-icons/fi';
-import { result } from '@/staticdata/match-result';
 import { useFetchMatchResult } from '@/hooks';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
@@ -326,11 +325,11 @@ interface PassEvent {
     id: number;
     time: number;
     fromPlayer: string;
-    fromTeam: 'Blue' | 'Red';
+    fromTeam: 'Blue' | 'Red' | 'Unknown';
     toPlayer: string;
-    toTeam: 'Blue' | 'Red';
+    toTeam: 'Blue' | 'Red' | 'Unknown';
     type: string;
-    result: 'Success' | 'Fail';
+    result: 'Success' | 'Fail' | 'Unknown';
     confidence: number;
     colorClass: string;
 }
@@ -365,17 +364,20 @@ export default function ScoutReport() {
     const youtubePlayerRef = useRef<any>(null);
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const matchId = params.id as string;
+    
+    // Get video URL from search params (passed from matches page)
+    const videoUrlFromParams = searchParams.get('extra');
     
     //fetch result
     const {data:matchResult} = useFetchMatchResult(matchId)
-    console.log(result)
     console.log("match Data",matchResult)
     
-    // YouTube video ID - get from match data or use default
-    // If matchResult has a videoUrl, extract YouTube ID from it
-    const youtubeVideoId = matchResult?.videoUrl 
-        ? getYouTubeVideoId(matchResult.videoUrl) || "dQw4w9WgXcQ" 
+    // YouTube video ID - prioritize matchResult.videoUrl, then search params, then default
+    const videoUrl = matchResult?.videoUrl || videoUrlFromParams || null;
+    const youtubeVideoId = videoUrl 
+        ? getYouTubeVideoId(videoUrl) || "dQw4w9WgXcQ" 
         : "dQw4w9WgXcQ"; // Default fallback
 
     // --- Video Controls ---
@@ -387,41 +389,39 @@ export default function ScoutReport() {
         setIsPlaying(!isPlaying);
     };
 
-    const handleTimeUpdate = () => {
-        // YouTube IFrame API would be needed to get current time
-        // For now, this is a placeholder
-    };
-
-    const handleLoadedMetadata = () => {
-        // YouTube IFrame API would be needed to get duration
-        // For now, set a default duration
-        setDuration(600); // 10 minutes default
-    };
-
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // --- Load result dynamically ---
+    // --- Load result dynamically from API ---
     useEffect(() => {
-        if (result.match_report?.passes) {
-            const passes: PassEvent[] = result.match_report.passes.map((p: any) => ({
-                id: p.id,
+        // Handle array response - get first element
+        const matchData = Array.isArray(matchResult) ? matchResult[0] : matchResult;
+        
+        if (matchData?.match_report?.passes) {
+            const passes: PassEvent[] = matchData.match_report.passes.map((p: any, index: number) => ({
+                id: index + 1, // Generate ID from index since API doesn't provide id
                 time: parseFloat(p.time.split(':')[0]) * 60 + parseFloat(p.time.split(':')[1]),
-                fromPlayer: p.from.player_id,
-                fromTeam: p.from.team,
-                toPlayer: p.to.player_id,
-                toTeam: p.to.team,
-                type: p.pass_type,
-                result: p.result,
-                confidence: p.metrics.confidence,
+                fromPlayer: p.from_player?.toString() || '',
+                fromTeam: (p.from_team || 'Unknown') as 'Blue' | 'Red' | 'Unknown',
+                toPlayer: p.to_player?.toString() || '',
+                toTeam: (p.to_team || 'Unknown') as 'Blue' | 'Red' | 'Unknown',
+                type: p.pass_type || 'Short pass',
+                result: (p.result || 'Unknown') as 'Success' | 'Fail' | 'Unknown',
+                confidence: p.confidence || 0,
                 colorClass: p.pass_type === 'Key Pass' ? 'bg-indigo-500' : 'bg-purple-500',
             }));
             setPassList(passes);
+            
+            // Calculate duration from the last pass time (add 30 seconds buffer)
+            if (passes.length > 0) {
+                const lastPassTime = Math.max(...passes.map(p => p.time));
+                setDuration(lastPassTime + 30); // Add 30 seconds buffer
+            }
         }
-    }, []);
+    }, [matchResult]);
 
     // --- Filter & Search ---
     const filteredPasses = passList.filter(pass => {
@@ -435,7 +435,8 @@ export default function ScoutReport() {
             (filter === 'Blue' && pass.fromTeam === 'Blue') ||
             (filter === 'Red' && pass.fromTeam === 'Red') ||
             (filter === 'Success' && pass.result === 'Success') ||
-            (filter === 'Fail' && pass.result === 'Fail');
+            (filter === 'Fail' && pass.result === 'Fail') ||
+            (filter === 'Unknown' && (pass.result === 'Unknown' || pass.fromTeam === 'Unknown' || pass.toTeam === 'Unknown'));
 
         return matchesSearch && matchesFilter;
     });
@@ -505,7 +506,9 @@ export default function ScoutReport() {
                                             pass.result === "Success"
                                                 ? "bg-green-400"
                                                 : pass.result === "Fail"
-                                                    ? "bg-red-500"
+                                                ? "bg-red-500"
+                                                : pass.result === "Unknown"
+                                                    ? "bg-gray-500"
                                                     : "bg-yellow-400";
                                         return (
                                             <div
@@ -568,7 +571,7 @@ export default function ScoutReport() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-8 bg-black/20 p-1.5 rounded-2xl w-fit">
-                        {['All', 'Blue', 'Red', 'Success', 'Fail'].map((f) => (
+                        {['All', 'Blue', 'Red', 'Success', 'Fail', 'Unknown'].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
@@ -608,7 +611,11 @@ export default function ScoutReport() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${pass.fromTeam === 'Blue' ? 'bg-blue-600' : 'bg-red-600'}`}>
+                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${
+                                                    pass.fromTeam === 'Blue' ? 'bg-blue-600' : 
+                                                    pass.fromTeam === 'Red' ? 'bg-red-600' : 
+                                                    'bg-gray-600'
+                                                }`}>
                                                     #{pass.fromPlayer}
                                                 </div>
                                                 <span className="text-[11px] font-black uppercase tracking-widest">{pass.fromTeam}</span>
@@ -616,7 +623,11 @@ export default function ScoutReport() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${pass.toTeam === 'Blue' ? 'bg-blue-600' : 'bg-red-600'}`}>
+                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${
+                                                    pass.toTeam === 'Blue' ? 'bg-blue-600' : 
+                                                    pass.toTeam === 'Red' ? 'bg-red-600' : 
+                                                    'bg-gray-600'
+                                                }`}>
                                                     #{pass.toPlayer}
                                                 </div>
                                                 <span className="text-[11px] font-black uppercase tracking-widest">{pass.toTeam}</span>
@@ -630,9 +641,13 @@ export default function ScoutReport() {
                                                 <div className="flex items-center gap-2 text-green-500 text-[10px] font-black uppercase tracking-widest">
                                                     <FiCheckCircle size={14} /> Completed
                                                 </div>
-                                            ) : (
+                                            ) : pass.result === 'Fail' ? (
                                                 <div className="flex items-center gap-2 text-orange-500 text-[10px] font-black uppercase tracking-widest">
                                                     <FiXCircle size={14} /> Intercepted
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                                                    <FiXCircle size={14} /> Unknown
                                                 </div>
                                             )}
                                         </td>
