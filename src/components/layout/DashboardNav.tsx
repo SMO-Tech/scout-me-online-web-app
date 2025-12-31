@@ -144,7 +144,8 @@ export default function DashboardNav() {
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                   className="flex items-center space-x-3 hover:bg-white/10 px-3 py-2 rounded-lg transition-colors"
                 >
-                  {user.photoURL ? (
+                  {isProfileDropdownOpen ? <FiX color='#00FCFF' className="h-6 w-6" /> : <FiMenu color='#00FCFF' className="h-6 w-6" />}
+                  {/* {user.photoURL ? (
                     <img
                       src={user.photoURL}
                       alt={user.displayName || 'User Avatar'}
@@ -156,7 +157,7 @@ export default function DashboardNav() {
                     </div>
                   )}
                   <span className="text-sm font-medium text-white">{user.displayName || 'User'}</span>
-                  <FiChevronDown className={`w-4 h-4 text-white transition-transform ${isProfileDropdownOpen ? 'transform rotate-180' : ''}`} />
+                  <FiChevronDown className={`w-4 h-4 text-white transition-transform ${isProfileDropdownOpen ? 'transform rotate-180' : ''}`} /> */}
                 </button>
 
                 {isProfileDropdownOpen && (
