@@ -335,6 +335,24 @@ interface PassEvent {
     colorClass: string;
 }
 
+// --- Helper Functions ---
+const getYouTubeVideoId = (url: string | undefined): string | null => {
+    if (!url) return null;
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.hostname.includes('youtube.com')) {
+            return urlObj.searchParams.get('v');
+        }
+        if (urlObj.hostname.includes('youtu.be')) {
+            return urlObj.pathname.substring(1);
+        }
+    } catch (e) {
+        const match = url.match(/v=([a-zA-Z0-9_-]+)/) || url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+        if (match) return match[1];
+    }
+    return null;
+};
+
 export default function ScoutReport() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -344,44 +362,40 @@ export default function ScoutReport() {
     const [selectedPass, setSelectedPass] = useState<PassEvent | null>(null);
     const [passList, setPassList] = useState<PassEvent[]>([]);
 
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const modalVideoRef = useRef<HTMLVideoElement>(null);
-    const url = "/videos/video_segment.mp4"
+    const youtubePlayerRef = useRef<any>(null);
     const params = useParams();
     const router = useRouter();
     const matchId = params.id as string;
-    // const url = useSearchParams().get("extra") as string;
-    // console.log("passed URL",url)
-
+    
     //fetch result
     const {data:matchResult} = useFetchMatchResult(matchId)
     console.log(result)
     console.log("match Data",matchResult)
-
-    // Add this effect to seek when a pass is selected
-    useEffect(() => {
-        if (selectedPass && modalVideoRef.current) {
-            modalVideoRef.current.currentTime = selectedPass.time;
-            modalVideoRef.current.play();
-            setIsPlaying(true);
-        }
-    }, [selectedPass]);
+    
+    // YouTube video ID - get from match data or use default
+    // If matchResult has a videoUrl, extract YouTube ID from it
+    const youtubeVideoId = matchResult?.videoUrl 
+        ? getYouTubeVideoId(matchResult.videoUrl) || "dQw4w9WgXcQ" 
+        : "dQw4w9WgXcQ"; // Default fallback
 
     // --- Video Controls ---
+    // Note: For full programmatic control (play, pause, seek, get current time),
+    // you'll need to integrate YouTube IFrame API: https://developers.google.com/youtube/iframe_api_reference
     const togglePlay = () => {
-        if (videoRef.current) {
-            if (isPlaying) videoRef.current.pause();
-            else videoRef.current.play();
-            setIsPlaying(!isPlaying);
-        }
+        // YouTube IFrame API would be needed for programmatic control
+        // For now, this is a placeholder - user can click play/pause on YouTube player
+        setIsPlaying(!isPlaying);
     };
 
     const handleTimeUpdate = () => {
-        if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
+        // YouTube IFrame API would be needed to get current time
+        // For now, this is a placeholder
     };
 
     const handleLoadedMetadata = () => {
-        if (videoRef.current) setDuration(videoRef.current.duration);
+        // YouTube IFrame API would be needed to get duration
+        // For now, set a default duration
+        setDuration(600); // 10 minutes default
     };
 
     const formatTime = (seconds: number) => {
@@ -389,14 +403,6 @@ export default function ScoutReport() {
         const secs = Math.floor(seconds % 60);
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
-
-    const seek = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const percent = (e.clientX - rect.left) / rect.width;
-        if (videoRef.current) videoRef.current.currentTime = percent * duration;
-    };
-
-    
 
     // --- Load result dynamically ---
     useEffect(() => {
@@ -449,77 +455,72 @@ export default function ScoutReport() {
                         <div className="text-[9px] md:text-[10px] font-bold bg-white/5 px-2 md:px-3 py-1 rounded-full text-white/40 uppercase">Interactive Timeline</div>
                     </div>
 
-                    <div className="relative group rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-full md:max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
-                        <video
-                            ref={videoRef}
-                            className="w-full h-full rounded-2xl bg-black"
-                            src={url} // replace with your actual video file
-                            onTimeUpdate={() => {
-                                if (!videoRef.current) return;
-                                setCurrentTime(videoRef.current.currentTime);
-                            }}
-                            onLoadedMetadata={handleLoadedMetadata}
-                            controls={false} // we'll use custom controls
+                    {/* YouTube Video Player */}
+                    <div className="rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-full md:max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+                        <iframe
+                            className="w-full h-full"
+                            src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0&showinfo=0`}
+                            title="Match Video"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
                         />
+                    </div>
 
-                        {/* Custom Interface Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 md:p-8 translate-y-2 group-hover:translate-y-0 transition-all opacity-0 group-hover:opacity-100 duration-500 pointer-events-auto">
-                            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6">
-                                {/* Play/Pause Button */}
-                                <button
-                                    onClick={togglePlay}
-                                    className="bg-indigo-600 hover:bg-indigo-500 p-3 md:p-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 text-white"
-                                    aria-label={isPlaying ? "Pause" : "Play"}
+                    {/* Controls Below Video */}
+                    <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
+                        <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6">
+                            {/* Play/Pause Button */}
+                            <button
+                                onClick={togglePlay}
+                                className="bg-indigo-600 hover:bg-indigo-500 p-3 md:p-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 text-white"
+                                aria-label={isPlaying ? "Pause" : "Play"}
+                            >
+                                {isPlaying ? <FiPause size={24} /> : <FiPlay size={24} />}
+                            </button>
+
+                            {/* Timeline */}
+                            <div className="flex-1 space-y-2 w-full">
+                                <div
+                                    onClick={(e) => {
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        let clickX = e.clientX - rect.left;
+                                        clickX = Math.max(0, Math.min(clickX, rect.width));
+                                        const percent = clickX / rect.width;
+                                        // YouTube IFrame API would be needed to seek
+                                        setCurrentTime(percent * duration);
+                                    }}
+                                    className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden"
                                 >
-                                    {isPlaying ? <FiPause size={24} /> : <FiPlay size={24} />}
-                                </button>
-
-                                {/* Timeline */}
-                                <div className="flex-1 space-y-2 w-full">
+                                    {/* Current progress */}
                                     <div
-                                        onClick={(e) => {
-                                            if (!videoRef.current) return;
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            let clickX = e.clientX - rect.left; // relative to timeline
-                                            clickX = Math.max(0, Math.min(clickX, rect.width)); // clamp
-                                            const percent = clickX / rect.width;
-                                            videoRef.current.currentTime = percent * duration;
-                                            setCurrentTime(videoRef.current.currentTime);
-                                        }}
-                                        className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden"
-                                    >
-                                        {/* Current progress */}
-                                        <div
-                                            className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
-                                            style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
-                                        />
+                                        className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                                        style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                                    />
 
-                                        {/* Event markers */}
-                                        {passList.map((pass) => {
-                                            if (!duration || pass.time > duration) return null;
-                                            const leftPercent = (pass.time / duration) * 100;
-                                            const color =
-                                                pass.result === "Success"
-                                                    ? "bg-green-400"
-                                                    : pass.result === "Fail"
-                                                        ? "bg-red-500"
-                                                        : "bg-yellow-400"; // intercepted/fallback
-                                            return (
-                                                <div
-                                                    key={pass.id}
-                                                    className={`${color} absolute top-0 h-full w-2 md:w-3 rounded-full`} // increased width
-                                                    style={{ left: `${leftPercent}%`, transform: "translateX(-50%)" }} // center marker
-                                                />
-                                            );
-                                        })}
+                                    {/* Event markers */}
+                                    {passList.map((pass) => {
+                                        if (!duration || pass.time > duration) return null;
+                                        const leftPercent = (pass.time / duration) * 100;
+                                        const color =
+                                            pass.result === "Success"
+                                                ? "bg-green-400"
+                                                : pass.result === "Fail"
+                                                    ? "bg-red-500"
+                                                    : "bg-yellow-400";
+                                        return (
+                                            <div
+                                                key={pass.id}
+                                                className={`${color} absolute top-0 h-full w-2 md:w-3 rounded-full`}
+                                                style={{ left: `${leftPercent}%`, transform: "translateX(-50%)" }}
+                                            />
+                                        );
+                                    })}
+                                </div>
 
-                                    </div>
-
-                                    {/* Time labels */}
-                                    <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
-                                        <span>{formatTime(currentTime)}</span>
-                                        <span>{formatTime(duration)}</span>
-                                    </div>
+                                {/* Time labels */}
+                                <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
+                                    <span>{formatTime(currentTime)}</span>
+                                    <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
                         </div>
@@ -682,15 +683,15 @@ export default function ScoutReport() {
 
                         {/* Video */}
                         <div className="w-full mt-4 flex justify-center">
-                            <video
-                                className="w-full max-h-[60vh] md:max-h-[70vh] rounded-2xl bg-black"
-                                src={url}
-                                ref={modalVideoRef}
-                                onTimeUpdate={handleTimeUpdate}
-                                onLoadedMetadata={handleLoadedMetadata}
-                                autoPlay
-                                controls={false}
-                            />
+                            <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black">
+                                <iframe
+                                    className="w-full h-full"
+                                    src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0&showinfo=0&start=${Math.floor(selectedPass.time)}`}
+                                    title="AI Action Replay"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                />
+                            </div>
                         </div>
 
                         {/* Info Grid */}
