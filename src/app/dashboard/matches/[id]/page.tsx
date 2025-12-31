@@ -425,48 +425,93 @@ export default function ScoutReport() {
             <main className="max-w-[1600px] mx-auto p-6 md:p-10 space-y-10">
 
                 {/* --- VIDEO ANALYSIS SECTION --- */}
-                <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1 h-20 bg-indigo-500"></div>
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="flex items-center gap-3 text-sm font-black uppercase tracking-[0.2em] text-indigo-400">
-                            <FiVideo className="text-lg" /> Tactical Feed Analysis
-                        </h2>
-                        <div className="text-[10px] font-bold bg-white/5 px-3 py-1 rounded-full text-white/40 uppercase">Interactive Timeline</div>
-                    </div>
+               {/* --- VIDEO ANALYSIS SECTION --- */}
+<section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
+  <div className="absolute top-0 left-0 w-1 h-20 bg-indigo-500"></div>
+  <div className="flex items-center justify-between mb-4 md:mb-6">
+    <h2 className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-400">
+      <FiVideo className="text-lg md:text-xl" /> Tactical Feed Analysis
+    </h2>
+    <div className="text-[9px] md:text-[10px] font-bold bg-white/5 px-2 md:px-3 py-1 rounded-full text-white/40 uppercase">Interactive Timeline</div>
+  </div>
 
-                    <div className="relative group rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
-                        <video
-                            ref={videoRef}
-                            className="w-full h-full rounded-2xl bg-black"
-                            src={url} // replace with your actual video file
-                            onTimeUpdate={handleTimeUpdate}
-                            onLoadedMetadata={handleLoadedMetadata}
-                            controls={false} // we'll use custom controls
-                        />
+  <div className="relative group rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-full md:max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+    <video
+      ref={videoRef}
+      className="w-full h-full rounded-2xl bg-black"
+      src={url} // replace with your actual video file
+      onTimeUpdate={() => {
+        if (!videoRef.current) return;
+        setCurrentTime(videoRef.current.currentTime);
+      }}
+      onLoadedMetadata={handleLoadedMetadata}
+      controls={false} // we'll use custom controls
+    />
 
-                        {/* Custom Interface Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-8 translate-y-2 group-hover:translate-y-0 transition-all opacity-0 group-hover:opacity-100 duration-500">
-                            <div className="flex items-center gap-6">
-                                <button onClick={togglePlay} className="bg-indigo-600 hover:bg-indigo-500 p-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 text-white">
-                                    {isPlaying ? <FiPause size={24} /> : <FiPlay size={24} className="ml-0.5" />}
-                                </button>
+    {/* Custom Interface Overlay */}
+    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 md:p-8 translate-y-2 group-hover:translate-y-0 transition-all opacity-0 group-hover:opacity-100 duration-500 pointer-events-auto">
+      <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6">
+        {/* Play/Pause Button */}
+        <button
+          onClick={togglePlay}
+          className="bg-indigo-600 hover:bg-indigo-500 p-3 md:p-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 text-white"
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying ? <FiPause size={24} /> : <FiPlay size={24} />}
+        </button>
 
-                                <div className="flex-1 space-y-2">
-                                    <div onClick={seek} className="h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group/timeline">
-                                        <div
-                                            className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
-                                            style={{ width: `${(currentTime / duration) * 100}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex justify-between items-center text-[11px] font-mono text-white/40 tracking-widest">
-                                        <span>{formatTime(currentTime)}</span>
-                                        <span>{formatTime(duration)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        {/* Timeline */}
+        <div className="flex-1 space-y-2 w-full">
+          <div
+            onClick={(e) => {
+              if (!videoRef.current) return;
+              const rect = e.currentTarget.getBoundingClientRect();
+              let clickX = e.clientX - rect.left; // relative to timeline
+              clickX = Math.max(0, Math.min(clickX, rect.width)); // clamp
+              const percent = clickX / rect.width;
+              videoRef.current.currentTime = percent * duration;
+              setCurrentTime(videoRef.current.currentTime);
+            }}
+            className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden"
+          >
+            {/* Current progress */}
+            <div
+              className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+              style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+            />
+
+            {/* Event markers */}
+{passList.map((pass) => {
+  if (!duration || pass.time > duration) return null;
+  const leftPercent = (pass.time / duration) * 100;
+  const color =
+    pass.result === "Success"
+      ? "bg-green-400"
+      : pass.result === "Fail"
+      ? "bg-red-500"
+      : "bg-yellow-400"; // intercepted/fallback
+  return (
+    <div
+      key={pass.id}
+      className={`${color} absolute top-0 h-full w-2 md:w-3 rounded-full`} // increased width
+      style={{ left: `${leftPercent}%`, transform: "translateX(-50%)" }} // center marker
+    />
+  );
+})}
+
+          </div>
+
+          {/* Time labels */}
+          <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
                 {/* --- STATISTICAL CARDS --- */}
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-5">
