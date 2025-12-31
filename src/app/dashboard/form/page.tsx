@@ -135,6 +135,14 @@ const Page = () => {
           await step1Schema.validate({ matchURL: formData.matchURL });
           setStep((prev) => prev + 1);
           // here shoudl be the API call
+          const client = await getClient()
+          await client.post("/match", {
+            "videoUrl": formData.matchURL
+          });
+
+          toast.success("Your match has been submitted!", { duration: 4000, icon: "✅" });
+          replace("/dashboard");
+
 
           break;
         }

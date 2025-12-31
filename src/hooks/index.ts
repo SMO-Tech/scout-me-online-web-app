@@ -40,19 +40,39 @@ export const useFetchComparisonPlayers = (ids: string[]) => {
     queryFn: async () => {
       const client = await getClient();
       // Promise.all ensures the network requests happen simultaneously
-      const responses = await Promise.all(
-        ids.map((id) => client.get(`/player/${id}`))
+      const res = await Promise.all(
+        ids.map((id) => client.get(`/match/${id}`))
       );
-      return responses.map((r) => r.data.data || r.data);
+      return res
     },
-    enabled: ids.length === 2,
-    staleTime: 1000 * 60 * 5,
   });
 
   // Centralized error notification for comparison failures
   useEffect(() => {
     if (query.error) {
       const errorMessage = catchAsyncError(query.error);
+    }
+  }, [query.error]);
+
+  return query;
+};
+
+export const useFetchMatchResult = (id: string) => {
+  const query = useQuery({
+    queryKey: ["player-comparison", id],
+    queryFn: async () => {
+      const client = await getClient();
+      const response = await client.get(`/match/${id}`);
+      return response.data.data
+    },
+    enabled: !!id, // only fetch if id exists
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Centralized error notification
+  useEffect(() => {
+    if (query.error) {
+      catchAsyncError(query.error);
     }
   }, [query.error]);
 

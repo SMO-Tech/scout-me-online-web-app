@@ -318,6 +318,8 @@ import {
     FiCheckCircle, FiXCircle, FiFilter, FiX
 } from 'react-icons/fi';
 import { result } from '@/staticdata/match-result';
+import { useFetchMatchResult } from '@/hooks';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
 // --- Types ---
 interface PassEvent {
@@ -345,6 +347,16 @@ export default function ScoutReport() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const modalVideoRef = useRef<HTMLVideoElement>(null);
     const url = "/videos/video_segment.mp4"
+    const params = useParams();
+    const router = useRouter();
+    const matchId = params.id as string;
+    // const url = useSearchParams().get("extra") as string;
+    // console.log("passed URL",url)
+
+    //fetch result
+    const {data:matchResult} = useFetchMatchResult(matchId)
+    console.log(result)
+    console.log("match Data",matchResult)
 
     // Add this effect to seek when a pass is selected
     useEffect(() => {
@@ -383,6 +395,8 @@ export default function ScoutReport() {
         const percent = (e.clientX - rect.left) / rect.width;
         if (videoRef.current) videoRef.current.currentTime = percent * duration;
     };
+
+    
 
     // --- Load result dynamically ---
     useEffect(() => {
