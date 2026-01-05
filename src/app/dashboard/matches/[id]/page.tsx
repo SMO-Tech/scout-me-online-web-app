@@ -527,25 +527,87 @@ export default function ScoutReport() {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
 
+// ============================================================================
+// 4. MAIN PAGE COMPONENT
+// ============================================================================
+const MatchDetailPage = () => {
+    const params = useParams();
+    const router = useRouter();
+    const slugOrId = params.id as string;
+    const matchId = extractMatchId(slugOrId);
 
-                {/* --- STATISTICAL CARDS --- */}
-                <div className="grid grid-cols-2 lg:grid-cols-5 gap-5">
-                    {[
-                        { label: 'Total Events', value: passList.length, color: 'border-indigo-500', text: 'text-indigo-400' },
-                        { label: 'Blue Possession', value: passList.filter(p => p.fromTeam === 'Blue').length, color: 'border-blue-500', text: 'text-blue-400' },
-                        { label: 'Red Possession', value: passList.filter(p => p.fromTeam === 'Red').length, color: 'border-red-500', text: 'text-red-400' },
-                        { label: 'Successful', value: passList.filter(p => p.result === 'Success').length, color: 'border-green-500', text: 'text-green-400' },
-                        { label: 'Unsuccessful', value: passList.filter(p => p.result === 'Fail').length, color: 'border-orange-500', text: 'text-orange-400' },
-                    ].map((card) => (
-                        <div key={card.label} className={`bg-[#0b0f1a] border-t-2 ${card.color} p-6 rounded-[1.5rem] shadow-lg hover:shadow-indigo-500/5 transition-all`}>
-                            <div className={`text-4xl font-black italic tracking-tighter mb-2 ${card.text}`}>{card.value}</div>
-                            <div className="text-[9px] font-black uppercase tracking-widest text-white/30">{card.label}</div>
-                        </div>
-                    ))}
-                </div>
+    const [matchData, setMatchData] = useState<MatchDetail | null>(dummyMatch);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
+
+    // useEffect(() => {
+    //     if (!matchId) return;
+
+    //     const fetchMatchDetails = async () => {
+    //         setLoading(true);
+    //         setError(null);
+            
+    //         try {
+    //             const client = await getClient(); 
+    //             const response = await client.get(`/match/${matchId}`);
+    //             console.log(response.data)
+    //             setMatchData(response.data.data as MatchDetail);
+    //         } catch (err: any) {
+    //             console.error("Failed to fetch match details:", err);
+    //             const errorMessage = err.response?.data?.error || err.message || "Unknown error occurred.";
+    //             setError(errorMessage);
+    //             setMatchData(null);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     fetchMatchDetails();
+    // }, [matchId]);
+ 
+
+    // Generate match title for SEO
+    const { home: homeTeam, away: awayTeam } = getTeams(matchData?.matchClubs || []);
+    const matchTitle = matchData 
+      ? `${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}${matchData.competitionName ? ` - ${matchData.competitionName}` : ''}`
+      : 'Match Analysis';
+    const matchScore = matchData?.result 
+      ? `${matchData.result.homeScore} - ${matchData.result.awayScore}`
+      : '';
+
+    // SEO metadata
+    useSEO({
+      title: matchData 
+        ? `${matchTitle}${matchScore ? ` (${matchScore})` : ''} - Match Analysis | ScoutMe.cloud`
+        : 'Match Analysis | ScoutMe.cloud',
+      description: matchData
+        ? `Watch and analyze ${matchTitle}${matchScore ? ` (${matchScore})` : ''}${matchData.matchDate ? ` played on ${new Date(matchData.matchDate).toLocaleDateString()}` : ''}. Detailed match analysis, player stats, and tactical insights on ScoutMe.cloud.`
+        : 'View detailed match analysis, player stats, and tactical insights on ScoutMe.cloud',
+      image: homeTeam?.club?.logoUrl || awayTeam?.club?.logoUrl || '/images/default/club_default.PNG',
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      keywords: matchData 
+        ? `${homeTeam?.name || ''}, ${awayTeam?.name || ''}, football match, match analysis, ${matchData.competitionName || ''}, football analytics, match stats`
+        : 'football match, match analysis, football analytics, match stats',
+      type: 'article',
+      siteName: 'ScoutMe.cloud'
+    });
+
+    if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
+
+    if (error || !matchData) return <div className="p-8 text-center text-white mt-20"><FiAlertTriangle className="mx-auto mb-2 text-red-500" />{error || "Data not found."}</div>;
+
+    const youtubeId = getYouTubeId(matchData.videoUrl);
+    const starters = matchData.matchPlayers.slice(0, 11);
+    const subs = matchData.matchPlayers.slice(11);
 
                 {/* --- LOG TABLE SECTION --- */}
                 <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-8 shadow-2xl">

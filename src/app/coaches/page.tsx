@@ -1,12 +1,24 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FiSearch, FiDatabase, FiTrendingUp, FiUsers } from 'react-icons/fi'
+import { useSEO } from '@/hooks/useSEO'
 
 const CoachesPage = () => {
   const router = useRouter()
+
+  // SEO metadata
+  useSEO({
+    title: 'AI-Powered Talent Discovery for Coaches | ScoutMe.cloud',
+    description: 'Transform your scouting and coaching strategies with AI-driven performance analytics. Discover hidden talents, compare players, and make data-informed decisions with ScoutMe.cloud.',
+    image: '/images/new-logo.png',
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    keywords: 'football coaching, talent discovery, AI scouting, player analytics, football analytics, coaching tools, player performance, football scouting platform',
+    type: 'website',
+    siteName: 'ScoutMe.cloud'
+  })
 
   const features = [
     {

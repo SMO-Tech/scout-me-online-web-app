@@ -15,6 +15,7 @@ import SectionFour from '@/components/Home/SectionFour'
 import UserJourney from '@/components/Home/UserJourney'
 import Achievements from '@/components/Home/Achievements'
 import Link from 'next/link'
+import { useSEO } from '@/hooks/useSEO'
 
 // Dynamically import Three.js component to avoid SSR issues
 const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
@@ -72,6 +73,17 @@ const Page = () => {
 
     return () => clearTimeout(timer)
   }, [])
+
+  // SEO metadata
+  useSEO({
+    title: 'ScoutMe.cloud - AI-Powered Football Scouting & Player Analytics Platform',
+    description: 'Discover, analyze, and track football players with AI-powered scouting tools. Advanced player analytics, match analysis, and talent discovery platform for coaches, scouts, and clubs.',
+    image: '/images/new-logo.png',
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    keywords: 'football scouting, player analytics, AI scouting, football analytics, talent discovery, match analysis, player performance, football data, scouting platform',
+    type: 'website',
+    siteName: 'ScoutMe.cloud'
+  })
 
   // Loading Screen
   if (isLoading) {

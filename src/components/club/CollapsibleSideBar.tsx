@@ -69,7 +69,7 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({
                 <div className={`absolute top-6 z-20 transition-all duration-300 ${isExpanded ? 'right-[-12px]' : 'right-[-12px]'} hidden lg:block`}>
                     <button 
                         onClick={toggleSidebar}
-                        className="p-1.5 bg-purple-600 rounded-full shadow-xl text-white hover:bg-purple-700 transition-transform flex items-center justify-center"
+                        className="p-1.5 bg-cyan-600 rounded-full shadow-xl text-white hover:bg-cyan-700 transition-transform flex items-center justify-center"
                     >
                         <FiChevronLeft className={`w-4 h-4 transition-transform ${isExpanded ? '' : 'rotate-180'}`} />
                     </button>
@@ -87,9 +87,9 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({
                 <div className="flex-1 py-4 px-3 space-y-2 overflow-y-auto no-scrollbar">
                     
                     {/* Club Header (Always Visible) */}
-                    <div className="mb-6">
+                    {/* <div className="mb-6">
                         <ClubHeaderCard isExpanded={false} />
-                    </div>
+                    </div> */}
 
                     {/* Menu Items */}
                     <div className="space-y-1 mb-6">

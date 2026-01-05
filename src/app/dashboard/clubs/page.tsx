@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
+import { createClubUrl } from "@/lib/utils/slug";
 import { FiPlus, FiSearch, FiFilter, FiUsers, FiMapPin, FiCalendar, FiEye, FiShare2, FiCopy, FiCheck } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -338,7 +339,7 @@ export default function ClubsPage() {
               {filteredAndSortedClubs.map((club) => (
                 <Link
                   key={club.id}
-                  href={`/dashboard/clubs/${club.id}`}
+                  href={createClubUrl(club.name, club.id)}
                   className="group bg-gray-900 rounded-2xl shadow-lg hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 overflow-hidden cursor-pointer transform hover:-translate-y-2 border border-gray-800 hover:border-purple-500/50"
                 >
                   {/* Club Logo Section */}
