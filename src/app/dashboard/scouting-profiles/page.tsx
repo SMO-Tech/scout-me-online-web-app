@@ -8,6 +8,8 @@ import {
   FiMapPin,
   FiCalendar,
   FiX,
+  FiAlertCircle,
+  FiRefreshCw,
 } from "react-icons/fi";
 
 /* =========================
@@ -36,6 +38,7 @@ export default function ScoutingProfilesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [compareList, setCompareList] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleCompare = (id: string) => {
     setCompareList((prev) => {
@@ -56,26 +59,50 @@ export default function ScoutingProfilesPage() {
       setLoadingMore(true);
     } else {
       setLoading(true);
+      setError(null); // Clear error on new fetch
     }
-    
+
     try {
       const client = await getClient();
-      const url = cursor 
+      const url = cursor
         ? `player?limit=20&cursor=${cursor}`
         : `player?limit=20`;
-      
+
       const res = await client.get(url);
+
+      // Check if API returned an error status
+      if (res.data?.status === 'error' || res.data?.status === 'failed') {
+        const errorMessage = res.data?.message || 'Internal Server Error';
+        if (!cursor) {
+          setError(errorMessage);
+          setProfiles([]);
+        } else {
+          setLoadingMore(false);
+        }
+        return;
+      }
+
+      // Check if response has data
+      if (!res.data || (!res.data.data && res.data.status !== 'success')) {
+        if (!cursor) {
+          setError('Internal Server Error');
+          setProfiles([]);
+        } else {
+          setLoadingMore(false);
+        }
+        return;
+      }
 
       const normalized: PlayerProfile[] = (res.data?.data || []).map(
         (p: any) => {
           // Get profile image with fallback priority: thumbUrl -> thumbProfileUrl -> thumbNormalUrl -> thumbIconUrl
-          const profileImage = 
-            p.profile?.thumbUrl || 
-            p.profile?.thumbProfileUrl || 
-            p.profile?.thumbNormalUrl || 
-            p.profile?.thumbIconUrl || 
+          const profileImage =
+            p.profile?.thumbUrl ||
+            p.profile?.thumbProfileUrl ||
+            p.profile?.thumbNormalUrl ||
+            p.profile?.thumbIconUrl ||
             null;
-          
+
           return {
             id: p.id,
             name: p.name || "",
@@ -95,13 +122,23 @@ export default function ScoutingProfilesPage() {
       } else {
         // Replace profiles on initial load
         setProfiles(normalized);
+        setError(null); // Clear error on success
       }
 
       // Set next cursor from pagination
       setNextCursor(res.data?.pagination?.nextCursor || null);
-    } catch {
+    } catch (err: any) {
+      // Handle network errors and other exceptions
+      const errorMessage = err?.response?.data?.message ||
+        err?.message ||
+        'Internal Server Error - Unable to fetch player profiles';
+
       if (!cursor) {
+        setError(errorMessage);
         setProfiles([]);
+      } else {
+        // Don't show error for load more, just stop loading
+        console.error('Failed to load more profiles', err);
       }
     } finally {
       setLoading(false);
@@ -116,15 +153,22 @@ export default function ScoutingProfilesPage() {
       const client = await getClient();
       const res = await client.get(`player?limit=20&cursor=${nextCursor}`);
 
+      // Check if API returned an error status
+      if (res.data?.status === 'error' || res.data?.status === 'failed') {
+        console.error('API returned error status:', res.data?.message);
+        setLoadingMore(false);
+        return;
+      }
+
       const normalized: PlayerProfile[] = (res.data?.data || []).map(
         (p: any) => {
-          const profileImage = 
-            p.profile?.thumbUrl || 
-            p.profile?.thumbProfileUrl || 
-            p.profile?.thumbNormalUrl || 
-            p.profile?.thumbIconUrl || 
+          const profileImage =
+            p.profile?.thumbUrl ||
+            p.profile?.thumbProfileUrl ||
+            p.profile?.thumbNormalUrl ||
+            p.profile?.thumbIconUrl ||
             null;
-          
+
           return {
             id: p.id,
             name: p.name || "",
@@ -140,8 +184,9 @@ export default function ScoutingProfilesPage() {
 
       setProfiles(prev => [...prev, ...normalized]);
       setNextCursor(res.data?.pagination?.nextCursor || null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load more profiles', error);
+      // Don't show error for load more, just stop loading
     } finally {
       setLoadingMore(false);
     }
@@ -162,14 +207,14 @@ export default function ScoutingProfilesPage() {
   // Infinite scroll handler
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    
+
     const handleScroll = () => {
       // Throttle scroll events
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         // Check if user has scrolled near the bottom (within 200px)
         if (
-          window.innerHeight + window.scrollY >= 
+          window.innerHeight + window.scrollY >=
           document.documentElement.offsetHeight - 200
         ) {
           loadMore();
@@ -208,8 +253,8 @@ export default function ScoutingProfilesPage() {
         </div>
 
         {/* Search */}
-        <div className="bg-gray-900 rounded-2xl shadow-lg p-5 mb-8 border border-gray-800">
-          <div className="relative">
+        
+          <div className="relative py-2 mb-3">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
             <input
               type="text"
@@ -219,13 +264,51 @@ export default function ScoutingProfilesPage() {
               className="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
           </div>
-        </div>
+       
 
         {/* Content */}
         {loading ? (
           <div className="flex flex-col justify-center items-center py-24">
             <div className="w-16 h-16 border-4 border-gray-700 border-t-cyan-500 rounded-full animate-spin"></div>
             <p className="mt-4 text-gray-400 font-medium">Loading players...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col justify-center items-center py-24">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 max-w-md w-full">
+              <div className="flex items-center justify-center mb-4">
+                <FiAlertCircle className="w-16 h-16 text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-white text-center mb-2">
+                Internal Server Error
+              </h3>
+              <p className="text-gray-400 text-center mb-6">
+                {error}
+              </p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  fetchProfiles();
+                }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 transform hover:scale-105"
+              >
+                <FiRefreshCw className="w-5 h-5" />
+                Retry
+              </button>
+            </div>
+          </div>
+        ) : filteredProfiles.length === 0 ? (
+          <div className="flex flex-col justify-center items-center py-24">
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 max-w-md w-full text-center">
+              <FiAlertCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">
+                No Players Found
+              </h3>
+              <p className="text-gray-400">
+                {searchQuery
+                  ? "No players match your search criteria. Try a different search term."
+                  : "No player profiles available at the moment."}
+              </p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
@@ -253,10 +336,10 @@ export default function ScoutingProfilesPage() {
                   <div className="absolute inset-0 opacity-[0.03]" style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
                   }} />
-                  
+
                   {/* Gradient overlay on hover */}
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-600/0 via-transparent to-cyan-500/0 group-hover:from-purple-600/10 group-hover:to-cyan-500/10 transition-all duration-500" />
-                  
+
                   {/* Player Image */}
                   <img
                     src={profile.profileImage || '/images/default/player_default.PNG'}
@@ -269,54 +352,55 @@ export default function ScoutingProfilesPage() {
                 </div>
 
                 {/* Right Section - Info (70%) */}
-                <div className="flex-1 flex flex-col p-3 border-l border-gray-800 min-w-0">
+                <div className="flex-1 flex flex-col p-2 border-l border-gray-800 min-w-0">
                   {/* Top Bar - Name and Position */}
                   <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1 min-w-0 pr-2">
+                    <div className="flex-1 min-w-0 ">
                       <h4
                         onClick={() => router.push(`/dashboard/scouting-profiles/${profile.id}`)}
-                        className="text-base  text-[8px] text-white mb-1 line-clamp-1 group-hover:text-cyan-400 transition-colors duration-300 cursor-pointer"
+                        className="text-base  text-[8px] text-white mb-1 line-clamp-1 "
                       >
                         {profile.name}
                       </h4>
-                      {profile.position && (
-                        <div className="inline-block px-1.5 py-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-semibold rounded backdrop-blur-sm">
-                          {profile.position}
-                        </div>
-                      )}
-                       <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/dashboard/scouting-profiles/${profile.id}`);
-                      }}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white text-[10px] font-semibold rounded-lg transition-all duration-300 shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 transform hover:scale-105 whitespace-nowrap"
-                    >
-                      View More
-                    </button>
+                      
                     </div>
                   </div>
 
-                
-
-                  {/* Bottom Bar - Location, Age, Compare */}
-                  <div className="flex items-center justify-between mt-auto gap-2">
-                    {/* Left side - Location and Age */}
-                    <div className="flex items-center gap-3 text-[11px] text-gray-400 flex-1 min-w-0">
-                      {profile.location && (
-                        <div className="flex items-center gap-1 min-w-0">
-                          <FiMapPin className="w-3 h-3 text-purple-400 flex-shrink-0" />
-                          <span className="truncate max-w-[100px]">{profile.location}</span>
-                        </div>
-                      )}
-                      {profile.age !== undefined && (
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <FiCalendar className="w-3 h-3 text-cyan-400 flex-shrink-0" />
-                          <span>{profile.age}y</span>
-                        </div>
-                      )}
+                  {/* Location and Age Section - Only show if at least one has data */}
+                  {((profile.location && typeof profile.location === 'string' && profile.location.trim() !== '') || (profile.age !== undefined && profile.age !== null)) && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 text-[8px] text-gray-400 flex-1 min-w-0">
+                        {profile.location && typeof profile.location === 'string' && profile.location.trim() !== '' && (
+                          <div className="flex items-center gap-1 min-w-0">
+                            <FiMapPin className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                            <span className="truncate max-w-[100px]">{profile.location}</span>
+                          </div>
+                        )}
+                        {profile.age !== undefined && profile.age !== null && (
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <FiCalendar className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+                            <span>{profile.age}y</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
+                  )}
 
-                    {/* Right side - Compare */}
+                  {/* Position Section */}
+                  {profile.position && typeof profile.position === 'string' && profile.position.trim() !== 'Unknown' ? (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-gray-400 text-[8px]">Position : </span>
+                      <div className="inline-block px-1.5 py-0.2 bg-gradient-to-r from-purple-600/20 to-cyan-500/20 border border-purple-500/30 text-purple-300 text-[10px] rounded backdrop-blur-sm">
+                        {profile.position}
+                      </div>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                  {/* Bottom Bar - Compare */}
+                  <div className="flex items-center justify-between mt-auto gap-2  ">
+                
+                    {/* Compare Checkbox */}
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {/* Compare Checkbox */}
                       <button
@@ -328,30 +412,42 @@ export default function ScoutingProfilesPage() {
                           compareList.length === 2 &&
                           !compareList.includes(profile.id)
                         }
-                        className={`w-4 h-4 rounded border-2 flex items-center justify-center text-[9px] font-bold transition-all flex-shrink-0 backdrop-blur-sm
+                        className={`w-3 h-3 rounded border-2 flex items-center justify-center text-[8px] font-bold transition-all flex-shrink-0 backdrop-blur-sm
                           ${compareList.includes(profile.id)
-                              ? "bg-gradient-to-r from-purple-600 to-cyan-500 border-transparent text-white shadow-md shadow-purple-500/50"
-                              : compareList.length === 2
-                                ? "bg-gray-800/50 border-gray-600 text-transparent cursor-not-allowed opacity-50"
-                                : "bg-gray-800/50 border-gray-600 text-transparent hover:border-purple-400 hover:bg-gray-700/50"
-                            } 
+                            ? "bg-gradient-to-r from-purple-600 to-cyan-500 border-transparent text-white shadow-md shadow-purple-500/50"
+                            : compareList.length === 2
+                              ? "bg-gray-800/50 border-gray-600 text-transparent cursor-not-allowed opacity-50"
+                              : "bg-gray-800/50 border-gray-600 text-transparent hover:border-purple-400 hover:bg-gray-700/50"
+                          } 
                         `}
                       >
                         ✓
                       </button>
                       <span
-                        className={`text-[10px] font-medium transition-colors duration-200 hidden md:block
+                        className={`text-[8px] font-medium transition-colors duration-200 hidden md:block
                           ${compareList.includes(profile.id)
-                              ? "text-cyan-400"
-                              : compareList.length === 2
-                                ? "text-gray-500 cursor-not-allowed"
-                                : "text-gray-400 hover:text-purple-400"
-                            }
+                            ? "text-cyan-400"
+                            : compareList.length === 2
+                              ? "text-gray-500 cursor-not-allowed"
+                              : "text-gray-400 hover:text-purple-400"
+                          }
                         `}
                       >
                         Compare
                       </span>
                     </div>
+                    <div className="flex items-center gap-1 justify-end flex-1 min-w-0">
+                     
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         router.push(`/dashboard/scouting-profiles/${profile.id}`);
+                       }}
+                       className="text-white text-[10px]   "
+                     >
+                       View More
+                     </button>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -454,9 +550,9 @@ export default function ScoutingProfilesPage() {
               }
               className={`px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg
                 ${compareList.length === 2
-                    ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white hover:from-purple-700 hover:to-cyan-600 transform hover:scale-105 shadow-purple-500/50"
-                    : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
-                  }
+                  ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white hover:from-purple-700 hover:to-cyan-600 transform hover:scale-105 shadow-purple-500/50"
+                  : "bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700"
+                }
               `}
             >
               Compare Players
