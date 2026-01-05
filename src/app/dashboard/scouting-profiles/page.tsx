@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
+import { createPlayerUrl } from "@/lib/utils/slug";
 import {
   FiSearch,
   FiMapPin,
@@ -245,7 +246,7 @@ export default function ScoutingProfilesPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-white tracking-tight">
-            Scouting Profiles ⚽
+            Scouting Profiles
           </h1>
           <p className="text-base text-gray-400 mt-2">
             Discover and scout talented football players
@@ -357,7 +358,7 @@ export default function ScoutingProfilesPage() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1 min-w-0 ">
                       <h4
-                        onClick={() => router.push(`/dashboard/scouting-profiles/${profile.id}?tab=profile`)}
+                        onClick={() => router.push(`${createPlayerUrl(profile.name, profile.id)}?tab=profile`)}
                         className="text-base  text-[8px] text-white mb-1 line-clamp-1 cursor-pointer hover:text-cyan-400 transition-colors"
                       >
                         {profile.name}
@@ -441,7 +442,7 @@ export default function ScoutingProfilesPage() {
                      <button
                        onClick={(e) => {
                          e.stopPropagation();
-                         router.push(`/dashboard/scouting-profiles/${profile.id}?tab=profile`);
+                         router.push(`${createPlayerUrl(profile.name, profile.id)}?tab=profile`);
                        }}
                        className="text-white text-[10px] "
                      >

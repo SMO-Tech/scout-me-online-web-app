@@ -9,6 +9,8 @@ import {
   FiFileText, FiUsers, FiActivity, FiZap
 } from 'react-icons/fi'
 import { getClient } from '@/lib/api/client'
+import { extractPlayerId } from '@/lib/utils/slug'
+import { useSEO } from '@/hooks/useSEO'
 
 interface PlayerData {
   id: string;
@@ -41,7 +43,9 @@ interface PlayerData {
 
 const PlayerProfileView = () => {
   const params = useParams()
-  const playerId = params.id as string
+  const slugOrId = params.id as string
+  // Extract player ID from slug (handles both "player-name-id" and "id" formats)
+  const playerId = extractPlayerId(slugOrId)
   const [player, setPlayer] = useState<PlayerData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -141,6 +145,25 @@ const PlayerProfileView = () => {
     fetchPlayerData()
   }, [playerId])
 
+  // SEO metadata
+  useSEO({
+    title: player 
+      ? `${player.firstName} ${player.lastName} - Player Profile | ScoutMe.cloud`
+      : 'Player Profile | ScoutMe.cloud',
+    description: player
+      ? `View detailed profile of ${player.firstName} ${player.lastName}${player.position ? `, ${player.position}` : ''}${player.club ? ` at ${player.club}` : ''}. Stats, analytics, and performance data on ScoutMe.cloud.`
+      : 'View player profile, stats, and analytics on ScoutMe.cloud',
+    image: player?.avatar || '/images/default/player_default.PNG',
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    keywords: player 
+      ? `${player.firstName} ${player.lastName}, football player, soccer player, player profile, ${player.position || ''}, ${player.club || ''}, scouting, football analytics`
+      : 'football player, soccer player, player profile, scouting, football analytics',
+    type: 'profile',
+    firstName: player?.firstName,
+    lastName: player?.lastName,
+    siteName: 'ScoutMe.cloud'
+  })
+
   const formatDate = (dob?: string | null) => {
     if (!dob || dob === "01-01-1900") return null;
     try {
@@ -222,20 +245,14 @@ const PlayerProfileView = () => {
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500" />
               <div className="relative w-44 h-44 bg-[#0a0b0f] rounded-2xl flex items-center justify-center border-2 border-emerald-500/30 overflow-hidden shadow-2xl">
-                {player.avatar ? (
-                  <img 
-                    src={player.avatar} 
-                    alt={player.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/default/player_default.PNG';
-                    }}
-                  />
-                ) : (
-                  <div className="text-emerald-500/50 flex flex-col items-center">
-                    <FiUser size={60} />
-                  </div>
-                )}
+                <img 
+                  src={player.avatar || '/images/default/player_default.PNG'} 
+                  alt={player.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/default/player_default.PNG';
+                  }}
+                />
               </div>
              
             </div>

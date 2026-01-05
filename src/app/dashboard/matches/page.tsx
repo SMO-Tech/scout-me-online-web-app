@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getClient } from "@/lib/api/client";
+import { createMatchUrl } from "@/lib/utils/slug";
 import {
     FiPlus, FiSearch, FiEye
 } from "react-icons/fi";
@@ -383,7 +384,7 @@ export default function Matches() {
                                     </div>
 
                                     <button
-                                        onClick={() => router.push(`/dashboard/matches/${match.id}`)}
+                                        onClick={() => router.push(createMatchUrl(`${match.teamName} vs ${match.opponentName}`, match.id))}
                                         className="bg-cyan-400 hover:bg-cyan-300 text-black px-10 py-2.5 rounded-xl font-black italic text-[10px] uppercase tracking-widest transition-all"
                                     >
                                         View Match

@@ -9,6 +9,8 @@ import {
 } from 'react-icons/fi';
 import { dummyMatch } from '@/staticdata/match';
 import TacticalOverlay from '@/components/match/TechticalOverlay';
+import { extractMatchId } from '@/lib/utils/slug';
+import { useSEO } from '@/hooks/useSEO';
 
 
 
@@ -177,7 +179,8 @@ const StatsTerminal = ({ title, players, metricName, accentColor }: any) => {
 const MatchDetailPage = () => {
     const params = useParams();
     const router = useRouter();
-    const matchId = params.id as string;
+    const slugOrId = params.id as string;
+    const matchId = extractMatchId(slugOrId);
 
     const [matchData, setMatchData] = useState<MatchDetail | null>(dummyMatch);
     const [loading, setLoading] = useState(false);
@@ -211,11 +214,36 @@ const MatchDetailPage = () => {
     // }, [matchId]);
  
 
+    // Generate match title for SEO
+    const { home: homeTeam, away: awayTeam } = getTeams(matchData?.matchClubs || []);
+    const matchTitle = matchData 
+      ? `${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}${matchData.competitionName ? ` - ${matchData.competitionName}` : ''}`
+      : 'Match Analysis';
+    const matchScore = matchData?.result 
+      ? `${matchData.result.homeScore} - ${matchData.result.awayScore}`
+      : '';
+
+    // SEO metadata
+    useSEO({
+      title: matchData 
+        ? `${matchTitle}${matchScore ? ` (${matchScore})` : ''} - Match Analysis | ScoutMe.cloud`
+        : 'Match Analysis | ScoutMe.cloud',
+      description: matchData
+        ? `Watch and analyze ${matchTitle}${matchScore ? ` (${matchScore})` : ''}${matchData.matchDate ? ` played on ${new Date(matchData.matchDate).toLocaleDateString()}` : ''}. Detailed match analysis, player stats, and tactical insights on ScoutMe.cloud.`
+        : 'View detailed match analysis, player stats, and tactical insights on ScoutMe.cloud',
+      image: homeTeam?.club?.logoUrl || awayTeam?.club?.logoUrl || '/images/default/club_default.PNG',
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      keywords: matchData 
+        ? `${homeTeam?.name || ''}, ${awayTeam?.name || ''}, football match, match analysis, ${matchData.competitionName || ''}, football analytics, match stats`
+        : 'football match, match analysis, football analytics, match stats',
+      type: 'article',
+      siteName: 'ScoutMe.cloud'
+    });
+
     if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
 
     if (error || !matchData) return <div className="p-8 text-center text-white mt-20"><FiAlertTriangle className="mx-auto mb-2 text-red-500" />{error || "Data not found."}</div>;
 
-    const { home: homeTeam } = getTeams(matchData.matchClubs);
     const youtubeId = getYouTubeId(matchData.videoUrl);
     const starters = matchData.matchPlayers.slice(0, 11);
     const subs = matchData.matchPlayers.slice(11);

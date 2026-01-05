@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { FiArrowLeft, FiMenu } from "react-icons/fi";
 import CollapsibleSidebar, { TabType } from "@/components/club/CollapsibleSideBar";
 import AnalyticsView from "@/components/club/Views/AnalytisView";
@@ -8,16 +9,79 @@ import ProfileView from "@/components/club/Views/ProfileView";
 import MatchesView from "@/components/club/Views/MatchView";
 import { useRouter } from "next/navigation";
 import { DUMMY_METRICS } from "@/staticdata/club";
+import { getClient } from "@/lib/api/client";
+import { extractClubId } from "@/lib/utils/slug";
+import { useSEO } from "@/hooks/useSEO";
 
+interface ClubData {
+  id: string;
+  name: string;
+  country: string;
+  logoUrl?: string;
+}
 
 export default function ClubDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const slugOrId = params.id as string;
+  const clubId = extractClubId(slugOrId);
+  
   // 1. Sidebar State
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const router = useRouter()
-
+  
   // 2. Tab State (Default to 'analytics' since that's what we built)
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
+  
+  // 3. Club Data State
+  const [club, setClub] = useState<ClubData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch club data
+  useEffect(() => {
+    const fetchClubData = async () => {
+      if (!clubId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const client = await getClient();
+        const response = await client.get(`/club/${clubId}`);
+        
+        if (response.data?.status === 'success' && response.data?.data) {
+          setClub(response.data.data);
+        } else if (response.data?.data) {
+          // Handle case where data is directly in response.data
+          setClub(response.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch club details:", err);
+        // Continue with page even if API fails (uses mock data in views)
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClubData();
+  }, [clubId]);
+
+  // SEO metadata
+  useSEO({
+    title: club 
+      ? `${club.name} - Football Club Profile | ScoutMe.cloud`
+      : 'Football Club Profile | ScoutMe.cloud',
+    description: club
+      ? `View detailed profile of ${club.name}${club.country ? ` from ${club.country}` : ''}. Club stats, analytics, matches, and squad information on ScoutMe.cloud.`
+      : 'View football club profile, stats, analytics, and matches on ScoutMe.cloud',
+    image: club?.logoUrl || '/images/default/club_default.PNG',
+    url: typeof window !== 'undefined' ? window.location.href : '',
+    keywords: club 
+      ? `${club.name}, football club, soccer club, ${club.country || ''}, club profile, football analytics, club stats`
+      : 'football club, soccer club, club profile, football analytics',
+    type: 'website',
+    siteName: 'ScoutMe.cloud'
+  });
 
   return (
     <div className="min-h-screen bg-[#14151b] text-white p-4 sm:p-8">

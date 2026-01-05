@@ -36,7 +36,7 @@ export const STATIC_METRICS = [
 // Static Data for the Club Card
 export const STATIC_CLUB_DATA = {
     name: "Hashtag United FC",
-    logoUrl: "https://example.com/hashtag-logo.png", 
+    logoUrl: "/images/default/club_default.PNG", 
     id: "HAS001",
 };
 
