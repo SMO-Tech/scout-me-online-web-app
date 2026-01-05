@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FiArrowLeft, FiMenu } from "react-icons/fi"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 // Reusing existing components
 import CollapsibleSidebar from "@/components/club/CollapsibleSideBar"
@@ -12,10 +12,22 @@ import PlayerEventsView from '@/components/Player/PlayerEventsView';
 
 
 const PlayerDetailPage = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('analytics') // Default to analytics as requested
-  const router = useRouter()
+  
+  // Get initial tab from URL query parameter, default to 'analytics'
+  const initialTab = searchParams.get('tab') || 'analytics'
+  const [activeTab, setActiveTab] = useState(initialTab)
+
+  // Update activeTab when query parameter changes
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['profile', 'analytics', 'events'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   return (
     <div className="min-h-screen bg-[#14151b] text-white p-4 sm:p-8">

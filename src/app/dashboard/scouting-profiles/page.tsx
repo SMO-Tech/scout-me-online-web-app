@@ -357,8 +357,8 @@ export default function ScoutingProfilesPage() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1 min-w-0 ">
                       <h4
-                        onClick={() => router.push(`/dashboard/scouting-profiles/${profile.id}`)}
-                        className="text-base  text-[8px] text-white mb-1 line-clamp-1 "
+                        onClick={() => router.push(`/dashboard/scouting-profiles/${profile.id}?tab=profile`)}
+                        className="text-base  text-[8px] text-white mb-1 line-clamp-1 cursor-pointer hover:text-cyan-400 transition-colors"
                       >
                         {profile.name}
                       </h4>
@@ -441,7 +441,7 @@ export default function ScoutingProfilesPage() {
                      <button
                        onClick={(e) => {
                          e.stopPropagation();
-                         router.push(`/dashboard/scouting-profiles/${profile.id}`);
+                         router.push(`/dashboard/scouting-profiles/${profile.id}?tab=profile`);
                        }}
                        className="text-white text-[10px] "
                      >
