@@ -5,7 +5,7 @@ import { getClient } from '@/lib/api/client';
 import {
     FiLoader, FiAlertTriangle, FiCalendar, FiMapPin, FiLayers,
     FiVideo, FiList, FiTrendingUp, FiSettings,
-    FiArrowLeft
+    FiArrowLeft, FiX
 } from 'react-icons/fi';
 import { dummyMatch } from '@/staticdata/match';
 import TacticalOverlay from '@/components/match/TechticalOverlay';

@@ -1,25 +1,86 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { 
   FiUser, FiCalendar, FiMapPin, FiShield, 
-  FiClock, FiDatabase, FiCopy, FiCheck, FiAlertCircle, FiLock 
+  FiClock, FiDatabase, FiCopy, FiCheck, FiAlertCircle, FiLock, FiLoader 
 } from 'react-icons/fi'
-import { useFetchPlayerProfile } from '@/hooks'
-// Import the custom hook we created
+import { getClient } from '@/lib/api/client'
 
+interface PlayerData {
+  firstName: string;
+  lastName: string;
+  primaryPosition: string | null;
+  country: string | null;
+  dateOfBirth: string | null;
+  status: string;
+  createdAt: string | null;
+  avatar: string | null;
+  ownerId: string | null;
+}
 
 const PlayerProfileView = () => {
   const params = useParams()
   const playerId = params.id as string
-  const [copied, setCopied] = useState(false)
+  const [player, setPlayer] = useState<PlayerData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // 1. CALL THE CUSTOM HOOK
-  // This replaces your entire useEffect and manual fetchPlayer logic
-  const { data: player, isLoading } = useFetchPlayerProfile(playerId);
+  // Fetch player data
+  useEffect(() => {
+    const fetchPlayerData = async () => {
+      if (!playerId) {
+        setError('Player ID is required')
+        setIsLoading(false)
+        return
+      }
 
-  const getAge = (dob?: string) => {
+      setIsLoading(true)
+      setError(null)
+
+      try {
+        const client = await getClient()
+        const response = await client.get(`/player/${playerId}`)
+
+        if (response.data?.status === 'success' && response.data?.data) {
+          const data = response.data.data
+          
+          // Map API response to component's expected structure
+          setPlayer({
+            firstName: data.firstName || '',
+            lastName: data.lastName || '',
+            primaryPosition: data.position || null,
+            country: data.country || data.location || null,
+            dateOfBirth: data.dateOfBirth || null,
+            status: data.status || 'UNCLAIMED',
+            createdAt: data.createdAt || null,
+            avatar: data.profile?.thumbUrl || 
+                   data.profile?.thumbProfileUrl || 
+                   data.profile?.thumbNormalUrl || 
+                   data.profile?.thumbIconUrl || 
+                   data.imageUrl || 
+                   null,
+            ownerId: data.ownerId || null,
+          })
+        } else {
+          setError('Failed to fetch player details')
+          setPlayer(null)
+        }
+      } catch (err: any) {
+        console.error("Failed to fetch player details:", err)
+        const errorMessage = err.response?.data?.message || err.message || "Failed to load player details"
+        setError(errorMessage)
+        setPlayer(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchPlayerData()
+  }, [playerId])
+
+  const getAge = (dob?: string | null) => {
     if (!dob || dob === "01-01-1900") return "N/A";
     try {
       const [day, month, year] = dob.split("-").map(Number);
@@ -33,14 +94,26 @@ const PlayerProfileView = () => {
   };
 
   // 2. HANDLE LOADING STATE
-  if (isLoading) return <div className="p-8 animate-pulse bg-[#1b1c28] rounded-2xl h-64" />
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center bg-[#1b1c28] rounded-2xl h-64">
+        <div className="flex flex-col items-center gap-4">
+          <FiLoader className="animate-spin text-purple-400" size={32} />
+          <p className="text-gray-400">Loading player profile...</p>
+        </div>
+      </div>
+    )
+  }
   
-  // 3. HANDLE EMPTY STATE
-  if (!player) return (
-    <div className="p-12 text-center bg-[#1b1c28] rounded-2xl border border-[#3b3e4e]">
-      <p className="text-gray-400">Player profile not found.</p>
-    </div>
-  )
+  // 3. HANDLE ERROR STATE
+  if (error || !player) {
+    return (
+      <div className="p-12 text-center bg-[#1b1c28] rounded-2xl border border-[#3b3e4e]">
+        <FiAlertCircle className="mx-auto mb-4 text-red-500" size={32} />
+        <p className="text-gray-400">{error || "Player profile not found."}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -53,10 +126,17 @@ const PlayerProfileView = () => {
           <div className="relative">
             <div className="w-36 h-36 bg-[#14151b] rounded-3xl flex items-center justify-center border-2 border-[#3b3e4e] overflow-hidden shadow-2xl">
               {player.avatar ? (
-                <img src={player.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                <img 
+                  src={player.avatar} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/default/player_default.PNG';
+                  }}
+                />
               ) : (
                 <div className="text-purple-500/50 flex flex-col items-center">
-                   <FiUser size={50} />
+                  <FiUser size={50} />
                 </div>
               )}
             </div>
@@ -141,11 +221,13 @@ const PlayerProfileView = () => {
             The athlete is currently registered in <span className="text-white">{player.country}</span>.
           </p>
           <div className="mt-6 flex flex-wrap gap-2 pt-6 border-t border-[#3b3e4e]">
-            {[player.primaryPosition, player.country, player.status].filter(Boolean).map(tag => (
-              <span key={tag} className="bg-[#14151b] text-gray-400 px-3 py-1 rounded-lg text-[10px] font-bold border border-[#3b3e4e] uppercase">
-                #{tag.replace(/\s+/g, '')}
-              </span>
-            ))}
+            {[player.primaryPosition, player.country, player.status]
+              .filter((tag): tag is string => Boolean(tag))
+              .map(tag => (
+                <span key={tag} className="bg-[#14151b] text-gray-400 px-3 py-1 rounded-lg text-[10px] font-bold border border-[#3b3e4e] uppercase">
+                  #{tag.replace(/\s+/g, '')}
+                </span>
+              ))}
           </div>
         </div>
       </div>

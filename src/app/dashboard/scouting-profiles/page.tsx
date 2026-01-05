@@ -443,7 +443,7 @@ export default function ScoutingProfilesPage() {
                          e.stopPropagation();
                          router.push(`/dashboard/scouting-profiles/${profile.id}`);
                        }}
-                       className="text-white text-[10px]   "
+                       className="text-white text-[10px] "
                      >
                        View More
                      </button>
