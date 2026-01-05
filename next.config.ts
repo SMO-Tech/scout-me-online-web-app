@@ -6,14 +6,15 @@ const nextConfig: NextConfig = {
 
   images: {
     unoptimized: true,
-    domains: ['lh3.googleusercontent.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
   },
 
   trailingSlash: true,
-
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   
   typescript: {
     ignoreBuildErrors: true,

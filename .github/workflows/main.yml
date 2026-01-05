@@ -46,7 +46,11 @@ jobs:
             sudo fuser -k 3000/tcp || true
             
             # Clean the old build artifacts to prevent chunk conflicts
-            sudo rm -rf .next
+            # Remove with proper ownership (no sudo to avoid permission issues)
+            rm -rf .next
+            
+            # Fix ownership of the entire directory (in case of previous sudo operations)
+            sudo chown -R ubuntu:ubuntu ~/scout-me-online-web-app || true
             
             # Install/update dependencies
             npm install
