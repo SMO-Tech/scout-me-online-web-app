@@ -76,6 +76,7 @@ export default function Matches() {
         try {
             const client = await getClient();
             const res = await client.get("/match/all-match");
+            console.log(res.data)
             setMatches(res.data.data || []);
         } catch (err) {
             console.error("Failed to fetch matches", err);
@@ -85,7 +86,7 @@ export default function Matches() {
         }
     };
 
-    // useEffect(() => { fetchMatches(); }, []);
+    useEffect(() => { fetchMatches(); }, []);
 
     const filteredAndSortedMatches = useMemo((): Match[] => {
         const derived: Match[] = matches.map(match => {
@@ -342,7 +343,8 @@ export default function Matches() {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-blue-500 font-black text-sm uppercase">{match.user.name}</span>
-                                        <span className="text-pink-400 font-black text-sm uppercase">Liverpo</span>
+                                        {/* add ownes club name */}
+                                        <span className="text-pink-400 font-black text-sm uppercase"></span>
                                     </div>
                                 </div>
 
@@ -371,7 +373,7 @@ export default function Matches() {
                                         <span>{match.country || "GLOBAL"}, {match.venue || "HQ"}</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-white text-[10px] font-black uppercase tracking-widest">
-                                        <Image src={"/images/performance.png"} width={20} height={20} alt="Performance icon" />
+                                        <Image src={"/images/performance-icon.png"} width={20} height={20} alt="Performance icon" />
                                         <span>{match.country || "GLOBAL"}, {match.venue || "HQ"}</span>
                                     </div>
                                 </div>
