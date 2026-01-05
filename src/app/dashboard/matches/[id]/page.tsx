@@ -315,10 +315,38 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     FiPlay, FiPause, FiSearch, FiVideo,
-    FiCheckCircle, FiXCircle, FiFilter, FiX
+    FiCheckCircle, FiXCircle, FiFilter, FiX,
+    FiLoader, FiAlertTriangle
 } from 'react-icons/fi';
 import { useFetchMatchResult } from '@/hooks';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { extractMatchId } from '@/lib/utils/slug';
+import { useSEO } from '@/hooks/useSEO';
+import { dummyMatch } from '@/staticdata/match';
+
+// --- Types ---
+interface CanonicalClub { id: string; logoUrl: string | null; }
+interface MatchClubData {
+    id: string; name: string; country: string; jerseyColor: string | null;
+    isUsersTeam: boolean; club: CanonicalClub | null;
+}
+interface MatchResultData {
+    homeScore: number; awayScore: number;
+}
+interface MatchDetail {
+    id: string; videoUrl: string; status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+    level: string; matchDate: string | null; competitionName: string | null; venue: string | null;
+    createdAt: string;
+    matchClubs: MatchClubData[]; matchPlayers: any[];
+    result: MatchResultData | null; user: { name: string };
+}
+
+const getTeams = (matchClubs: MatchClubData[]) => {
+    return {
+        home: matchClubs.find(c => c.isUsersTeam),
+        away: matchClubs.find(c => !c.isUsersTeam),
+    };
+};
 
 // --- Types ---
 interface PassEvent {
@@ -352,7 +380,7 @@ const getYouTubeVideoId = (url: string | undefined): string | null => {
     return null;
 };
 
-export default function ScoutReport() {
+function ScoutReport() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -527,87 +555,8 @@ export default function ScoutReport() {
                                 </div>
                             </div>
                         </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
-
-// ============================================================================
-// 4. MAIN PAGE COMPONENT
-// ============================================================================
-const MatchDetailPage = () => {
-    const params = useParams();
-    const router = useRouter();
-    const slugOrId = params.id as string;
-    const matchId = extractMatchId(slugOrId);
-
-    const [matchData, setMatchData] = useState<MatchDetail | null>(dummyMatch);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
-
-    // useEffect(() => {
-    //     if (!matchId) return;
-
-    //     const fetchMatchDetails = async () => {
-    //         setLoading(true);
-    //         setError(null);
-            
-    //         try {
-    //             const client = await getClient(); 
-    //             const response = await client.get(`/match/${matchId}`);
-    //             console.log(response.data)
-    //             setMatchData(response.data.data as MatchDetail);
-    //         } catch (err: any) {
-    //             console.error("Failed to fetch match details:", err);
-    //             const errorMessage = err.response?.data?.error || err.message || "Unknown error occurred.";
-    //             setError(errorMessage);
-    //             setMatchData(null);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     fetchMatchDetails();
-    // }, [matchId]);
- 
-
-    // Generate match title for SEO
-    const { home: homeTeam, away: awayTeam } = getTeams(matchData?.matchClubs || []);
-    const matchTitle = matchData 
-      ? `${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}${matchData.competitionName ? ` - ${matchData.competitionName}` : ''}`
-      : 'Match Analysis';
-    const matchScore = matchData?.result 
-      ? `${matchData.result.homeScore} - ${matchData.result.awayScore}`
-      : '';
-
-    // SEO metadata
-    useSEO({
-      title: matchData 
-        ? `${matchTitle}${matchScore ? ` (${matchScore})` : ''} - Match Analysis | ScoutMe.cloud`
-        : 'Match Analysis | ScoutMe.cloud',
-      description: matchData
-        ? `Watch and analyze ${matchTitle}${matchScore ? ` (${matchScore})` : ''}${matchData.matchDate ? ` played on ${new Date(matchData.matchDate).toLocaleDateString()}` : ''}. Detailed match analysis, player stats, and tactical insights on ScoutMe.cloud.`
-        : 'View detailed match analysis, player stats, and tactical insights on ScoutMe.cloud',
-      image: homeTeam?.club?.logoUrl || awayTeam?.club?.logoUrl || '/images/default/club_default.PNG',
-      url: typeof window !== 'undefined' ? window.location.href : '',
-      keywords: matchData 
-        ? `${homeTeam?.name || ''}, ${awayTeam?.name || ''}, football match, match analysis, ${matchData.competitionName || ''}, football analytics, match stats`
-        : 'football match, match analysis, football analytics, match stats',
-      type: 'article',
-      siteName: 'ScoutMe.cloud'
-    });
-
-    if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
-
-    if (error || !matchData) return <div className="p-8 text-center text-white mt-20"><FiAlertTriangle className="mx-auto mb-2 text-red-500" />{error || "Data not found."}</div>;
-
-    const youtubeId = getYouTubeId(matchData.videoUrl);
-    const starters = matchData.matchPlayers.slice(0, 11);
-    const subs = matchData.matchPlayers.slice(11);
+                    </div>
+                </section>
 
                 {/* --- LOG TABLE SECTION --- */}
                 <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-8 shadow-2xl">
@@ -727,69 +676,144 @@ const MatchDetailPage = () => {
                         </table>
                     </div>
                 </section>
-            </main>
 
-            {/* --- REPLAY MODAL --- */}
-            {selectedPass && (
-                <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-6 overflow-auto animate-in fade-in duration-300">
-                    <div className="bg-[#0b0f1a] border border-white/10 w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] relative flex flex-col">
+                {/* --- REPLAY MODAL --- */}
+                {selectedPass && (
+                    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-6 overflow-auto animate-in fade-in duration-300">
+                        <div className="bg-[#0b0f1a] border border-white/10 w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] relative flex flex-col">
 
-                        <button
-                            onClick={() => setSelectedPass(null)}
-                            className="absolute top-4 md:top-6 right-4 md:right-6 z-10 bg-white/5 hover:bg-red-500 text-white p-3 rounded-2xl transition-all hover:scale-110"
-                        >
-                            <FiX size={24} />
-                        </button>
+                            <button
+                                onClick={() => setSelectedPass(null)}
+                                className="absolute top-4 md:top-6 right-4 md:right-6 z-10 bg-white/5 hover:bg-red-500 text-white p-3 rounded-2xl transition-all hover:scale-110"
+                            >
+                                <FiX size={24} />
+                            </button>
 
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-indigo-600 to-purple-800 p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                            <div>
-                                <h2 className="font-black italic uppercase flex items-center gap-2 text-base md:text-lg tracking-tight text-white">
-                                    <FiPlay size={18} className="text-white" /> AI Action Replay
-                                </h2>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    <span className="bg-white/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-indigo-100">
-                                        {selectedPass.type}
-                                    </span>
-                                    <span className="bg-black/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-white/50">
-                                        Sequence #{selectedPass.id}
-                                    </span>
+                            {/* Header */}
+                            <div className="bg-gradient-to-r from-indigo-600 to-purple-800 p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                <div>
+                                    <h2 className="font-black italic uppercase flex items-center gap-2 text-base md:text-lg tracking-tight text-white">
+                                        <FiPlay size={18} className="text-white" /> AI Action Replay
+                                    </h2>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        <span className="bg-white/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-indigo-100">
+                                            {selectedPass.type}
+                                        </span>
+                                        <span className="bg-black/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-white/50">
+                                            Sequence #{selectedPass.id}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Video */}
-                        <div className="w-full mt-4 flex justify-center">
-                            <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black">
-                                <iframe
-                                    className="w-full h-full"
-                                    src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0&showinfo=0&start=${Math.floor(selectedPass.time)}`}
-                                    title="AI Action Replay"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                />
-                            </div>
-                        </div>
-
-                        {/* Info Grid */}
-                        <div className="p-4 md:p-6 grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
-                            {[
-                                { label: 'SENDER', value: `#${selectedPass.fromPlayer} ${selectedPass.fromTeam}`, color: selectedPass.fromTeam === 'Blue' ? 'text-blue-400' : 'text-red-400' },
-                                { label: 'RECEIVER', value: `#${selectedPass.toPlayer} ${selectedPass.toTeam}`, color: selectedPass.toTeam === 'Blue' ? 'text-blue-400' : 'text-red-400' },
-                                { label: 'OUTCOME', value: selectedPass.result, color: selectedPass.result === 'Success' ? 'text-green-500' : 'text-orange-500' },
-                                { label: 'TIMESTAMP', value: formatTime(selectedPass.time), color: 'text-white' },
-                                { label: 'CONFIDENCE', value: `${selectedPass.confidence}%`, color: 'text-indigo-400' },
-                            ].map((info) => (
-                                <div key={info.label} className="flex flex-col gap-1">
-                                    <div className="text-[9px] font-black text-white/20 tracking-[0.2em]">{info.label}</div>
-                                    <div className={`text-sm font-black uppercase italic tracking-tight ${info.color}`}>{info.value}</div>
+                            {/* Video */}
+                            <div className="w-full mt-4 flex justify-center">
+                                <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black">
+                                    <iframe
+                                        className="w-full h-full"
+                                        src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0&showinfo=0&start=${Math.floor(selectedPass.time)}`}
+                                        title="AI Action Replay"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                    />
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Info Grid */}
+                            <div className="p-4 md:p-6 grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
+                                {[
+                                    { label: 'SENDER', value: `#${selectedPass.fromPlayer} ${selectedPass.fromTeam}`, color: selectedPass.fromTeam === 'Blue' ? 'text-blue-400' : 'text-red-400' },
+                                    { label: 'RECEIVER', value: `#${selectedPass.toPlayer} ${selectedPass.toTeam}`, color: selectedPass.toTeam === 'Blue' ? 'text-blue-400' : 'text-red-400' },
+                                    { label: 'OUTCOME', value: selectedPass.result, color: selectedPass.result === 'Success' ? 'text-green-500' : 'text-orange-500' },
+                                    { label: 'TIMESTAMP', value: formatTime(selectedPass.time), color: 'text-white' },
+                                    { label: 'CONFIDENCE', value: `${selectedPass.confidence}%`, color: 'text-indigo-400' },
+                                ].map((info) => (
+                                    <div key={info.label} className="flex flex-col gap-1">
+                                        <div className="text-[9px] font-black text-white/20 tracking-[0.2em]">{info.label}</div>
+                                        <div className={`text-sm font-black uppercase italic tracking-tight ${info.color}`}>{info.value}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-
-            )}
+                )}
+            </main>
         </div>
     );
+};
+
+// ============================================================================
+// 4. MAIN PAGE COMPONENT
+// ============================================================================
+const MatchDetailPage = () => {
+    const params = useParams();
+    const router = useRouter();
+    const slugOrId = params.id as string;
+    const matchId = extractMatchId(slugOrId);
+
+    const [matchData, setMatchData] = useState<MatchDetail | null>(dummyMatch);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
+
+    // useEffect(() => {
+    //     if (!matchId) return;
+
+    //     const fetchMatchDetails = async () => {
+    //         setLoading(true);
+    //         setError(null);
+            
+    //         try {
+    //             const client = await getClient(); 
+    //             const response = await client.get(`/match/${matchId}`);
+    //             console.log(response.data)
+    //             setMatchData(response.data.data as MatchDetail);
+    //         } catch (err: any) {
+    //             console.error("Failed to fetch match details:", err);
+    //             const errorMessage = err.response?.data?.error || err.message || "Unknown error occurred.";
+    //             setError(errorMessage);
+    //             setMatchData(null);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     fetchMatchDetails();
+    // }, [matchId]);
+ 
+
+    // Generate match title for SEO
+    const { home: homeTeam, away: awayTeam } = getTeams(matchData?.matchClubs || []);
+    const matchTitle = matchData 
+      ? `${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}${matchData.competitionName ? ` - ${matchData.competitionName}` : ''}`
+      : 'Match Analysis';
+    const matchScore = matchData?.result 
+      ? `${matchData.result.homeScore} - ${matchData.result.awayScore}`
+      : '';
+
+    // SEO metadata
+    useSEO({
+      title: matchData 
+        ? `${matchTitle}${matchScore ? ` (${matchScore})` : ''} - Match Analysis | ScoutMe.cloud`
+        : 'Match Analysis | ScoutMe.cloud',
+      description: matchData
+        ? `Watch and analyze ${matchTitle}${matchScore ? ` (${matchScore})` : ''}${matchData.matchDate ? ` played on ${new Date(matchData.matchDate).toLocaleDateString()}` : ''}. Detailed match analysis, player stats, and tactical insights on ScoutMe.cloud.`
+        : 'View detailed match analysis, player stats, and tactical insights on ScoutMe.cloud',
+      image: homeTeam?.club?.logoUrl || awayTeam?.club?.logoUrl || '/images/default/club_default.PNG',
+      url: typeof window !== 'undefined' ? window.location.href : '',
+      keywords: matchData 
+        ? `${homeTeam?.name || ''}, ${awayTeam?.name || ''}, football match, match analysis, ${matchData.competitionName || ''}, football analytics, match stats`
+        : 'football match, match analysis, football analytics, match stats',
+      type: 'article',
+      siteName: 'ScoutMe.cloud'
+    });
+
+    if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
+
+    if (error || !matchData) return <div className="p-8 text-center text-white mt-20"><FiAlertTriangle className="mx-auto mb-2 text-red-500" />{error || "Data not found."}</div>;
+
+    return <ScoutReport />;
 }
+
+export default MatchDetailPage;
