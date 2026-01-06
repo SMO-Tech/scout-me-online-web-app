@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiMapPin, FiCalendar, FiUser } from 'react-icons/fi';
+import { FiMapPin, FiCalendar, FiUser, FiFilter } from 'react-icons/fi';
 import { createPlayerUrl } from '@/lib/utils/slug';
 
 interface ClubMember {
@@ -26,11 +26,33 @@ interface MembersViewProps {
 
 export default function MembersView({ members }: MembersViewProps) {
   const router = useRouter();
+  const [selectedPosition, setSelectedPosition] = useState<string>('All');
+
+  // Extract unique positions from members
+  const availablePositions = useMemo(() => {
+    const positions = members
+      .map(m => m.position)
+      .filter(pos => pos && pos !== 'Unknown' && pos.trim() !== '')
+      .filter((pos, index, self) => self.indexOf(pos) === index)
+      .sort();
+    return ['All', ...positions];
+  }, [members]);
+
+  // Filter members by selected position
+  const filteredMembers = useMemo(() => {
+    if (selectedPosition === 'All') {
+      return members;
+    }
+    return members.filter(member => 
+      member.position && 
+      member.position !== 'Unknown' && 
+      member.position === selectedPosition
+    );
+  }, [members, selectedPosition]);
 
   // Get profile image with fallback priority
   const getProfileImage = (member: ClubMember): string => {
     return (
-     
       member.profile?.thumbProfileUrl ||
       member.profile?.thumbNormalUrl ||
       member.profile?.thumbIconUrl ||
@@ -67,19 +89,49 @@ export default function MembersView({ members }: MembersViewProps) {
     <div className="space-y-6 animate-fadeIn pb-10">
       {/* Header */}
       <div className="bg-[#1b1c28] border border-[#3b3e4e] rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4">
           <div>
             <h2 className="text-2xl font-bold text-white mb-2">Club Members</h2>
             <p className="text-gray-400 text-sm">
-              {members.length} {members.length === 1 ? 'member' : 'members'} in this club
+              Showing {filteredMembers.length} of {members.length} {members.length === 1 ? 'member' : 'members'}
             </p>
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <FiFilter className="w-4 h-4" />
+              <span className="font-medium">Filter by Position:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {availablePositions.map((position) => (
+                <button
+                  key={position}
+                  onClick={() => setSelectedPosition(position)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                    selectedPosition === position
+                      ? 'bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-md shadow-purple-500/30'
+                      : 'bg-[#252834] border border-[#3b3e4e] text-gray-300 hover:bg-[#2d2f3e] hover:border-purple-500/50'
+                  }`}
+                >
+                  {position}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Members Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-        {members.map((member) => {
+        {filteredMembers.length === 0 ? (
+          <div className="col-span-full bg-[#1b1c28] border border-[#3b3e4e] rounded-xl p-12 text-center">
+            <FiUser className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+            <h3 className="text-lg font-bold text-white mb-2">No Members Found</h3>
+            <p className="text-gray-400">No members found for the selected position filter.</p>
+          </div>
+        ) : (
+          filteredMembers.map((member) => {
           const profileImage = getProfileImage(member);
           const hasId = member.id && member.id.trim() !== '';
 
@@ -189,7 +241,8 @@ export default function MembersView({ members }: MembersViewProps) {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );
