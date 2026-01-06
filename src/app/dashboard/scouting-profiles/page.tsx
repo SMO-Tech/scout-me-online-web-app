@@ -11,6 +11,8 @@ import {
   FiX,
   FiAlertCircle,
   FiRefreshCw,
+  FiFilter,
+  FiChevronDown,
 } from "react-icons/fi";
 
 /* =========================
@@ -25,6 +27,7 @@ interface PlayerProfile {
   profileImage?: string;
   createdAt?: string;
   status?: string;
+  profileType?: string;
 }
 
 /* =========================
@@ -42,6 +45,8 @@ export default function ScoutingProfilesPage() {
   const [compareList, setCompareList] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [selectedProfileType, setSelectedProfileType] = useState<string>("All");
+  const [showProfileTypeFilter, setShowProfileTypeFilter] = useState(false);
 
   const toggleCompare = (id: string) => {
     setCompareList((prev) => {
@@ -115,6 +120,7 @@ export default function ScoutingProfilesPage() {
             profileImage: profileImage,
             createdAt: p.createdAt,
             status: p.status,
+            profileType: p.profileType || null,
           };
         }
       );
@@ -324,20 +330,78 @@ export default function ScoutingProfilesPage() {
     };
   }, [loadMore]);
 
-  // No need for client-side filtering anymore since we use API search
-  const filteredProfiles = profiles;
+  // Filter profiles by profileType
+  const filteredProfiles = profiles.filter((profile) => {
+    if (selectedProfileType === "All") {
+      return true;
+    }
+    return profile.profileType === selectedProfileType;
+  });
+
+  // Get unique profile types from profiles
+  const availableProfileTypes = ["All", ...Array.from(new Set(profiles.map(p => p.profileType).filter((type): type is string => Boolean(type))))];
 
   return (
     <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-8 pb-28 bg-black">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">
-            Scouting Profiles
-          </h1>
-          <p className="text-base text-gray-400 mt-2">
-            Discover and scout talented football players
-          </p>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-4xl font-extrabold text-white tracking-tight">
+                Scouting Profiles
+              </h1>
+              <p className="text-base text-gray-400 mt-2">
+                Discover and scout talented football players
+              </p>
+            </div>
+            
+            {/* Profile Type Filter */}
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileTypeFilter(!showProfileTypeFilter)}
+                className={`flex items-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-medium transition-all border ${
+                  selectedProfileType !== "All" 
+                    ? "border-purple-500/50 bg-purple-600/20 text-purple-400" 
+                    : "border-gray-700"
+                }`}
+              >
+                <FiFilter className="w-5 h-5" />
+                <span className="hidden sm:inline">
+                  {selectedProfileType === "All" ? "All Profiles" : selectedProfileType}
+                </span>
+                <span className="sm:hidden">Filter</span>
+                <FiChevronDown className={`w-4 h-4 transition-transform ${showProfileTypeFilter ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showProfileTypeFilter && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setShowProfileTypeFilter(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-56 bg-gray-800 rounded-xl shadow-xl py-1 z-20 border border-gray-700">
+                    {availableProfileTypes.map((profileType) => (
+                      <button
+                        key={profileType}
+                        onClick={() => {
+                          setSelectedProfileType(profileType);
+                          setShowProfileTypeFilter(false);
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-700 flex items-center gap-2 transition-colors ${
+                          selectedProfileType === profileType 
+                            ? "bg-purple-600/20 text-purple-400" 
+                            : "text-gray-300"
+                        }`}
+                      >
+                        {profileType}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Search */}
