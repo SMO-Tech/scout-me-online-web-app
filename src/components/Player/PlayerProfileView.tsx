@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { 
   FiUser, FiCalendar, FiMapPin, FiShield, 
-  FiClock, FiAlertCircle, FiLock, FiLoader,
+  FiClock, FiAlertCircle, FiLock,
   FiHash, FiTarget, FiAward, FiGlobe, FiDollarSign,
   FiFileText, FiUsers, FiActivity, FiZap
 } from 'react-icons/fi'
@@ -431,20 +431,6 @@ const PlayerProfileView = () => {
         </div>
 
       </div>
-
-      {/* Tags Section */}
-      {/* <div className="bg-gradient-to-br from-[#0d1117] to-[#161b22] border border-white/5 rounded-2xl p-6">
-        <h3 className="text-sm font-black uppercase text-gray-400 mb-4 tracking-widest">Tags & Categories</h3>
-        <div className="flex flex-wrap gap-2">
-          {[player.position, player.country, player.nationality, player.club, player.status, player.strongFoot]
-            .filter((tag): tag is string => Boolean(tag))
-            .map(tag => (
-              <span key={tag} className="bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full text-xs font-bold border border-emerald-500/20 uppercase tracking-wider hover:bg-emerald-500/20 transition-colors cursor-default">
-                #{tag.replace(/\s+/g, '')}
-              </span>
-            ))}
-        </div>
-      </div> */}
     </div>
   )
 }

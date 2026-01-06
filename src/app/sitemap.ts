@@ -7,8 +7,9 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}` 
   : 'https://scoutme.cloud'
 
-// API base URL
-const apiBaseUrl = process.env.NEXT_PUBLIC_BASE_URL
+// API base URL - use environment variable or fallback to production API
+// Remove trailing slash if present (axios handles path joining)
+const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://api.scoutme.cloud').replace(/\/$/, '')
 
 interface SitemapEntry {
   url: string
@@ -23,14 +24,18 @@ interface SitemapEntry {
 async function fetchPlayers(): Promise<SitemapEntry[]> {
   try {
     if (!apiBaseUrl) {
-      console.warn('API base URL not configured, skipping players in sitemap')
+      // Silently skip if API URL not configured
       return []
     }
 
     const client = axios.create({ 
       baseURL: apiBaseUrl,
-      timeout: 10000 // 10 second timeout
+      timeout: 5000 // Reduced timeout for faster failure
     })
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Fetching players from: ${apiBaseUrl}/player?limit=100`)
+    }
     
     const allPlayers: any[] = []
     let cursor: string | null = null
@@ -45,6 +50,16 @@ async function fetchPlayers(): Promise<SitemapEntry[]> {
           : `player?limit=100`
         
         const response: any = await client.get(url)
+        
+        // Log response structure in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Sitemap] Players API response status: ${response.status}`, {
+            hasData: !!response.data?.data,
+            dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'not array',
+            responseKeys: Object.keys(response.data || {})
+          })
+        }
+        
         const data: any[] = response.data?.data || response.data || []
         
         if (Array.isArray(data)) {
@@ -52,7 +67,14 @@ async function fetchPlayers(): Promise<SitemapEntry[]> {
           // Check if there's a next cursor
           cursor = response.data?.nextCursor || response.data?.cursor || null
           hasMore = cursor !== null && data.length === 100
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`[Sitemap] Fetched ${data.length} players, total: ${allPlayers.length}`)
+          }
         } else {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('[Sitemap] Players API did not return an array:', response.data)
+          }
           hasMore = false
         }
         
@@ -60,8 +82,17 @@ async function fetchPlayers(): Promise<SitemapEntry[]> {
         if (allPlayers.length / 100 >= maxPages) {
           hasMore = false
         }
-      } catch (pageError) {
-        console.error('Error fetching players page:', pageError)
+      } catch (pageError: any) {
+        // Log all errors in development to diagnose issues
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[Sitemap] Error fetching players page:', {
+            message: pageError.message,
+            code: pageError.code,
+            status: pageError.response?.status,
+            statusText: pageError.response?.statusText,
+            data: pageError.response?.data
+          })
+        }
         hasMore = false
       }
     }
@@ -78,8 +109,17 @@ async function fetchPlayers(): Promise<SitemapEntry[]> {
         priority: 0.7
       }
     })
-  } catch (error) {
-    console.error('Error fetching players for sitemap:', error)
+  } catch (error: any) {
+    // Log all errors in development to diagnose issues
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Sitemap] Error fetching players:', {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      })
+    }
     return []
   }
 }
@@ -90,20 +130,41 @@ async function fetchPlayers(): Promise<SitemapEntry[]> {
 async function fetchClubs(): Promise<SitemapEntry[]> {
   try {
     if (!apiBaseUrl) {
-      console.warn('API base URL not configured, skipping clubs in sitemap')
+      // Silently skip if API URL not configured
       return []
     }
 
     const client = axios.create({ 
       baseURL: apiBaseUrl,
-      timeout: 10000
+      timeout: 5000 // Reduced timeout for faster failure
     })
     
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Fetching clubs from: ${apiBaseUrl}/club/`)
+    }
+    
     const response = await client.get('/club/')
+    
+    // Log response structure in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Clubs API response status: ${response.status}`, {
+        hasData: !!response.data?.data,
+        dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'not array',
+        responseKeys: Object.keys(response.data || {})
+      })
+    }
+    
     const clubs = response.data?.data || response.data || []
     
     if (!Array.isArray(clubs)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Sitemap] Clubs API did not return an array:', response.data)
+      }
       return []
+    }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Fetched ${clubs.length} clubs`)
     }
     
     return clubs.map((club: any) => ({
@@ -112,8 +173,17 @@ async function fetchClubs(): Promise<SitemapEntry[]> {
       changeFrequency: 'weekly' as const,
       priority: 0.7
     }))
-  } catch (error) {
-    console.error('Error fetching clubs for sitemap:', error)
+  } catch (error: any) {
+    // Log all errors in development to diagnose issues
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Sitemap] Error fetching clubs:', {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      })
+    }
     return []
   }
 }
@@ -124,20 +194,41 @@ async function fetchClubs(): Promise<SitemapEntry[]> {
 async function fetchMatches(): Promise<SitemapEntry[]> {
   try {
     if (!apiBaseUrl) {
-      console.warn('API base URL not configured, skipping matches in sitemap')
+      // Silently skip if API URL not configured
       return []
     }
 
     const client = axios.create({ 
       baseURL: apiBaseUrl,
-      timeout: 10000
+      timeout: 5000 // Reduced timeout for faster failure
     })
     
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Fetching matches from: ${apiBaseUrl}/match/all-match`)
+    }
+    
     const response = await client.get('/match/all-match')
+    
+    // Log response structure in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Matches API response status: ${response.status}`, {
+        hasData: !!response.data?.data,
+        dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'not array',
+        responseKeys: Object.keys(response.data || {})
+      })
+    }
+    
     const matches = response.data?.data || response.data || []
     
     if (!Array.isArray(matches)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Sitemap] Matches API did not return an array:', response.data)
+      }
       return []
+    }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Sitemap] Fetched ${matches.length} matches`)
     }
     
     return matches.slice(0, 2000).map((match: any) => { // Limit to 2000 matches
@@ -152,8 +243,17 @@ async function fetchMatches(): Promise<SitemapEntry[]> {
         priority: 0.6
       }
     })
-  } catch (error) {
-    console.error('Error fetching matches for sitemap:', error)
+  } catch (error: any) {
+    // Log all errors in development to diagnose issues
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Sitemap] Error fetching matches:', {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
+      })
+    }
     return []
   }
 }

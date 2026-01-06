@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
 import { createPlayerUrl } from "@/lib/utils/slug";
@@ -37,9 +37,11 @@ export default function ScoutingProfilesPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [compareList, setCompareList] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isSearchMode, setIsSearchMode] = useState(false);
 
   const toggleCompare = (id: string) => {
     setCompareList((prev) => {
@@ -197,13 +199,105 @@ export default function ScoutingProfilesPage() {
     fetchProfiles();
   }, []);
 
-  // Reset profiles and cursor when search query changes
-  useEffect(() => {
-    if (searchQuery) {
-      // Filter is handled by filteredProfiles, but we might want to reset pagination
-      // For now, we'll keep the current implementation where search filters client-side
+  // Search function using API
+  const searchPlayers = useCallback(async (query: string) => {
+    setIsSearching(true);
+    setIsSearchMode(true);
+    setError(null);
+
+    try {
+      const client = await getClient();
+      
+      // Parse search query - try to extract structured data
+      // Format: "FirstName LastName, Country, DateOfBirth (DD-MM-YYYY)"
+      // Example: "John Doe, England, 01-01-2000"
+      const queryParts = query.trim().split(',').map(p => p.trim());
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      
+      // Try to parse the query - first part as name, second as country, third as date
+      if (queryParts.length > 0) {
+        const nameParts = queryParts[0].split(' ').filter(p => p.trim());
+        if (nameParts.length >= 2) {
+          params.append('firstName', nameParts[0]);
+          params.append('lastName', nameParts.slice(1).join(' '));
+        } else if (nameParts.length === 1) {
+          params.append('firstName', nameParts[0]);
+        }
+      }
+      
+      if (queryParts.length > 1) {
+        params.append('country', queryParts[1]);
+      }
+      
+      if (queryParts.length > 2) {
+        params.append('dateOfBirth', queryParts[2]);
+      }
+
+      // If no structured parsing, use the whole query as firstName
+      if (params.toString() === '') {
+        params.append('firstName', query);
+      }
+
+      const response = await client.get(`/player/search?${params.toString()}`);
+
+      if (response.data?.status === 'success' && response.data?.data) {
+        const normalized: PlayerProfile[] = (response.data.data || []).map(
+          (p: any) => {
+            const profileImage =
+              p.profile?.thumbUrl ||
+              p.profile?.thumbProfileUrl ||
+              p.profile?.thumbNormalUrl ||
+              p.profile?.thumbIconUrl ||
+              null;
+
+            return {
+              id: p.id,
+              name: p.name || "",
+              age: p.age,
+              position: p.position,
+              location: p.location,
+              profileImage: profileImage,
+              createdAt: p.createdAt,
+              status: p.status,
+            };
+          }
+        );
+
+        setProfiles(normalized);
+        setNextCursor(null); // Search results typically don't have pagination
+        setError(null);
+      } else {
+        setError(response.data?.message || 'No players found');
+        setProfiles([]);
+      }
+    } catch (err: any) {
+      console.error("Search failed:", err);
+      const errorMessage = err?.response?.data?.message || 
+        err?.message || 
+        'Failed to search players';
+      setError(errorMessage);
+      setProfiles([]);
+    } finally {
+      setIsSearching(false);
     }
-  }, [searchQuery]);
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        searchPlayers(searchQuery);
+      } else {
+        // Clear search and fetch normal profiles
+        setIsSearchMode(false);
+        fetchProfiles();
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, searchPlayers]);
 
   // Infinite scroll handler
   useEffect(() => {
@@ -230,15 +324,8 @@ export default function ScoutingProfilesPage() {
     };
   }, [loadMore]);
 
-  const filteredProfiles = useMemo(() => {
-    return profiles.filter((p) =>
-      searchQuery
-        ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.position?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.location?.toLowerCase().includes(searchQuery.toLowerCase())
-        : true
-    );
-  }, [profiles, searchQuery]);
+  // No need for client-side filtering anymore since we use API search
+  const filteredProfiles = profiles;
 
   return (
     <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-8 pb-28 bg-black">
@@ -257,18 +344,40 @@ export default function ScoutingProfilesPage() {
         
           <div className="relative py-2 mb-3">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+            {isSearching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="w-5 h-5 border-2 border-gray-500 border-t-purple-500 rounded-full animate-spin"></div>
+              </div>
+            )}
             <input
               type="text"
-              placeholder="Search by name, position, or location..."
+              placeholder="Search: FirstName LastName, Country, DateOfBirth (DD-MM-YYYY)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-10 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
+            {searchQuery && (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setIsSearchMode(false);
+                  fetchProfiles();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+              >
+                <FiX size={18} />
+              </button>
+            )}
           </div>
+          {isSearchMode && (
+            <div className="mb-4 text-sm text-gray-400">
+              Showing search results for: <span className="text-white font-medium">{searchQuery}</span>
+            </div>
+          )}
        
 
         {/* Content */}
-        {loading ? (
+        {(loading || isSearching) ? (
           <div className="flex flex-col justify-center items-center py-24">
             <div className="w-16 h-16 border-4 border-gray-700 border-t-cyan-500 rounded-full animate-spin"></div>
             <p className="mt-4 text-gray-400 font-medium">Loading players...</p>
@@ -304,11 +413,23 @@ export default function ScoutingProfilesPage() {
               <h3 className="text-xl font-bold text-white mb-2">
                 No Players Found
               </h3>
-              <p className="text-gray-400">
-                {searchQuery
+              <p className="text-gray-400 mb-4">
+                {isSearchMode
                   ? "No players match your search criteria. Try a different search term."
                   : "No player profiles available at the moment."}
               </p>
+              {isSearchMode && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setIsSearchMode(false);
+                    fetchProfiles();
+                  }}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                  Clear Search
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -457,7 +578,7 @@ export default function ScoutingProfilesPage() {
         )}
 
         {/* Loading More Indicator */}
-        {loadingMore && (
+        {loadingMore && !isSearchMode && (
           <div className="flex justify-center items-center py-8 mt-6">
             <div className="w-12 h-12 border-4 border-gray-700 border-t-cyan-500 rounded-full animate-spin"></div>
             <span className="ml-4 text-gray-400 font-medium">Loading more players...</span>
@@ -465,7 +586,7 @@ export default function ScoutingProfilesPage() {
         )}
 
         {/* End of Results Indicator */}
-        {!loading && !loadingMore && !nextCursor && filteredProfiles.length > 0 && (
+        {!loading && !loadingMore && !nextCursor && filteredProfiles.length > 0 && !isSearchMode && (
           <div className="text-center py-8 mt-6">
             <p className="text-gray-500 text-sm">No more players to load</p>
           </div>

@@ -12,39 +12,57 @@ import {
   FiPhone,
   FiGlobe,
   FiInstagram,
-  FiTwitter
+  FiTwitter,
+  FiEye
 } from "react-icons/fi";
 
-// --- MOCK DATA (Public Info) ---
-const CLUB_PROFILE = {
-  name: "Scouting United FC",
-  tagline: "Developing the future of football through data.",
-  founded: "2018",
-  location: "London, UK",
-  stadium: "The Data Arena",
-  manager: "Alex Ferguson AI",
-  website: "www.scoutingunited.com",
-  description: "Scouting United FC is a premier academy focused on technical excellence and tactical intelligence. Founded in 2018, we have quickly established ourselves as a regional powerhouse, utilizing advanced analytics to develop the next generation of talent.",
-  email: "contact@scoutingunited.com",
-  phone: "+44 20 7123 4567",
-  stats: {
-    members: 24,
-    matches: 142,
-    trophies: 3,
-    ranking: "#4 Regional"
-  }
-};
+interface ClubData {
+  id: string;
+  name: string;
+  country: string;
+  description?: string;
+  memberCount?: number;
+  viewCount?: number;
+  clubId?: number;
+  status?: string;
+  imageUrl?: string;
+  logoUrl?: string;
+  profile?: {
+    logoUrl?: string;
+    thumbUrl?: string | null;
+    thumbProfileUrl?: string;
+    thumbNormalUrl?: string;
+    thumbIconUrl?: string;
+  };
+  createdAt?: string;
+  playerCount?: number;
+}
 
-const SQUAD_MEMBERS = [
-  { id: 1, name: "Kleanthus Pieri", role: "Forward", number: 10 },
-  { id: 2, name: "Panagiotis C.", role: "Midfielder", number: 8 },
-  { id: 3, name: "Kylian Mbappé", role: "Winger", number: 7 },
-  { id: 4, name: "Pelé", role: "Legend", number: 10 },
-  { id: 5, name: "Diego", role: "Midfielder", number: 6 },
-  { id: 6, name: "Zinedine Zidane", role: "Coach", number: null },
-];
+interface ProfileViewProps {
+  club: ClubData;
+}
 
-export default function ProfileView() {
+export default function ProfileView({ club }: ProfileViewProps) {
+  // Format date
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return null;
+    try {
+      // Handle DD-MM-YYYY format
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+      return dateStr;
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const logoUrl = club.logoUrl || club.imageUrl || '/images/default/club_default.PNG';
   return (
     <div className="space-y-6 animate-fadeIn pb-10">
       
@@ -61,25 +79,50 @@ export default function ProfileView() {
             
             {/* Club Logo */}
             <div className="w-32 h-32 rounded-2xl bg-[#151720] border-4 border-[#1b1c28] shadow-2xl flex items-center justify-center relative overflow-hidden shrink-0">
-               <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-purple-400 to-blue-400 tracking-tighter">
-                  SU
-               </div>
+              <img
+                src={logoUrl}
+                alt={club.name}
+                className="w-full h-full object-contain p-2"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/default/club_default.PNG';
+                }}
+              />
             </div>
 
             {/* Club Info */}
             <div className="flex-1 pt-2 w-full">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
-                    <h1 className="text-4xl font-extrabold text-white mb-2">{CLUB_PROFILE.name}</h1>
-                    <p className="text-gray-400 text-sm mb-3">{CLUB_PROFILE.tagline}</p>
+                    <h1 className="text-4xl font-extrabold text-white mb-2">{club.name}</h1>
+                    {club.status && (
+                      <p className="text-gray-400 text-sm mb-3">
+                        Status: <span className={`font-semibold ${club.status === 'CLAIMED' ? 'text-green-400' : 'text-yellow-400'}`}>
+                          {club.status}
+                        </span>
+                      </p>
+                    )}
                     
                     <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-gray-400">
-                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#252834] border border-[#3b3e4e]">
-                            <FiMapPin className="text-purple-400" /> {CLUB_PROFILE.location}
-                        </span>
-                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#252834] border border-[#3b3e4e]">
-                            <FiCalendar className="text-blue-400" /> Est. {CLUB_PROFILE.founded}
-                        </span>
+                        {club.country && (
+                          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#252834] border border-[#3b3e4e]">
+                            <FiMapPin className="text-purple-400" /> {club.country}
+                          </span>
+                        )}
+                        {club.createdAt && (
+                          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#252834] border border-[#3b3e4e]">
+                            <FiCalendar className="text-blue-400" /> Est. {formatDate(club.createdAt)}
+                          </span>
+                        )}
+                        {club.memberCount !== undefined && (
+                          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#252834] border border-[#3b3e4e]">
+                            <FiUsers className="text-cyan-400" /> {club.memberCount} Members
+                          </span>
+                        )}
+                        {club.viewCount !== undefined && (
+                          <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#252834] border border-[#3b3e4e]">
+                            <FiEye className="text-green-400" /> {club.viewCount} Views
+                          </span>
+                        )}
                     </div>
                 </div>
                 
@@ -109,59 +152,33 @@ export default function ProfileView() {
                       About Us
                   </h3>
                   <p className="text-gray-400 leading-relaxed text-base mb-8">
-                      {CLUB_PROFILE.description}
+                      {club.description || 'No description available for this club.'}
                   </p>
                   
                   {/* Key Details Grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="p-4 bg-[#252834]/50 rounded-xl border border-[#3b3e4e] flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
-                             <FiUsers size={20} />
-                          </div>
-                          <div>
-                              <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Manager</span>
-                              <p className="text-white font-bold">{CLUB_PROFILE.manager}</p>
-                          </div>
-                      </div>
-                      <div className="p-4 bg-[#252834]/50 rounded-xl border border-[#3b3e4e] flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
-                             <FiMapPin size={20} />
-                          </div>
-                          <div>
-                              <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Home Ground</span>
-                              <p className="text-white font-bold">{CLUB_PROFILE.stadium}</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-
-              {/* 3. SQUAD ROSTER (Read Only) */}
-              <div className="bg-[#1b1c28] border border-[#3b3e4e] rounded-xl p-8 shadow-lg">
-                  <div className="flex justify-between items-center mb-6">
-                      <h3 className="text-xl font-bold text-white">First Team Squad</h3>
-                      <span className="text-xs font-bold text-gray-500 bg-[#252834] px-2 py-1 rounded">2024/25 Season</span>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {SQUAD_MEMBERS.map((member) => (
-                          <div key={member.id} className="flex items-center p-3 rounded-lg bg-[#252834]/50 border border-[#3b3e4e] hover:bg-[#252834] transition cursor-default">
-                              {/* Avatar Placeholder */}
-                              <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-xs text-gray-400 font-bold mr-4 border border-gray-700">
-                                  {getInitials(member.name)}
-                              </div>
-                              
-                              <div className="flex-1">
-                                  <h4 className="text-sm font-bold text-gray-200">{member.name}</h4>
-                                  <p className="text-[10px] text-gray-500 uppercase font-semibold">{member.role}</p>
-                              </div>
-
-                              {member.number && (
-                                  <div className="text-lg font-black text-[#3b3e4e]">
-                                      {member.number}
-                                  </div>
-                              )}
-                          </div>
-                      ))}
+                      {club.country && (
+                        <div className="p-4 bg-[#252834]/50 rounded-xl border border-[#3b3e4e] flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
+                               <FiMapPin size={20} />
+                            </div>
+                            <div>
+                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Country</span>
+                                <p className="text-white font-bold">{club.country}</p>
+                            </div>
+                        </div>
+                      )}
+                      {club.memberCount !== undefined && (
+                        <div className="p-4 bg-[#252834]/50 rounded-xl border border-[#3b3e4e] flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                               <FiUsers size={20} />
+                            </div>
+                            <div>
+                                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Members</span>
+                                <p className="text-white font-bold">{club.memberCount}</p>
+                            </div>
+                        </div>
+                      )}
                   </div>
               </div>
 
@@ -175,67 +192,67 @@ export default function ProfileView() {
                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Club Achievements</h3>
                   
                   <div className="space-y-4">
-                      {/* Ranking */}
-                      <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded bg-yellow-500/10 flex items-center justify-center text-yellow-500">
-                                <FiAward />
-                              </div>
-                              <span className="text-sm text-gray-300 font-medium">League Rank</span>
-                          </div>
-                          <span className="font-bold text-white">{CLUB_PROFILE.stats.ranking}</span>
-                      </div>
-                      
-                      {/* Trophies */}
-                      <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center text-purple-500">
-                                <FiAward />
-                              </div>
-                              <span className="text-sm text-gray-300 font-medium">Trophies Won</span>
-                          </div>
-                          <span className="font-bold text-white">{CLUB_PROFILE.stats.trophies}</span>
-                      </div>
+                      {/* Club ID */}
+                      {club.clubId && (
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-yellow-500/10 flex items-center justify-center text-yellow-500">
+                                  <FiAward />
+                                </div>
+                                <span className="text-sm text-gray-300 font-medium">Club ID</span>
+                            </div>
+                            <span className="font-bold text-white">#{club.clubId}</span>
+                        </div>
+                      )}
 
-                      {/* Matches */}
-                      <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-500">
-                                <FiCalendar />
-                              </div>
-                              <span className="text-sm text-gray-300 font-medium">Matches Played</span>
-                          </div>
-                          <span className="font-bold text-white">{CLUB_PROFILE.stats.matches}</span>
-                      </div>
+                      {/* Members */}
+                      {club.memberCount !== undefined && (
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                  <FiUsers />
+                                </div>
+                                <span className="text-sm text-gray-300 font-medium">Total Members</span>
+                            </div>
+                            <span className="font-bold text-white">{club.memberCount}</span>
+                        </div>
+                      )}
+
+                      {/* Views */}
+                      {club.viewCount !== undefined && (
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-green-500/10 flex items-center justify-center text-green-500">
+                                  <FiEye />
+                                </div>
+                                <span className="text-sm text-gray-300 font-medium">Total Views</span>
+                            </div>
+                            <span className="font-bold text-white">{club.viewCount}</span>
+                        </div>
+                      )}
                   </div>
               </div>
 
-              {/* 5. CONTACT & SOCIALS */}
+              {/* 5. CLUB INFO */}
               <div className="bg-[#1b1c28] border border-[#3b3e4e] rounded-xl p-6 shadow-lg">
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Contact Us</h3>
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Club Information</h3>
                   
                   <div className="space-y-4 mb-6">
-                      <a href="#" className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition">
-                          <FiGlobe className="text-purple-500" /> {CLUB_PROFILE.website}
-                      </a>
-                      <a href="#" className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition">
-                          <FiMail className="text-blue-500" /> {CLUB_PROFILE.email}
-                      </a>
-                      <div className="flex items-center gap-3 text-sm text-gray-400">
-                          <FiPhone className="text-green-500" /> {CLUB_PROFILE.phone}
-                      </div>
-                  </div>
-
-                  <div className="border-t border-[#3b3e4e] pt-4 flex gap-4 justify-center">
-                      <button className="p-2 bg-[#252834] rounded-lg text-gray-400 hover:text-white hover:bg-blue-600 transition">
-                        <FiTwitter size={18}/>
-                      </button>
-                      <button className="p-2 bg-[#252834] rounded-lg text-gray-400 hover:text-white hover:bg-pink-600 transition">
-                        <FiInstagram size={18}/>
-                      </button>
-                      <button className="p-2 bg-[#252834] rounded-lg text-gray-400 hover:text-white hover:bg-blue-800 transition">
-                        <FiGlobe size={18}/>
-                      </button>
+                      {club.country && (
+                        <div className="flex items-center gap-3 text-sm text-gray-400">
+                            <FiMapPin className="text-purple-500" /> {club.country}
+                        </div>
+                      )}
+                      {club.createdAt && (
+                        <div className="flex items-center gap-3 text-sm text-gray-400">
+                            <FiCalendar className="text-blue-500" /> Founded: {formatDate(club.createdAt)}
+                        </div>
+                      )}
+                      {club.status && (
+                        <div className="flex items-center gap-3 text-sm text-gray-400">
+                            <FiAward className="text-yellow-500" /> Status: <span className={`font-semibold ${club.status === 'CLAIMED' ? 'text-green-400' : 'text-yellow-400'}`}>{club.status}</span>
+                        </div>
+                      )}
                   </div>
               </div>
 
@@ -244,6 +261,3 @@ export default function ProfileView() {
     </div>
   );
 }
-
-// Small helper for initials
-const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2);

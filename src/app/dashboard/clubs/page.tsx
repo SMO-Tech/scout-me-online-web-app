@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/api/client";
 import { createClubUrl } from "@/lib/utils/slug";
@@ -12,7 +12,18 @@ interface Club {
   id: string;
   name: string;
   country: string;
+  description?: string;
+  memberCount?: number;
+  viewCount?: number;
+  imageUrl?: string;
   logoUrl?: string;
+  profile?: {
+    logoUrl?: string;
+    thumbUrl?: string | null;
+    thumbProfileUrl?: string;
+    thumbNormalUrl?: string;
+    thumbIconUrl?: string;
+  };
 }
 
 type SortOption = "recentJoin" | "oldest" | "mostViewed";
@@ -25,6 +36,9 @@ export default function ClubsPage() {
   const router = useRouter();
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("recentJoin");
@@ -43,22 +57,83 @@ export default function ClubsPage() {
   });
   const [creatingClub, setCreatingClub] = useState(false);
 
-  const fetchClubs = async () => {
-    setLoading(true);
+  const fetchClubs = async (cursor?: string | null) => {
+    if (cursor) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
       const client = await getClient();
-      const res = await client.get("/club/");
-      console
-      // API returns: { status: "success", message: "...", data: [...] }
-      setClubs(res.data?.data || []);
-    } catch (err) {
+      const url = cursor
+        ? `/club/?limit=20&cursor=${cursor}`
+        : `/club/?limit=20`;
+      
+      const res = await client.get(url);
+
+      // Check if API returned an error status
+      if (res.data?.status === 'error' || res.data?.status === 'failed') {
+        const errorMessage = res.data?.message || 'Failed to load clubs';
+        if (!cursor) {
+          toast.error(errorMessage);
+          setClubs([]);
+        }
+        return;
+      }
+
+      // Normalize club data from API response
+      const normalized: Club[] = (res.data?.data || []).map((club: any) => {
+        // Get logo URL with fallback priority: profile.logoUrl -> imageUrl -> profile.thumbNormalUrl -> profile.thumbProfileUrl
+        const logoUrl =
+          club.profile?.logoUrl ||
+          club.imageUrl ||
+          club.profile?.thumbNormalUrl ||
+          club.profile?.thumbProfileUrl ||
+          club.profile?.thumbIconUrl ||
+          null;
+
+        return {
+          id: club.id,
+          name: club.name || "",
+          country: club.country || "",
+          description: club.description || "",
+          memberCount: club.memberCount || 0,
+          viewCount: club.viewCount || 0,
+          imageUrl: club.imageUrl || null,
+          logoUrl: logoUrl,
+          profile: club.profile || null,
+        };
+      });
+
+      if (cursor) {
+        // Append to existing clubs
+        setClubs(prev => [...prev, ...normalized]);
+      } else {
+        // Replace clubs on initial load
+        setClubs(normalized);
+      }
+
+      // Set pagination state
+      setNextCursor(res.data?.pagination?.nextCursor || null);
+      setHasNextPage(res.data?.pagination?.hasNextPage || false);
+    } catch (err: any) {
       console.error("Failed to fetch clubs", err);
-      setClubs([]);
-      toast.error("Failed to load clubs. Please try again.");
+      const errorMessage = err?.response?.data?.message || "Failed to load clubs. Please try again.";
+      if (!cursor) {
+        setClubs([]);
+        toast.error(errorMessage);
+      }
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !nextCursor) return;
+    await fetchClubs(nextCursor);
+  }, [nextCursor, loadingMore]);
 
   useEffect(() => {
     fetchClubs();
@@ -78,18 +153,23 @@ export default function ClubsPage() {
       return matchesSearch && matchesCountry;
     });
 
-    // Sort clubs - simplified since API doesn't provide date/views
+    // Sort clubs - now using actual viewCount when available
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "recentJoin":
-          // Since we don't have dates, sort alphabetically by name
+          // Sort alphabetically by name (or by viewCount if available as secondary)
           return a.name.localeCompare(b.name);
         case "oldest":
           // Reverse alphabetical
           return b.name.localeCompare(a.name);
         case "mostViewed":
-          // Since we don't have views, sort by country then name
-          return (a.country || "").localeCompare(b.country || "") || a.name.localeCompare(b.name);
+          // Sort by viewCount (descending), then by name
+          if (a.viewCount !== undefined && b.viewCount !== undefined) {
+            return b.viewCount - a.viewCount;
+          }
+          if (a.viewCount !== undefined) return -1;
+          if (b.viewCount !== undefined) return 1;
+          return a.name.localeCompare(b.name);
         default:
           return 0;
       }
@@ -109,7 +189,10 @@ export default function ClubsPage() {
       const client = await getClient();
       const res = await client.post("/clubs", newClub);
       
-      // Refresh clubs list
+      // Refresh clubs list (reset pagination)
+      setClubs([]);
+      setNextCursor(null);
+      setHasNextPage(false);
       await fetchClubs();
       
       // Show success and close modal
@@ -155,7 +238,7 @@ export default function ClubsPage() {
             <h1 className="text-4xl font-extrabold text-white tracking-tight">
               Football Clubs
             </h1>
-            <p className="text-base text-gray-400 mt-2">Discover and connect with clubs worldwide ⚽</p>
+            <p className="text-base text-gray-400 mt-2">Discover and connect with clubs worldwide</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
@@ -353,7 +436,7 @@ export default function ClubsPage() {
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-600/0 via-transparent to-cyan-500/0 group-hover:from-purple-600/10 group-hover:to-cyan-500/10 transition-all duration-500" />
                     
                     <img
-                      src={club.logoUrl || '/images/default/club_default.PNG'}
+                      src={club.logoUrl || club.imageUrl || '/images/default/club_default.PNG'}
                       alt={club.name}
                       className="max-h-32 max-w-[80%] object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
@@ -367,6 +450,22 @@ export default function ClubsPage() {
                     <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-cyan-400 transition-colors duration-300">
                       {club.name}
                     </h3>
+                    
+                    {/* Stats Row */}
+                    <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
+                      {club.memberCount !== undefined && (
+                        <div className="flex items-center gap-1">
+                          <FiUsers className="w-3.5 h-3.5 text-purple-400" />
+                          <span>{club.memberCount} members</span>
+                        </div>
+                      )}
+                      {club.viewCount !== undefined && (
+                        <div className="flex items-center gap-1">
+                          <FiEye className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>{club.viewCount} views</span>
+                        </div>
+                      )}
+                    </div>
                     
                     {/* Country Badge */}
                     {club.country && (
@@ -390,6 +489,29 @@ export default function ClubsPage() {
                 </Link>
               ))}
             </div>
+
+            {/* Load More Button */}
+            {hasNextPage && nextCursor && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Load More Clubs</span>
+                      <FiPlus className="w-5 h-5" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

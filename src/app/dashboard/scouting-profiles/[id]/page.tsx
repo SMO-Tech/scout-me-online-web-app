@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import CollapsibleSidebar from "@/components/club/CollapsibleSideBar"
 import AnalyticsView from "@/components/club/Views/AnalytisView" // The analytics logic
 import PlayerProfileView from '@/components/Player/PlayerProfileView';
+import PlayerStatisticsView from '@/components/Player/PlayerStatisticsView';
 import PlayerEventsView from '@/components/Player/PlayerEventsView';
 
 
@@ -24,7 +25,7 @@ const PlayerDetailPage = () => {
   // Update activeTab when query parameter changes
   useEffect(() => {
     const tab = searchParams.get('tab')
-    if (tab && ['profile', 'analytics', 'events'].includes(tab)) {
+    if (tab && ['profile', 'analytics', 'statistics', 'events'].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
@@ -74,10 +75,11 @@ const PlayerDetailPage = () => {
             setActiveTab={setActiveTab as any}
           />
 
-          {/* DYNAMIC CONTENT - Analytics or Profile */}
+          {/* DYNAMIC CONTENT - Profile, Analytics, Statistics, or Events */}
           <main className="min-w-0">
             {activeTab === 'profile' && <PlayerProfileView />}
             {activeTab === 'analytics' && <AnalyticsView />}
+            {activeTab === 'statistics' && <PlayerStatisticsView />}
             {activeTab === 'events' && <PlayerEventsView />}
           </main>
 
