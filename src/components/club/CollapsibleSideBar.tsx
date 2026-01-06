@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FiChevronLeft, FiX, FiUser, FiBarChart2, FiCalendar } from "react-icons/fi";
+import { FiChevronLeft, FiX, FiUser, FiBarChart2, FiCalendar, FiTrendingUp, FiUsers } from "react-icons/fi";
 import ClubHeaderCard from "./ClubHeaderCard";
 // 1. Re-import the components
 import FormationStats from "./FormationStats";
@@ -9,7 +9,7 @@ import CustomSearch from "./CustomeSearch";
 import WinLoseStat from './WinLoseStat';
 
 // Define the available tabs
-export type TabType = 'profile' | 'analytics' | 'events';
+export type TabType = 'profile' | 'analytics' | 'events' | 'statistics' | 'members';
 
 interface SidebarProps {
     isExpanded: boolean;
@@ -24,7 +24,9 @@ interface SidebarProps {
 
 const MENU_ITEMS = [
   { id: 'profile', label: 'Profile', icon: <FiUser size={20} /> },
+  { id: 'members', label: 'Members', icon: <FiUsers size={20} /> },
   { id: 'analytics', label: 'Analytics', icon: <FiBarChart2 size={20} /> },
+  { id: 'statistics', label: 'Statistics', icon: <FiTrendingUp size={20} /> },
   { id: 'events', label: 'Events', icon: <FiCalendar size={20} /> },
 ];
 
