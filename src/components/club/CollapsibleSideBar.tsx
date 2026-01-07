@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { FiChevronLeft, FiX, FiUser, FiBarChart2, FiCalendar, FiTrendingUp, FiUsers } from "react-icons/fi";
+import { FiChevronLeft, FiX, FiUser, FiBarChart2, FiCalendar, FiTrendingUp, FiUsers, FiVideo } from "react-icons/fi";
 import ClubHeaderCard from "./ClubHeaderCard";
 // 1. Re-import the components
 import FormationStats from "./FormationStats";
@@ -9,7 +9,7 @@ import CustomSearch from "./CustomeSearch";
 import WinLoseStat from './WinLoseStat';
 
 // Define the available tabs
-export type TabType = 'profile' | 'analytics' | 'events' | 'statistics' | 'members';
+export type TabType = 'profile' | 'analytics' | 'events' | 'statistics' | 'members' | 'matchEvents';
 
 interface SidebarProps {
     isExpanded: boolean;
@@ -22,6 +22,8 @@ interface SidebarProps {
     setActiveTab: (tab: TabType) => void;
     // Optional: Show members tab (default: false, for clubs: true)
     showMembersTab?: boolean;
+    // Optional: Show match events tab (default: false, for profile page: true)
+    showMatchEventsTab?: boolean;
 }
 
 const ALL_MENU_ITEMS = [
@@ -30,6 +32,7 @@ const ALL_MENU_ITEMS = [
   { id: 'analytics', label: 'Analytics', icon: <FiBarChart2 size={20} /> },
   { id: 'statistics', label: 'Statistics', icon: <FiTrendingUp size={20} /> },
   { id: 'events', label: 'Events', icon: <FiCalendar size={20} /> },
+  { id: 'matchEvents', label: 'Match Events', icon: <FiVideo size={20} /> },
 ];
 
 const CollapsibleSidebar: React.FC<SidebarProps> = ({ 
@@ -39,12 +42,16 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({
     closeMobile,
     activeTab,
     setActiveTab,
-    showMembersTab = false
+    showMembersTab = false,
+    showMatchEventsTab = false
 }) => {
-    // Filter menu items based on showMembersTab
+    // Filter menu items based on showMembersTab and showMatchEventsTab
     const MENU_ITEMS = ALL_MENU_ITEMS.filter(item => {
         if (item.id === 'members') {
             return showMembersTab;
+        }
+        if (item.id === 'matchEvents') {
+            return showMatchEventsTab;
         }
         return true;
     });
