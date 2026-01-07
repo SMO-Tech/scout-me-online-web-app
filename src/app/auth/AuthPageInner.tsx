@@ -18,6 +18,7 @@ import { getClient } from "@/lib/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
@@ -43,6 +44,8 @@ const AuthPage = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [error, setError] = useState("");
   const [showVerifyNotice, setShowVerifyNotice] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
   // Get the oobCode from URL
   const mode = searchParams.get("mode");
@@ -224,14 +227,23 @@ const AuthPage = () => {
             Enter your new security credentials below.
           </p>
           <form onSubmit={handleConfirmPasswordReset} className="space-y-6">
-            <input
-              type="password"
-              required
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="NEW PASSWORD"
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 text-sm text-green-400 focus:border-cyan-500 outline-none transition-all"
-            />
+            <div className="relative">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="NEW PASSWORD"
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 pr-12 text-sm text-white-400 focus:border-cyan-500 outline-none transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors"
+              >
+                {showNewPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
+            </div>
             <button
               disabled={isLoading}
               type="submit"
@@ -253,7 +265,7 @@ const AuthPage = () => {
         <div className="text-center items-center justify-center flex flex-col mb-10">
 
           <Image onClick={() => router.push('/')} src={"/images/new-logo.png"} alt={"scout me logo"} width={200} height={80} />
-          <p className="text-gray-200 text-[10px] font-bold uppercase tracking-[0.4em] mt-3">
+          <p className="text-gray-200 text-[20px] font-bold uppercase tracking-[0.4em]  ">
             {isLogin ? "Login" : "Register"}
           </p>
         </div>
@@ -310,7 +322,7 @@ const AuthPage = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-green-400 focus:border-cyan-500 outline-none transition-all placeholder:text-green-800"
+              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-white-400 focus:border-cyan-500 outline-none transition-all placeholder:text=grey-800"
               placeholder="USER@ACADEMY.COM"
             />
           </div>
@@ -329,13 +341,23 @@ const AuthPage = () => {
                 </button>
               )}
             </div>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-green focus:border-cyan-500 outline-none transition-all"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 pr-12 text-sm text-white-400 focus:border-cyan-500 outline-none transition-all placeholder:text-grey-700"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors"
+              >
+                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button
@@ -347,10 +369,10 @@ const AuthPage = () => {
           </button>
         </form>
 
-        <div className="relative flex items-center justify-center my-10">
-          <div className="border-t border-white/5 w-full"></div>
-          <span className="bg-[#0B0D19] px-4 text-[9px] text-gray-200 font-bold uppercase absolute tracking-[0.3em]">
-            External Links
+        <div className="relative flex items-center justify-center my-6">
+          <div className="border-t border-white/20 w-full"></div>
+          <span className="bg-[#0B0D19] px-2 text-[9px] text-gray-200 font-bold uppercase absolute tracking-[0.3em]">
+            or continue with
           </span>
         </div>
 
@@ -358,7 +380,7 @@ const AuthPage = () => {
           <button
             type="button"
             onClick={() => handleSocialAuth(googleProvider)}
-            className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/5 py-3 rounded-xl hover:bg-white/10 transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/5 py-2 rounded-xl hover:bg-white/10 transition-all"
           >
             <FcGoogle size={18} />
             <span className="text-[10px] font-bold text-white uppercase tracking-widest">
