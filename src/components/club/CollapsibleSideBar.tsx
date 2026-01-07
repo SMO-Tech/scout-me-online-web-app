@@ -20,9 +20,11 @@ interface SidebarProps {
     // Tab Control
     activeTab: TabType;
     setActiveTab: (tab: TabType) => void;
+    // Optional: Show members tab (default: false, for clubs: true)
+    showMembersTab?: boolean;
 }
 
-const MENU_ITEMS = [
+const ALL_MENU_ITEMS = [
   { id: 'profile', label: 'Profile', icon: <FiUser size={20} /> },
   { id: 'members', label: 'Members', icon: <FiUsers size={20} /> },
   { id: 'analytics', label: 'Analytics', icon: <FiBarChart2 size={20} /> },
@@ -36,8 +38,16 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({
     isMobileOpen, 
     closeMobile,
     activeTab,
-    setActiveTab
+    setActiveTab,
+    showMembersTab = false
 }) => {
+    // Filter menu items based on showMembersTab
+    const MENU_ITEMS = ALL_MENU_ITEMS.filter(item => {
+        if (item.id === 'members') {
+            return showMembersTab;
+        }
+        return true;
+    });
 
     // Helper to handle click (closes mobile menu automatically)
     const handleTabClick = (tabId: string) => {

@@ -19,14 +19,24 @@ const PlayerDetailPage = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   
   // Get initial tab from URL query parameter, default to 'analytics'
+  // Valid tabs for player profiles (no 'members' tab)
+  const validTabs = ['profile', 'analytics', 'statistics', 'events']
   const initialTab = searchParams.get('tab') || 'analytics'
-  const [activeTab, setActiveTab] = useState(initialTab)
+  const [activeTab, setActiveTab] = useState(
+    validTabs.includes(initialTab) ? initialTab : 'analytics'
+  )
 
   // Update activeTab when query parameter changes
+  // Also ensure 'members' tab is never set for player profiles
   useEffect(() => {
     const tab = searchParams.get('tab')
-    if (tab && ['profile', 'analytics', 'statistics', 'events'].includes(tab)) {
+    if (tab && validTabs.includes(tab)) {
       setActiveTab(tab)
+    } else if (tab === 'members') {
+      // Redirect to profile if someone tries to access members tab
+      setActiveTab('profile')
+    } else if (!tab) {
+      setActiveTab('analytics')
     }
   }, [searchParams])
 
@@ -73,6 +83,8 @@ const PlayerDetailPage = () => {
             closeMobile={() => setIsMobileOpen(false)}
             activeTab={activeTab as any} 
             setActiveTab={setActiveTab as any}
+            // Hide members tab for player profiles
+            showMembersTab={false}
           />
 
           {/* DYNAMIC CONTENT - Profile, Analytics, Statistics, or Events */}

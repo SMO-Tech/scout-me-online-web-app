@@ -194,6 +194,8 @@ export default function ClubDetailPage() {
             // Pass tab props
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            // Show members tab for clubs
+            showMembersTab={true}
           />
 
           {/* DYNAMIC CONTENT AREA */}
