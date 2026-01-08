@@ -18,7 +18,7 @@ const Footer = () => {
 
   return (
     <motion.footer
-      className="relative bg-black border-t border-gray-800 py-12"
+      className="relative bg-black border-t border-gray-800 py-6"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: false }}
@@ -107,8 +107,8 @@ const Footer = () => {
         >
           {/* Left: Copyright and Powered By */}
           <div className="text-gray-400 text-sm space-y-1">
-            <div>© {new Date().getFullYear()} ScoutMe.cloud — All Rights Reserved</div>
-            <div className="text-gray-500 text-xs">Powered by BIT</div>
+            <div>© {new Date().getFullYear()} Scoutme.cloud — All Rights Reserved</div>
+            {/* <div className="text-gray-500 text-xs">Powered by BIT</div> */}
           </div>
 
           {/* Right: Privacy Policy and Terms */}
