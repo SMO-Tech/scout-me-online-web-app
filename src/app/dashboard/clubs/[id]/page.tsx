@@ -155,7 +155,7 @@ export default function ClubDetailPage() {
         {/* Back */}
         <button
           onClick={() => router.push("/dashboard/clubs")}
-          className="flex bg-gray-700 p-2 rounded-lg items-center gap-2 text-gray-200 mb-6"
+          className="flex bg-gray-700 p-1 rounded-lg items-center gap-2 text-gray-100 text-xs mb-3"
         >
           <FiArrowLeft /> Back to Clubs
         </button>
@@ -194,6 +194,8 @@ export default function ClubDetailPage() {
             // Pass tab props
             activeTab={activeTab}
             setActiveTab={setActiveTab}
+            // Show members tab for clubs
+            showMembersTab={true}
           />
 
           {/* DYNAMIC CONTENT AREA */}
@@ -208,7 +210,7 @@ export default function ClubDetailPage() {
                 <p className="text-red-400 text-lg font-semibold">{error}</p>
                 <button
                   onClick={() => router.push("/dashboard/clubs")}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                  className="px-6 py-1.5 text-xs   bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                 >
                   Back to Clubs
                 </button>
@@ -216,7 +218,7 @@ export default function ClubDetailPage() {
             ) : (
               <>
                 {activeTab === 'profile' && club && <ProfileView club={club} />}
-                {activeTab === 'analytics' && <AnalyticsView />}
+                {activeTab === 'analytics' && <AnalyticsView clubId={clubId} />}
                 {activeTab === 'events' && <MatchesView />}
                 {activeTab === 'members' && club && <MembersView members={club.members || []} />}
               </>

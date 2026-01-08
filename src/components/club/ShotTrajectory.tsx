@@ -2,14 +2,41 @@
 
 import React from 'react'
 
-const ShotTrajectoryCard = () => {
+interface ShotTrajectoryCardProps {
+  donutData?: {
+    attacking?: { total: number; failed: number; successful: number };
+    defensive?: { total: number; failed: number; successful: number };
+  };
+  hasData?: boolean;
+}
+
+const ShotTrajectoryCard = ({ donutData, hasData }: ShotTrajectoryCardProps) => {
+  // Calculate blocked percentage from donut data
+  const blockedPercentage = donutData?.defensive?.total 
+    ? ((donutData.defensive.failed / donutData.defensive.total) * 100).toFixed(1)
+    : '0';
+
+  if (!hasData || !donutData) {
+    return (
+      <div className="bg-[#0f111a] p-6 rounded-xl border border-[#1b1c28] shadow-2xl">
+        <div className="text-center mb-6">
+          <span className="text-xs font-bold tracking-widest uppercase text-white">
+            Blocked: 0%
+          </span>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <p className="text-gray-400 text-sm">No data available</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-[#0f111a] p-6 rounded-xl border border-[#1b1c28] shadow-2xl">
         
         {/* HEADER */}
         <div className="text-center mb-6">
             <span className="text-xs font-bold tracking-widest uppercase text-white">
-                Blocked: 18%
+                Blocked: {blockedPercentage}%
             </span>
         </div>
 
