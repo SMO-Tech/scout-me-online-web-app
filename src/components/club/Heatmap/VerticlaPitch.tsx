@@ -34,9 +34,10 @@ export default function VerticalPitch({ children }: PitchProps) {
           <line x1="0" y1="86.6" x2="100" y2="86.6" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
           <line x1="0" y1="108.3" x2="100" y2="108.3" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
 
-          {/* Grid Lines (Vertical) */}
-          <line x1="33" y1="0" x2="33" y2="130" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
-          <line x1="66" y1="0" x2="66" y2="130" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
+          {/* Grid Lines (Vertical) - 4 columns */}
+          <line x1="25" y1="0" x2="25" y2="130" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
+          <line x1="50" y1="0" x2="50" y2="130" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
+          <line x1="75" y1="0" x2="75" y2="130" stroke="#22c55e" strokeWidth="0.5" opacity="0.6" />
 
           {/* Center Circle */}
           <circle cx="50" cy="65" r="15" fill="none" stroke="#22c55e" strokeWidth="1" />
@@ -53,8 +54,8 @@ export default function VerticalPitch({ children }: PitchProps) {
           <path d="M 38,112 A 12,12 0 0,1 62,112" fill="none" stroke="#22c55e" strokeWidth="1" />
         </svg>
 
-        {/* Data Overlay Layer */}
-        <div className="absolute inset-0 grid grid-cols-3 grid-rows-6">
+        {/* Data Overlay Layer - 4 columns × 6 rows */}
+        <div className="absolute inset-0 grid grid-cols-4 grid-rows-6">
           {children}
         </div>
       </div>
