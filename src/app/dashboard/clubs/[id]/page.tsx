@@ -218,7 +218,7 @@ export default function ClubDetailPage() {
             ) : (
               <>
                 {activeTab === 'profile' && club && <ProfileView club={club} />}
-                {activeTab === 'analytics' && <AnalyticsView />}
+                {activeTab === 'analytics' && <AnalyticsView clubId={clubId} />}
                 {activeTab === 'events' && <MatchesView />}
                 {activeTab === 'members' && club && <MembersView members={club.members || []} />}
               </>
