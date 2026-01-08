@@ -108,7 +108,7 @@ const Footer = () => {
           {/* Left: Copyright and Powered By */}
           <div className="text-gray-400 text-sm space-y-1">
             <div>© {new Date().getFullYear()} ScoutMe.cloud — All Rights Reserved</div>
-            <div className="text-gray-500 text-xs">Powered by BIT</div>
+           /* <div className="text-gray-500 text-xs">Powered by BIT</div> */
           </div>
 
           {/* Right: Privacy Policy and Terms */}
