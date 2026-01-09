@@ -34,7 +34,8 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
   }
 
   return (
-    <div className="bg-[#0f111a] p-6 rounded-xl border border-[#1b1c28] shadow-2xl mb-6">
+    <div className="bg-grey p-3 rounded-xl border border-cyan-500 shadow-2xl mb-6">
+      <h5 className='text-white sans-serif text-center mb-2'>Goal Distribution</h5>
       <div className="flex flex-col items-center">
         
         {/* TOP HEADER */}
@@ -48,11 +49,11 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
         <div className="flex items-center justify-center w-full gap-4">
             
             {/* WIDE LEFT */}
-            <div className="text-right w-20">
+            {/* <div className="text-right w-20">
                 <span className="block text-[10px] font-bold text-white uppercase leading-tight">
                     Wide <br/> Left: {wideLeft}
                 </span>
-            </div>
+            </div> */}
 
             {/* THE GOAL GRID */}
             <div className="relative w-full max-w-[280px] h-32">
@@ -76,11 +77,11 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
             </div>
 
             {/* WIDE RIGHT */}
-            <div className="text-left w-20">
+            {/* <div className="text-left w-20">
                 <span className="block text-[10px] font-bold text-white uppercase leading-tight">
                     Wide <br/> Right: {wideRight}
                 </span>
-            </div>
+            </div> */}
         </div>
 
         {/* BOTTOM PURPLE LINE (Ground) */}
