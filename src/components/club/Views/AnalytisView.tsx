@@ -192,21 +192,14 @@ export default function AnalyticsView({ clubId }: AnalyticsViewProps) {
 
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_350px] gap-6">
         <div className="space-y-6">
-          {/* D. CIRCULAR METRICS ROW */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {STATIC_METRICS.map((metric) => (
-              <CircularMetricCard
-                key={metric.title}
-                metric={metric}
-                matchesPlayed={5} // <--- Pass the number of matches here
-              />
-            ))}
-          </div>
+          
 
           {/* Shooting Chart */}
           <div className="bg-gradient-to-br from-[#1b1c28] to-[#252834] p-6 rounded-xl border border-[#3b3e4e] shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white">Data: Shooting from last 5 matches</h2>
+              <h2 className="text-lg text-white"> 
+                <span className="text-cyan-300">Data:</span> Shooting from {actionTypeOptions.find(opt => opt.value === selectedActionType)?.label.toLowerCase() || 'all matches'}
+              </h2>
               <button
                 onClick={() => setIsBarChart(prev => !prev)}
                 className="bg-gray-500 p-2 rounded-md text-white hover:bg-gray-600 transition-colors"
@@ -221,6 +214,17 @@ export default function AnalyticsView({ clubId }: AnalyticsViewProps) {
             <div className="h-96 w-full">
               {isBarChart ? <ShootingBarChart /> :<ShootingChart />}
             </div>
+          </div>
+
+          {/* D. CIRCULAR METRICS ROW */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {STATIC_METRICS.map((metric) => (
+              <CircularMetricCard
+                key={metric.title}
+                metric={metric}
+                matchesPlayed={5} // <--- Pass the number of matches here
+              />
+            ))}
           </div>
 
           {/* Detailed Tables */}
