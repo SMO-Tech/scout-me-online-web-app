@@ -46,14 +46,17 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
         </div>
 
         {/* MAIN ROW: LEFT TEXT - GOAL - RIGHT TEXT */}
-        <div className="flex items-center justify-center w-full gap-4">
+        <div className="flex items-center justify-center w-full gap-1">
             
-            {/* WIDE LEFT */}
-            {/* <div className="text-right w-20">
+            {/* WIDE LEFT - Shows "WL" by default, full details on hover */}
+            <div className="text-right w-12 group cursor-pointer">
                 <span className="block text-[10px] font-bold text-white uppercase leading-tight">
-                    Wide <br/> Left: {wideLeft}
+                    <span className="group-hover:hidden">WL</span>
+                    <span className="hidden group-hover:block">
+                        Wide <br/> Left: {wideLeft}
+                    </span>
                 </span>
-            </div> */}
+            </div>
 
             {/* THE GOAL GRID */}
             <div className="relative w-full max-w-[280px] h-32">
@@ -76,12 +79,15 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
                </div>
             </div>
 
-            {/* WIDE RIGHT */}
-            {/* <div className="text-left w-20">
+            {/* WIDE RIGHT - Shows "WR" by default, full details on hover */}
+            <div className="text-left w-12 group cursor-pointer">
                 <span className="block text-[10px] font-bold text-white uppercase leading-tight">
-                    Wide <br/> Right: {wideRight}
+                    <span className="group-hover:hidden">WR</span>
+                    <span className="hidden group-hover:block">
+                        Wide <br/> Right: {wideRight}
+                    </span>
                 </span>
-            </div> */}
+            </div>
         </div>
 
         {/* BOTTOM PURPLE LINE (Ground) */}
