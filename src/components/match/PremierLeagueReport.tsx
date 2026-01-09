@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FiCalendar, FiMapPin, FiUsers, FiVideo, FiBarChart2, FiList } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiUsers, FiVideo, FiBarChart2, FiList, FiArrowDown, FiArrowUp } from 'react-icons/fi';
 
 interface MatchClubData {
     id: string;
@@ -151,6 +151,74 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
         { id: 'attack' as const, label: 'Attack' },
         { id: 'defence' as const, label: 'Defence' },
         { id: 'discipline' as const, label: 'Discipline' },
+    ];
+
+    // Static Timeline Events
+    const timelineEvents = [
+        { time: "0'", type: 'kickoff', team: 'home', description: 'Match started' },
+        { time: "12'", type: 'goal', team: 'home', player: 'Player Name', description: 'Goal scored', score: '1-0' },
+        { time: "23'", type: 'yellow', team: 'away', player: 'Player Name', description: 'Yellow card' },
+        { time: "34'", type: 'substitution', team: 'home', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
+        { time: "45+2'", type: 'goal', team: 'away', player: 'Player Name', description: 'Goal scored', score: '1-1' },
+        { time: "46'", type: 'kickoff', team: 'home', description: 'Second half started' },
+        { time: "58'", type: 'substitution', team: 'away', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
+        { time: "67'", type: 'goal', team: 'home', player: 'Player Name', description: 'Goal scored', score: '2-1' },
+        { time: "78'", type: 'yellow', team: 'home', player: 'Player Name', description: 'Yellow card' },
+        { time: "82'", type: 'substitution', team: 'home', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
+        { time: "90+3'", type: 'whistle', team: 'home', description: 'Full time' },
+    ];
+
+    // Static Lineups
+    const homeLineup = [
+        { number: 1, name: 'Goalkeeper', position: 'GK' },
+        { number: 2, name: 'Defender 1', position: 'RB' },
+        { number: 4, name: 'Defender 2', position: 'CB' },
+        { number: 5, name: 'Defender 3', position: 'CB' },
+        { number: 3, name: 'Defender 4', position: 'LB' },
+        { number: 6, name: 'Midfielder 1', position: 'CM' },
+        { number: 8, name: 'Midfielder 2', position: 'CM' },
+        { number: 10, name: 'Midfielder 3', position: 'CAM' },
+        { number: 7, name: 'Forward 1', position: 'RW' },
+        { number: 9, name: 'Forward 2', position: 'ST' },
+        { number: 11, name: 'Forward 3', position: 'LW' },
+    ];
+
+    const homeSubstitutes = [
+        { number: 12, name: 'Substitute 1', position: 'GK' },
+        { number: 13, name: 'Substitute 2', position: 'DEF' },
+        { number: 14, name: 'Substitute 3', position: 'MID' },
+        { number: 15, name: 'Substitute 4', position: 'FWD' },
+        { number: 16, name: 'Substitute 5', position: 'MID' },
+    ];
+
+    const awayLineup = [
+        { number: 1, name: 'Goalkeeper', position: 'GK' },
+        { number: 2, name: 'Defender 1', position: 'RB' },
+        { number: 4, name: 'Defender 2', position: 'CB' },
+        { number: 5, name: 'Defender 3', position: 'CB' },
+        { number: 3, name: 'Defender 4', position: 'LB' },
+        { number: 6, name: 'Midfielder 1', position: 'CDM' },
+        { number: 8, name: 'Midfielder 2', position: 'CM' },
+        { number: 10, name: 'Midfielder 3', position: 'CM' },
+        { number: 7, name: 'Forward 1', position: 'RW' },
+        { number: 9, name: 'Forward 2', position: 'ST' },
+        { number: 11, name: 'Forward 3', position: 'LW' },
+    ];
+
+    const awaySubstitutes = [
+        { number: 12, name: 'Substitute 1', position: 'GK' },
+        { number: 13, name: 'Substitute 2', position: 'DEF' },
+        { number: 14, name: 'Substitute 3', position: 'MID' },
+        { number: 15, name: 'Substitute 4', position: 'FWD' },
+    ];
+
+    // Static Player Stats
+    const playerStats = [
+        { name: 'Player 1', position: 'ST', goals: 2, assists: 1, shots: 5, passes: 32, passAccuracy: 87, tackles: 0, rating: 9.2 },
+        { name: 'Player 2', position: 'CM', goals: 0, assists: 2, shots: 2, passes: 68, passAccuracy: 92, tackles: 3, rating: 8.5 },
+        { name: 'Player 3', position: 'CB', goals: 0, assists: 0, shots: 1, passes: 45, passAccuracy: 89, tackles: 7, rating: 8.1 },
+        { name: 'Player 4', position: 'LW', goals: 1, assists: 0, shots: 4, passes: 28, passAccuracy: 85, tackles: 1, rating: 7.8 },
+        { name: 'Player 5', position: 'RB', goals: 0, assists: 1, shots: 0, passes: 52, passAccuracy: 88, tackles: 5, rating: 7.6 },
     ];
 
     return (
@@ -318,20 +386,196 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                     )}
 
                     {activeTab === 'lineups' && (
-                        <div className="text-center py-12 text-gray-500">
-                            <p className="text-sm">Lineups coming soon</p>
+                        <div className="bg-white">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Starting Lineups</h3>
+                                <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
+                                    Note: Static data - Work in progress
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-6">
+                                {/* Home Team Lineup */}
+                                <div>
+                                    <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
+                                        {homeTeam?.club?.logoUrl && (
+                                            <img src={homeTeam.club.logoUrl} alt={homeTeam.name} className="w-6 h-6" />
+                                        )}
+                                        <h4 className="font-semibold text-gray-900">{homeTeam?.name || 'Home'}</h4>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {homeLineup.map((player, idx) => (
+                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                                                <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-sm font-bold text-gray-700">
+                                                    {player.number}
+                                                </span>
+                                                <div className="flex-1">
+                                                    <div className="text-sm font-medium text-gray-900">{player.name}</div>
+                                                    <div className="text-xs text-gray-500">{player.position}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-gray-200">
+                                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Substitutes</h5>
+                                        <div className="space-y-1">
+                                            {homeSubstitutes.map((sub, idx) => (
+                                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <span className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded text-xs font-medium">
+                                                        {sub.number}
+                                                    </span>
+                                                    <span>{sub.name}</span>
+                                                    <span className="text-xs text-gray-400">({sub.position})</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Away Team Lineup */}
+                                <div>
+                                    <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
+                                        {awayTeam?.club?.logoUrl && (
+                                            <img src={awayTeam.club.logoUrl} alt={awayTeam.name} className="w-6 h-6" />
+                                        )}
+                                        <h4 className="font-semibold text-gray-900">{awayTeam?.name || 'Away'}</h4>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {awayLineup.map((player, idx) => (
+                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                                                <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-sm font-bold text-gray-700">
+                                                    {player.number}
+                                                </span>
+                                                <div className="flex-1">
+                                                    <div className="text-sm font-medium text-gray-900">{player.name}</div>
+                                                    <div className="text-xs text-gray-500">{player.position}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-gray-200">
+                                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Substitutes</h5>
+                                        <div className="space-y-1">
+                                            {awaySubstitutes.map((sub, idx) => (
+                                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <span className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded text-xs font-medium">
+                                                        {sub.number}
+                                                    </span>
+                                                    <span>{sub.name}</span>
+                                                    <span className="text-xs text-gray-400">({sub.position})</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {activeTab === 'timeline' && (
-                        <div className="text-center py-12 text-gray-500">
-                            <p className="text-sm">Timeline coming soon</p>
+                        <div className="bg-white">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Match Timeline</h3>
+                                <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
+                                    Note: Static data - Work in progress
+                                </span>
+                            </div>
+                            <div className="relative">
+                                <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gray-200"></div>
+                                <div className="space-y-4">
+                                    {timelineEvents.map((event, idx) => {
+                                        const isHome = event.team === 'home';
+                                        const getEventIcon = () => {
+                                            switch (event.type) {
+                                                case 'goal':
+                                                    return <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs font-bold">⚽</div>;
+                                                case 'yellow':
+                                                    return <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center text-white text-xs font-bold">🟨</div>;
+                                                case 'substitution':
+                                                    return <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white"><FiArrowDown size={14} /></div>;
+                                                case 'kickoff':
+                                                    return <div className="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center text-white text-xs">⚪</div>;
+                                                default:
+                                                    return <div className="w-6 h-6 rounded-full bg-gray-300"></div>;
+                                            }
+                                        };
+
+                                        return (
+                                            <div key={idx} className={`flex items-center gap-4 ${isHome ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                <div className={`flex-1 ${isHome ? 'text-right pr-4' : 'text-left pl-4'}`}>
+                                                    <div className="text-sm font-medium text-gray-900">{event.description}</div>
+                                                    {event.player && <div className="text-xs text-gray-600">{event.player}</div>}
+                                                    {event.playerOut && (
+                                                        <div className="text-xs text-gray-600">
+                                                            <FiArrowDown className="inline mr-1" size={12} />
+                                                            {event.playerOut} <FiArrowUp className="inline mx-1" size={12} /> {event.playerIn}
+                                                        </div>
+                                                    )}
+                                                    {event.score && <div className="text-xs font-semibold text-green-600 mt-1">{event.score}</div>}
+                                                </div>
+                                                <div className="relative z-10">
+                                                    {getEventIcon()}
+                                                </div>
+                                                <div className={`flex-1 ${isHome ? 'text-left pl-4' : 'text-right pr-4'}`}>
+                                                    <div className="text-sm font-semibold text-gray-700">{event.time}</div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {activeTab === 'players' && (
-                        <div className="text-center py-12 text-gray-500">
-                            <p className="text-sm">Player stats coming soon</p>
+                        <div className="bg-white">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Player Statistics</h3>
+                                <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
+                                    Note: Static data - Work in progress
+                                </span>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-gray-200">
+                                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Player</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Position</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Goals</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Assists</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Shots</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Passes</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Pass %</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Tackles</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Rating</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {playerStats.map((player, idx) => (
+                                            <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                                <td className="py-3 px-4">
+                                                    <div className="font-medium text-gray-900">{player.name}</div>
+                                                </td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.position}</td>
+                                                <td className="py-3 px-4 text-center">
+                                                    <span className="font-semibold text-gray-900">{player.goals}</span>
+                                                </td>
+                                                <td className="py-3 px-4 text-center">
+                                                    <span className="font-semibold text-gray-900">{player.assists}</span>
+                                                </td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.shots}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.passes}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.passAccuracy}%</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.tackles}</td>
+                                                <td className="py-3 px-4 text-center">
+                                                    <span className="inline-flex items-center justify-center w-12 h-8 bg-green-100 text-green-700 rounded-full text-sm font-bold">
+                                                        {player.rating}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     )}
 
