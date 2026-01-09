@@ -316,13 +316,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
     FiPlay, FiPause, FiSearch, FiVideo,
     FiCheckCircle, FiXCircle, FiFilter, FiX,
-    FiLoader, FiAlertTriangle
+    FiLoader, FiAlertTriangle, FiRefreshCw
 } from 'react-icons/fi';
 import { useFetchMatchResult } from '@/hooks';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { extractMatchId } from '@/lib/utils/slug';
 import { useSEO } from '@/hooks/useSEO';
 import { dummyMatch } from '@/staticdata/match';
+import PremierLeagueReport from '@/components/match/PremierLeagueReport';
 
 // --- Types ---
 interface CanonicalClub { id: string; logoUrl: string | null; }
@@ -380,7 +381,7 @@ const getYouTubeVideoId = (url: string | undefined): string | null => {
     return null;
 };
 
-function ScoutReport() {
+function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null; matchResult?: any }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -398,12 +399,8 @@ function ScoutReport() {
     // Get video URL from search params (passed from matches page)
     const videoUrlFromParams = searchParams.get('extra');
     
-    //fetch result
-    const {data:matchResult} = useFetchMatchResult(matchId)
-    console.log("match Data",matchResult)
-    
-    // YouTube video ID - prioritize matchResult.videoUrl, then search params, then default
-    const videoUrl = matchResult?.videoUrl || videoUrlFromParams || null;
+    // Use matchData prop or fetch result
+    const videoUrl = matchData?.videoUrl || videoUrlFromParams || null;
     const youtubeVideoId = videoUrl 
         ? getYouTubeVideoId(videoUrl) || "dQw4w9WgXcQ" 
         : "dQw4w9WgXcQ"; // Default fallback
@@ -426,10 +423,10 @@ function ScoutReport() {
     // --- Load result dynamically from API ---
     useEffect(() => {
         // Handle array response - get first element
-        const matchData = Array.isArray(matchResult) ? matchResult[0] : matchResult;
+        const resultData = Array.isArray(matchResult) ? matchResult[0] : matchResult;
         
-        if (matchData?.match_report?.passes) {
-            const passes: PassEvent[] = matchData.match_report.passes.map((p: any, index: number) => ({
+        if (resultData?.match_report?.passes) {
+            const passes: PassEvent[] = resultData.match_report.passes.map((p: any, index: number) => ({
                 id: index + 1, // Generate ID from index since API doesn't provide id
                 time: parseFloat(p.time.split(':')[0]) * 60 + parseFloat(p.time.split(':')[1]),
                 fromPlayer: p.from_player?.toString() || '',
@@ -750,10 +747,14 @@ const MatchDetailPage = () => {
     const router = useRouter();
     const slugOrId = params.id as string;
     const matchId = extractMatchId(slugOrId);
+    const [reportType, setReportType] = useState<'scout' | 'premier'>('scout');
 
     const [matchData, setMatchData] = useState<MatchDetail | null>(dummyMatch);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    
+    // Fetch match result
+    const { data: matchResult } = useFetchMatchResult(matchId);
 
     // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
 
@@ -813,7 +814,48 @@ const MatchDetailPage = () => {
 
     if (error || !matchData) return <div className="p-8 text-center text-white mt-20"><FiAlertTriangle className="mx-auto mb-2 text-red-500" />{error || "Data not found."}</div>;
 
-    return <ScoutReport />;
+    return (
+        <div className="min-h-screen bg-[#05070a]">
+            {/* Report Type Toggle */}
+            <div className="max-w-[1600px] mx-auto px-6 md:px-10 pt-6">
+                <div className="flex items-center justify-end gap-4 mb-4">
+                    <div className="bg-[#0b0f1a] border border-white/10 rounded-2xl p-1 flex items-center gap-2">
+                        <button
+                            onClick={() => setReportType('scout')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${
+                                reportType === 'scout'
+                                    ? 'bg-indigo-600 text-white shadow-lg'
+                                    : 'text-white/40 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            <span className="flex items-center gap-2">
+                                <FiVideo size={16} /> Scout Report
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => setReportType('premier')}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${
+                                reportType === 'premier'
+                                    ? 'bg-indigo-600 text-white shadow-lg'
+                                    : 'text-white/40 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            <span className="flex items-center gap-2">
+                                <FiRefreshCw size={16} /> Premier League Report
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Render Selected Report */}
+            {reportType === 'scout' ? (
+                <ScoutReport matchData={matchData} matchResult={matchResult} />
+            ) : (
+                <PremierLeagueReport matchData={matchData} matchResult={matchResult} />
+            )}
+        </div>
+    );
 }
 
 export default MatchDetailPage;
