@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FiCalendar, FiMapPin, FiUsers, FiVideo, FiBarChart2, FiList, FiTable } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiUsers, FiVideo, FiBarChart2, FiList } from 'react-icons/fi';
 
 interface MatchClubData {
     id: string;
@@ -44,7 +44,7 @@ interface PremierLeagueReportProps {
     matchResult?: any;
 }
 
-type TabType = 'timeline' | 'lineups' | 'stats' | 'players' | 'table';
+type TabType = 'timeline' | 'lineups' | 'stats' | 'players';
 
 const getTeams = (matchClubs: MatchClubData[]) => {
     return {
@@ -143,7 +143,6 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
         { id: 'lineups', label: 'Lineups', icon: <FiUsers size={16} /> },
         { id: 'stats', label: 'Stats', icon: <FiBarChart2 size={16} /> },
         { id: 'players', label: 'Players', icon: <FiUsers size={16} /> },
-        { id: 'table', label: 'Table', icon: <FiTable size={16} /> },
     ];
 
     const statsTabs = [
@@ -336,11 +335,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                         </div>
                     )}
 
-                    {activeTab === 'table' && (
-                        <div className="text-center py-12 text-gray-500">
-                            <p className="text-sm">Table coming soon</p>
-                        </div>
-                    )}
+                    
                 </div>
 
                 {/* Match Info Footer */}
