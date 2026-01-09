@@ -34,7 +34,8 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
   }
 
   return (
-    <div className="bg-[#0f111a] p-6 rounded-xl border border-[#1b1c28] shadow-2xl mb-6">
+    <div className="bg-grey p-3 rounded-xl border border-cyan-500 shadow-2xl mb-6">
+      <h5 className='text-white sans-serif text-center mb-2'>Goal Distribution</h5>
       <div className="flex flex-col items-center">
         
         {/* TOP HEADER */}
@@ -45,12 +46,15 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
         </div>
 
         {/* MAIN ROW: LEFT TEXT - GOAL - RIGHT TEXT */}
-        <div className="flex items-center justify-center w-full gap-4">
+        <div className="flex items-center justify-center w-full gap-1">
             
-            {/* WIDE LEFT */}
-            <div className="text-right w-20">
+            {/* WIDE LEFT - Shows "WL" by default, full details on hover */}
+            <div className="text-right w-12 group cursor-pointer">
                 <span className="block text-[10px] font-bold text-white uppercase leading-tight">
-                    Wide <br/> Left: {wideLeft}
+                    <span className="group-hover:hidden">WL</span>
+                    <span className="hidden group-hover:block">
+                        Wide <br/> Left: {wideLeft}
+                    </span>
                 </span>
             </div>
 
@@ -75,10 +79,13 @@ const GoalDistributionCard = ({ goalpostData, hasData }: GoalDistributionCardPro
                </div>
             </div>
 
-            {/* WIDE RIGHT */}
-            <div className="text-left w-20">
+            {/* WIDE RIGHT - Shows "WR" by default, full details on hover */}
+            <div className="text-left w-12 group cursor-pointer">
                 <span className="block text-[10px] font-bold text-white uppercase leading-tight">
-                    Wide <br/> Right: {wideRight}
+                    <span className="group-hover:hidden">WR</span>
+                    <span className="hidden group-hover:block">
+                        Wide <br/> Right: {wideRight}
+                    </span>
                 </span>
             </div>
         </div>
