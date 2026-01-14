@@ -744,7 +744,6 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
 // ============================================================================
 const MatchDetailPage = () => {
     const params = useParams();
-    const router = useRouter();
     const slugOrId = params.id as string;
     const matchId = extractMatchId(slugOrId);
     const [reportType, setReportType] = useState<'scout' | 'premier'>('scout');
@@ -829,7 +828,7 @@ const MatchDetailPage = () => {
                             }`}
                         >
                             <span className="flex items-center gap-2">
-                                <FiVideo size={16} /> Scout Report
+                                <FiVideo size={16} /> Analyst Report
                             </span>
                         </button>
                         <button
@@ -841,7 +840,7 @@ const MatchDetailPage = () => {
                             }`}
                         >
                             <span className="flex items-center gap-2">
-                                <FiRefreshCw size={16} /> Premier League Report
+                                <FiRefreshCw size={16} /> Match Analysis Report
                             </span>
                         </button>
                     </div>

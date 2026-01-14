@@ -83,7 +83,7 @@ const getYouTubeVideoId = (url: string | undefined): string | null => {
 
 const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, matchResult }) => {
     const [activeTab, setActiveTab] = useState<TabType>('stats');
-    const [activeStatsTab, setActiveStatsTab] = useState<'key' | 'general' | 'attack' | 'defence' | 'discipline'>('key');
+    const [activeStatsTab, setActiveStatsTab] = useState<'key' | 'discipline'>('key');
 
     if (!matchData) {
         return (
@@ -147,9 +147,6 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
     const statsTabs = [
         { id: 'key' as const, label: 'Key stats' },
-        { id: 'general' as const, label: 'General play' },
-        { id: 'attack' as const, label: 'Attack' },
-        { id: 'defence' as const, label: 'Defence' },
         { id: 'discipline' as const, label: 'Discipline' },
     ];
 
@@ -222,13 +219,13 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
     ];
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-black">
             <div className="max-w-7xl mx-auto px-4 py-6">
                 {/* Match Header */}
                 <div className="mb-6">
                     {/* Competition & Follow Button */}
                     <div className="flex items-center justify-between mb-4">
-                        <div className="text-sm text-gray-600 font-medium">
+                        <div className="text-sm text-gray-200 font-medium">
                             {matchData.competitionName || 'Match'} {matchData.competitionName && '>'}
                         </div>
                         <button className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition">
@@ -237,7 +234,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                     </div>
 
                     {/* Teams & Score */}
-                    <div className="flex items-center justify-between bg-white border-b border-gray-200 pb-6">
+                    <div className="flex items-center justify-between bg-black border-b border-gray-200 pb-6">
                         {/* Home Team */}
                         <div className="flex items-center gap-4 flex-1">
                             <div className="flex flex-col items-center gap-2">
@@ -261,8 +258,8 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
                         {/* Match Status & Date */}
                         <div className="flex flex-col items-center gap-1 mx-8">
-                            <span className="text-sm font-medium text-gray-600">{matchStatus}</span>
-                            <span className="text-xs text-gray-500">{matchDateDisplay}</span>
+                            <span className="text-sm font-medium text-gray-200">{matchStatus}</span>
+                            <span className="text-xs text-gray-300">{matchDateDisplay}</span>
                         </div>
 
                         {/* Away Team */}
@@ -329,7 +326,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
                             {/* Key Stats Table */}
                             {activeStatsTab === 'key' && (
-                                <div className="bg-white">
+                                <div className="bg-black">
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-lg font-semibold text-gray-900">Match stats</h3>
                                         <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
@@ -342,7 +339,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                             const awayWins = stat.away > stat.home;
 
                                             return (
-                                                <div key={stat.label} className="flex items-center justify-between py-3 hover:bg-gray-50 transition-colors rounded-lg px-2">
+                                                <div key={stat.label} className="flex items-center justify-between py-3 hover:bg-gray-700 transition-colors rounded-lg px-2">
                                                     {/* Home Team Value */}
                                                     <div className="flex items-center gap-3 flex-1 justify-end">
                                                         <span className={`inline-flex items-center justify-center min-w-[3rem] h-10 rounded-full text-base font-bold shadow-sm transition-all ${
@@ -356,7 +353,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                                     
                                                     {/* Stat Label (Center) */}
                                                     <div className="flex-1 text-center px-6">
-                                                        <span className="text-sm text-gray-700 font-medium">{stat.label}</span>
+                                                        <span className="text-sm text-gray-300 font-medium">{stat.label}</span>
                                                     </div>
                                                     
                                                     {/* Away Team Value */}
