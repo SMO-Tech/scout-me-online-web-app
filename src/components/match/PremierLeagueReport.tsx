@@ -524,9 +524,9 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                     )} */}
 
                     {activeTab === 'players' && (
-                        <div className="bg-white">
+                        <div className="bg-black">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Player Statistics</h3>
+                                <h3 className="text-lg font-semibold text-gray-200">Player Statistics</h3>
                                 <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
                                     Note: Static data - Work in progress
                                 </span>
@@ -535,34 +535,34 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-200">
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Player</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Position</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Goals</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Assists</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Shots</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Passes</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Pass %</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Tackles</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Rating</th>
+                                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Position</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Goals</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Assists</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Shots</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Passes</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Pass %</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Tackles</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Rating</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {playerStats.map((player, idx) => (
-                                            <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                            <tr key={idx} className="border-b border-gray-100 hover:bg-gray-500 transition-colors">
                                                 <td className="py-3 px-4">
-                                                    <div className="font-medium text-gray-900">{player.name}</div>
+                                                    <div className="font-medium text-gray-300">{player.name}</div>
                                                 </td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.position}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.position}</td>
                                                 <td className="py-3 px-4 text-center">
-                                                    <span className="font-semibold text-gray-900">{player.goals}</span>
+                                                    <span className="font-semibold text-gray-300">{player.goals}</span>
                                                 </td>
                                                 <td className="py-3 px-4 text-center">
-                                                    <span className="font-semibold text-gray-900">{player.assists}</span>
+                                                    <span className="font-semibold text-gray-300">{player.assists}</span>
                                                 </td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.shots}</td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.passes}</td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.passAccuracy}%</td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.tackles}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.shots}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.passes}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.passAccuracy}%</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.tackles}</td>
                                                 <td className="py-3 px-4 text-center">
                                                     <span className="inline-flex items-center justify-center w-12 h-8 bg-green-100 text-green-700 rounded-full text-sm font-bold">
                                                         {player.rating}
@@ -581,7 +581,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
                 {/* Match Info Footer */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-200">
                         {matchData.venue && (
                             <div className="flex items-center gap-2">
                                 <FiMapPin size={16} />
