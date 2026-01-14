@@ -1,4 +1,4 @@
-import { MatchDetail } from "@/app/dashboard/matches/[id]/page";
+
 import { BaseMatch } from "@/app/dashboard/matches/page";
 
 
@@ -85,10 +85,10 @@ export const dummyMatches: BaseMatch[] = [
   },
 ];
 
-export const dummyMatch: MatchDetail = {
+export const dummyMatch = {
     id: "match-001",
     videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    status: "COMPLETED",
+    status: "COMPLETED" as const,
     level: "PROFESSIONAL",
     matchDate: "2025-12-25T15:00:00Z",
     competitionName: "Champions Cup",
@@ -174,3 +174,28 @@ export const dummyMatch: MatchDetail = {
 };
 
 
+// Example static goalpost data
+export const staticGoalpostData: Record<string, number> = {
+  '0': 12.5,  // top-left
+  '1': 25.0,  // top-2nd
+  '2': 15.0,  // top-3rd
+  '3': 20.0,  // top-right
+  '4': 5.0,   // bottom-left (Wide Left)
+  '5': 7.5,   // bottom-2nd
+  '6': 10.0,  // bottom-3rd
+  '7': 5.0,   // bottom-right (Wide Right)
+}
+
+// Example static donut data
+export const staticShotTrajectoryData = {
+  attacking: {
+    total: 50,
+    successful: 30,
+    failed: 20,
+  },
+  defensive: {
+    total: 40,
+    successful: 25,
+    failed: 15,
+  },
+};
