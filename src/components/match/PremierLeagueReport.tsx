@@ -333,6 +333,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                             Note: Static data - Work in progress
                                         </span>
                                     </div>
+                                    {/* key stats */}
                                     <div className="space-y-2">
                                         {keyStats.map((stat) => {
                                             const homeWins = stat.home > stat.away;
@@ -370,8 +371,12 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                             );
                                         })}
                                     </div>
+                                    <div>
+                                        
+                                    </div>
                                 </div>
                             )}
+
 
                             {/* Other stats tabs - placeholder */}
                             {activeStatsTab !== 'key' && (
