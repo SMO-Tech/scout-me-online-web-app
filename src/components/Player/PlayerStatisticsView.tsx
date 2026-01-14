@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { 
+import {
   FiBarChart2, FiTrendingUp, FiAlertCircle, FiActivity
 } from 'react-icons/fi'
 import {
@@ -175,11 +175,10 @@ const PlayerStatisticsView = () => {
               <button
                 key={stat.action_type}
                 onClick={() => setSelectedActionType(stat.action_type)}
-                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-                  selectedActionType === stat.action_type
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${selectedActionType === stat.action_type
                     ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                     : 'bg-[#0a0b0f] text-gray-400 border border-white/5 hover:border-emerald-500/30 hover:text-emerald-400'
-                }`}
+                  }`}
               >
                 {stat.action_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </button>
@@ -264,11 +263,10 @@ const PlayerStatisticsView = () => {
                         const hasConversion = value.conversion_pct !== undefined;
 
                         return (
-                          <tr 
-                            key={key} 
-                            className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${
-                              index % 2 === 0 ? 'bg-white/[0.01]' : ''
-                            }`}
+                          <tr
+                            key={key}
+                            className={`border-b border-white/5 hover:bg-white/[0.02] transition-colors ${index % 2 === 0 ? 'bg-white/[0.01]' : ''
+                              }`}
                           >
                             <td className="py-3 px-4">
                               <div className="text-white text-sm font-medium whitespace-pre-line">
@@ -359,7 +357,7 @@ const PlayerStatisticsView = () => {
                     </div>
                     <div className="mt-4 pt-4 border-t border-white/5">
                       <div className="text-sm text-gray-500">
-                        Success Rate: {selectedStat.attacking_donut.total > 0 
+                        Success Rate: {selectedStat.attacking_donut.total > 0
                           ? ((selectedStat.attacking_donut.successful / selectedStat.attacking_donut.total) * 100).toFixed(1)
                           : 0}%
                       </div>
@@ -417,7 +415,7 @@ const PlayerStatisticsView = () => {
                     </div>
                     <div className="mt-4 pt-4 border-t border-white/5">
                       <div className="text-sm text-gray-500">
-                        Success Rate: {selectedStat.defensive_donut.total > 0 
+                        Success Rate: {selectedStat.defensive_donut.total > 0
                           ? ((selectedStat.defensive_donut.successful / selectedStat.defensive_donut.total) * 100).toFixed(1)
                           : 0}%
                       </div>
@@ -566,7 +564,10 @@ const PlayerStatisticsView = () => {
                 {Object.entries(selectedStat.goalpost_statistics_data).map(([zone, value]) => (
                   <div key={zone} className="bg-[#0d1117] border border-white/5 rounded-lg p-3 text-center">
                     <p className="text-gray-500 text-xs font-bold mb-1">Zone {zone}</p>
-                    <p className="text-pink-400 font-bold">{value.toFixed(1)}%</p>
+                    <p className="text-pink-400 font-bold">
+                      {Number.isFinite(Number(value)) ? Number(value).toFixed(1) : "0.0"}%
+                    </p>
+
                   </div>
                 ))}
               </div>
