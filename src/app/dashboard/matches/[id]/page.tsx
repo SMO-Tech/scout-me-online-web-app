@@ -310,19 +310,19 @@
 // };
 
 // export default MatchDetailPage;
+
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     FiPlay, FiPause, FiSearch, FiVideo,
     FiCheckCircle, FiXCircle, FiFilter, FiX,
     FiLoader, FiAlertTriangle, FiRefreshCw
 } from 'react-icons/fi';
 import { useFetchMatchResult } from '@/hooks';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { extractMatchId } from '@/lib/utils/slug';
 import { useSEO } from '@/hooks/useSEO';
-import { dummyMatch } from '@/staticdata/match';
 import PremierLeagueReport from '@/components/match/PremierLeagueReport';
 import { getYouTubeVideoId } from '@/lib/utils/youtubeVIdeo';
 
@@ -353,7 +353,8 @@ const getTeams = (matchClubs: MatchClubData[]) => {
 // --- Types ---
 interface PassEvent {
     id: number;
-    time: number;
+    time: number; // converted to seconds
+    formattedTime: string; // original string "0:06"
     fromPlayer: string;
     fromTeam: 'Blue' | 'Red' | 'Unknown';
     toPlayer: string;
@@ -367,7 +368,31 @@ interface PassEvent {
 // --- Helper Functions ---
 
 
-function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null; matchResult?: any }) {
+const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+// Helper to parse "MM:SS" string to seconds
+const parseTimeString = (timeStr: string): number => {
+    if (!timeStr) return 0;
+    const parts = timeStr.split(':');
+    if (parts.length === 2) {
+        return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+    }
+    return 0;
+};
+
+// ============================================================================
+// SCOUT REPORT COMPONENT
+// ============================================================================
+interface ScoutReportProps {
+    videoUrl: string | undefined; // Passed explicitly because of JSON structure
+    matchReport: MatchReport | null;
+}
+
+function ScoutReport({ videoUrl, matchReport }: ScoutReportProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -376,65 +401,41 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
     const [selectedPass, setSelectedPass] = useState<PassEvent | null>(null);
     const [passList, setPassList] = useState<PassEvent[]>([]);
 
-    const youtubePlayerRef = useRef<any>(null);
-    const params = useParams();
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const matchId = params.id as string;
-    
-    // Get video URL from search params (passed from matches page)
-    const videoUrlFromParams = searchParams.get('extra');
-    
-    // Use matchData prop or fetch result
-    const videoUrl = matchData?.videoUrl || videoUrlFromParams || null;
-    const youtubeVideoId = videoUrl 
-        ? getYouTubeVideoId(videoUrl) || "dQw4w9WgXcQ" 
-        : "dQw4w9WgXcQ"; // Default fallback
+    const youtubeVideoId = getYouTubeVideoId(videoUrl);
 
-    // --- Video Controls ---
-    // Note: For full programmatic control (play, pause, seek, get current time),
-    // you'll need to integrate YouTube IFrame API: https://developers.google.com/youtube/iframe_api_reference
-    const togglePlay = () => {
-        // YouTube IFrame API would be needed for programmatic control
-        // For now, this is a placeholder - user can click play/pause on YouTube player
-        setIsPlaying(!isPlaying);
-    };
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    // --- Load result dynamically from API ---
+    // Transform API data into PassEvent format
     useEffect(() => {
-        // Handle array response - get first element
-        const resultData = Array.isArray(matchResult) ? matchResult[0] : matchResult;
-        
-        if (resultData?.match_report?.passes) {
-            const passes: PassEvent[] = resultData.match_report.passes.map((p: any, index: number) => ({
-                id: index + 1, // Generate ID from index since API doesn't provide id
-                time: parseFloat(p.time.split(':')[0]) * 60 + parseFloat(p.time.split(':')[1]),
-                fromPlayer: p.from_player?.toString() || '',
-                fromTeam: (p.from_team || 'Unknown') as 'Blue' | 'Red' | 'Unknown',
-                toPlayer: p.to_player?.toString() || '',
-                toTeam: (p.to_team || 'Unknown') as 'Blue' | 'Red' | 'Unknown',
-                type: p.pass_type || 'Short pass',
-                result: (p.result || 'Unknown') as 'Success' | 'Fail' | 'Unknown',
-                confidence: p.confidence || 0,
-                colorClass: p.pass_type === 'Key Pass' ? 'bg-indigo-500' : 'bg-purple-500',
-            }));
+        if (matchReport?.passes && Array.isArray(matchReport.passes)) {
+            const passes: PassEvent[] = matchReport.passes.map((p, index) => {
+                const timeInSeconds = parseTimeString(p.time);
+
+                return {
+                    id: index + 1,
+                    time: timeInSeconds,
+                    formattedTime: p.time,
+                    fromPlayer: p.from_player?.toString() || '?',
+                    fromTeam: (p.from_team || 'Unknown') as 'Blue' | 'Red' | 'Unknown',
+                    toPlayer: p.to_player?.toString() || '?',
+                    toTeam: (p.to_team || 'Unknown') as 'Blue' | 'Red' | 'Unknown',
+                    type: p.pass_type || 'Pass',
+                    result: (p.result || 'Unknown') as 'Success' | 'Fail' | 'Unknown',
+                    confidence: p.confidence || 0,
+                    // Assign colors based on type or result
+                    colorClass: p.pass_type === 'Key Pass' ? 'bg-indigo-500' : 'bg-purple-500',
+                };
+            });
+
             setPassList(passes);
-            
-            // Calculate duration from the last pass time (add 30 seconds buffer)
+
+            // Set duration based on last pass time + buffer, or default to 90 mins
             if (passes.length > 0) {
                 const lastPassTime = Math.max(...passes.map(p => p.time));
-                setDuration(lastPassTime + 30); // Add 30 seconds buffer
+                setDuration(Math.max(lastPassTime + 60, 600)); // Minimum 10 mins
             }
         }
-    }, [matchResult]);
+    }, [matchReport]);
 
-    // --- Filter & Search ---
+    // Filter passes based on search and filter
     const filteredPasses = passList.filter(pass => {
         const matchesSearch =
             pass.fromPlayer.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -447,41 +448,48 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
             (filter === 'Red' && pass.fromTeam === 'Red') ||
             (filter === 'Success' && pass.result === 'Success') ||
             (filter === 'Fail' && pass.result === 'Fail') ||
-            (filter === 'Unknown' && (pass.result === 'Unknown' || pass.fromTeam === 'Unknown' || pass.toTeam === 'Unknown'));
+            (filter === 'Unknown' && (pass.result === 'Unknown' || pass.fromTeam === 'Unknown'));
 
         return matchesSearch && matchesFilter;
     });
 
+    const togglePlay = () => setIsPlaying(!isPlaying);
+
     return (
         <div className="min-h-screen bg-[#05070a] text-slate-100 pb-20">
             <main className="max-w-[1600px] mx-auto p-6 md:p-10 space-y-10">
-
-                {/* --- VIDEO ANALYSIS SECTION --- */}
-                {/* --- VIDEO ANALYSIS SECTION --- */}
+                {/* VIDEO ANALYSIS SECTION */}
                 <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-20 bg-indigo-500"></div>
                     <div className="flex items-center justify-between mb-4 md:mb-6">
                         <h2 className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-400">
                             <FiVideo className="text-lg md:text-xl" /> Tactical Feed Analysis
                         </h2>
-                        <div className="text-[9px] md:text-[10px] font-bold bg-white/5 px-2 md:px-3 py-1 rounded-full text-white/40 uppercase">Interactive Timeline</div>
+                        <div className="text-[9px] md:text-[10px] font-bold bg-white/5 px-2 md:px-3 py-1 rounded-full text-white/40 uppercase">
+                            Interactive Timeline
+                        </div>
                     </div>
 
                     {/* YouTube Video Player */}
                     <div className="rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-full md:max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
-                        <iframe
-                            className="w-full h-full"
-                            src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0&showinfo=0`}
-                            title="Match Video"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        />
+                        {youtubeVideoId ? (
+                            <iframe
+                                className="w-full h-full"
+                                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0`}
+                                title="Match Video"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500 bg-white/5">
+                                No video source available
+                            </div>
+                        )}
                     </div>
 
                     {/* Controls Below Video */}
-                    <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
+                    {/* <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
                         <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6">
-                            {/* Play/Pause Button */}
                             <button
                                 onClick={togglePlay}
                                 className="bg-indigo-600 hover:bg-indigo-500 p-3 md:p-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 text-white"
@@ -490,7 +498,6 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                 {isPlaying ? <FiPause size={24} /> : <FiPlay size={24} />}
                             </button>
 
-                            {/* Timeline */}
                             <div className="flex-1 space-y-2 w-full">
                                 <div
                                     onClick={(e) => {
@@ -498,18 +505,16 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                         let clickX = e.clientX - rect.left;
                                         clickX = Math.max(0, Math.min(clickX, rect.width));
                                         const percent = clickX / rect.width;
-                                        // YouTube IFrame API would be needed to seek
                                         setCurrentTime(percent * duration);
                                     }}
-                                    className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden"
+                                    className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group"
                                 >
-                                    {/* Current progress */}
                                     <div
                                         className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
                                         style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
                                     />
 
-                                    {/* Event markers */}
+                                   
                                     {passList.map((pass) => {
                                         if (!duration || pass.time > duration) return null;
                                         const leftPercent = (pass.time / duration) * 100;
@@ -517,38 +522,38 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                             pass.result === "Success"
                                                 ? "bg-green-400"
                                                 : pass.result === "Fail"
-                                                ? "bg-red-500"
-                                                : pass.result === "Unknown"
-                                                    ? "bg-gray-500"
-                                                    : "bg-yellow-400";
+                                                    ? "bg-red-500"
+                                                    : "bg-gray-500";
                                         return (
                                             <div
                                                 key={pass.id}
-                                                className={`${color} absolute top-0 h-full w-2 md:w-3 rounded-full`}
-                                                style={{ left: `${leftPercent}%`, transform: "translateX(-50%)" }}
+                                                className={`${color} absolute top-0 h-full w-1 md:w-1.5 rounded-full opacity-60 hover:opacity-100 transition-opacity`}
+                                                style={{ left: `${leftPercent}%` }}
+                                                title={`${pass.type} - ${pass.time}s`}
                                             />
                                         );
                                     })}
                                 </div>
 
-                                {/* Time labels */}
                                 <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
                                     <span>{formatTime(currentTime)}</span>
                                     <span>{formatTime(duration)}</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </section>
 
-                {/* --- LOG TABLE SECTION --- */}
+                {/* LOG TABLE SECTION */}
                 <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-8 shadow-2xl">
                     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-10">
                         <div>
                             <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
                                 <FiFilter className="text-indigo-500" /> Pass Log & Replays
                             </h3>
-                            <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">Click any entry to trigger AI Replay</p>
+                            <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">
+                                Click any entry to trigger AI Replay
+                            </p>
                         </div>
 
                         <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
@@ -557,6 +562,7 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                 <input
                                     type="text"
                                     placeholder="SEARCH EVENT, PLAYER OR TYPE..."
+                                    value={searchQuery}
                                     className="w-full md:w-80 bg-black/40 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:border-indigo-500 transition-all text-[11px] font-bold tracking-widest uppercase placeholder:text-white/10"
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -569,7 +575,9 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${filter === f ? 'bg-indigo-600 text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/5'
+                                className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${filter === f
+                                    ? 'bg-indigo-600 text-white shadow-lg'
+                                    : 'text-white/40 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 {f}
@@ -591,91 +599,117 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredPasses.map((pass) => (
-                                    <tr
-                                        key={pass.id}
-                                        onClick={() => setSelectedPass(pass)}
-                                        className="bg-white/[0.02] hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/20 transition-all cursor-pointer group"
-                                    >
-                                        <td className="px-6 py-5 rounded-l-2xl text-white/20 font-mono text-xs">{pass.id.toString().padStart(2, '0')}</td>
-                                        <td className="px-6 py-5">
-                                            <button className="bg-white/5 group-hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-3 transition-all">
-                                                <FiPlay size={12} /> {formatTime(pass.time)}
-                                            </button>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${
-                                                    pass.fromTeam === 'Blue' ? 'bg-blue-600' : 
-                                                    pass.fromTeam === 'Red' ? 'bg-red-600' : 
-                                                    'bg-gray-600'
-                                                }`}>
-                                                    #{pass.fromPlayer}
+                                {filteredPasses.length > 0 ? (
+                                    filteredPasses.map((pass) => (
+                                        <tr
+                                            key={pass.id}
+                                            onClick={() => setSelectedPass(pass)}
+                                            className="bg-white/[0.02] hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/20 transition-all cursor-pointer group"
+                                        >
+                                            <td className="px-6 py-5 rounded-l-2xl text-white/20 font-mono text-xs">
+                                                {pass.id.toString().padStart(2, '0')}
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <button className="bg-white/5 group-hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-3 transition-all">
+                                                    <FiPlay size={12} /> {pass.formattedTime}
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${pass.fromTeam === 'Blue' ? 'bg-blue-600' :
+                                                            pass.fromTeam === 'Red' ? 'bg-red-600' : 'bg-gray-600'
+                                                            }`}
+                                                    >
+                                                        #{pass.fromPlayer}
+                                                    </div>
+                                                    <span className="text-[11px] font-black uppercase tracking-widest text-white/50">
+                                                        {pass.fromTeam}
+                                                    </span>
                                                 </div>
-                                                <span className="text-[11px] font-black uppercase tracking-widest">{pass.fromTeam}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${
-                                                    pass.toTeam === 'Blue' ? 'bg-blue-600' : 
-                                                    pass.toTeam === 'Red' ? 'bg-red-600' : 
-                                                    'bg-gray-600'
-                                                }`}>
-                                                    #{pass.toPlayer}
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${pass.toTeam === 'Blue' ? 'bg-blue-600' :
+                                                            pass.toTeam === 'Red' ? 'bg-red-600' : 'bg-gray-600'
+                                                            }`}
+                                                    >
+                                                        #{pass.toPlayer}
+                                                    </div>
+                                                    <span className="text-[11px] font-black uppercase tracking-widest text-white/50">
+                                                        {pass.toTeam}
+                                                    </span>
                                                 </div>
-                                                <span className="text-[11px] font-black uppercase tracking-widest">{pass.toTeam}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-center">
-                                            <span className={`${pass.colorClass} text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest`}>{pass.type}</span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            {pass.result === 'Success' ? (
-                                                <div className="flex items-center gap-2 text-green-500 text-[10px] font-black uppercase tracking-widest">
-                                                    <FiCheckCircle size={14} /> Completed
+                                            </td>
+                                            <td className="px-6 py-5 text-center">
+                                                <span className={`${pass.colorClass} text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest`}>
+                                                    {pass.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                {pass.result === 'Success' ? (
+                                                    <div className="flex items-center gap-2 text-green-500 text-[10px] font-black uppercase tracking-widest">
+                                                        <FiCheckCircle size={14} /> Completed
+                                                    </div>
+                                                ) : pass.result === 'Fail' ? (
+                                                    <div className="flex items-center gap-2 text-red-500 text-[10px] font-black uppercase tracking-widest">
+                                                        <FiXCircle size={14} /> Intercepted
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-2 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                                                        <FiAlertTriangle size={14} /> Unknown
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-5 rounded-r-2xl">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full ${pass.confidence > 80 ? 'bg-green-500' : 'bg-yellow-500'}`}
+                                                            style={{ width: `${pass.confidence}%` }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-[10px] font-mono font-bold text-white/40">
+                                                        {pass.confidence}%
+                                                    </span>
                                                 </div>
-                                            ) : pass.result === 'Fail' ? (
-                                                <div className="flex items-center gap-2 text-orange-500 text-[10px] font-black uppercase tracking-widest">
-                                                    <FiXCircle size={14} /> Intercepted
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2 text-gray-500 text-[10px] font-black uppercase tracking-widest">
-                                                    <FiXCircle size={14} /> Unknown
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-5 rounded-r-2xl">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                                    <div className={`h-full ${pass.confidence > 80 ? 'bg-green-500' : 'bg-yellow-500'}`} style={{ width: `${pass.confidence}%` }} />
-                                                </div>
-                                                <span className="text-[10px] font-mono font-bold text-white/40">{pass.confidence}%</span>
-                                            </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={7} className="px-6 py-10 text-center text-white/40">
+                                            No passes found matching your search criteria
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
                 </section>
 
-                {/* --- REPLAY MODAL --- */}
-                {selectedPass && (
-                    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-6 overflow-auto animate-in fade-in duration-300">
-                        <div className="bg-[#0b0f1a] border border-white/10 w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] relative flex flex-col">
+                {/* REPLAY MODAL */}
+                {selectedPass && youtubeVideoId && (
+                    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
+                        {/* UPDATES:
+            1. max-w-2xl: Keeps width smaller (as requested before).
+            2. max-h-[90vh]: Ensures modal never exceeds 90% of screen height.
+            3. overflow-y-auto: Adds internal scrollbar if content is too tall for screen.
+        */}
+                        <div className="bg-[#0b0f1a] border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] relative flex flex-col">
 
                             <button
                                 onClick={() => setSelectedPass(null)}
-                                className="absolute top-4 md:top-6 right-4 md:right-6 z-10 bg-white/5 hover:bg-red-500 text-white p-3 rounded-2xl transition-all hover:scale-110"
+                                className="absolute top-4 right-4 z-10 bg-black/40 hover:bg-red-500 text-white p-2 rounded-full backdrop-blur-md transition-all hover:scale-110"
                             >
-                                <FiX size={24} />
+                                <FiX size={20} />
                             </button>
 
                             {/* Header */}
-                            <div className="bg-gradient-to-r from-indigo-600 to-purple-800 p-4 md:p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                            <div className="bg-gradient-to-r from-indigo-600 to-purple-800 p-5 flex flex-col justify-between items-start gap-3 shrink-0">
                                 <div>
-                                    <h2 className="font-black italic uppercase flex items-center gap-2 text-base md:text-lg tracking-tight text-white">
+                                    <h2 className="font-black italic uppercase flex items-center gap-2 text-base tracking-tight text-white">
                                         <FiPlay size={18} className="text-white" /> AI Action Replay
                                     </h2>
                                     <div className="mt-2 flex flex-wrap gap-2">
@@ -689,12 +723,12 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                 </div>
                             </div>
 
-                            {/* Video */}
-                            <div className="w-full mt-4 flex justify-center">
-                                <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black">
+                            {/* Video Container - shrink-0 prevents it from getting crushed, aspect-video maintains ratio */}
+                            <div className="w-full bg-black shrink-0">
+                                <div className="w-full aspect-video border-y border-white/10">
                                     <iframe
                                         className="w-full h-full"
-                                        src={`https://www.youtube.com/embed/${youtubeVideoId}?controls=0&modestbranding=1&rel=0&showinfo=0&start=${Math.floor(selectedPass.time)}`}
+                                        src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&start=${Math.floor(selectedPass.time)}`}
                                         title="AI Action Replay"
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                         allowFullScreen
@@ -702,18 +736,32 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
                                 </div>
                             </div>
 
-                            {/* Info Grid */}
-                            <div className="p-4 md:p-6 grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
+                            {/* Stats Grid */}
+                            <div className="p-5 grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2 bg-[#0b0f1a]">
                                 {[
-                                    { label: 'SENDER', value: `#${selectedPass.fromPlayer} ${selectedPass.fromTeam}`, color: selectedPass.fromTeam === 'Blue' ? 'text-blue-400' : 'text-red-400' },
-                                    { label: 'RECEIVER', value: `#${selectedPass.toPlayer} ${selectedPass.toTeam}`, color: selectedPass.toTeam === 'Blue' ? 'text-blue-400' : 'text-red-400' },
-                                    { label: 'OUTCOME', value: selectedPass.result, color: selectedPass.result === 'Success' ? 'text-green-500' : 'text-orange-500' },
-                                    { label: 'TIMESTAMP', value: formatTime(selectedPass.time), color: 'text-white' },
+                                    {
+                                        label: 'SENDER',
+                                        value: `#${selectedPass.fromPlayer} ${selectedPass.fromTeam}`,
+                                        color: selectedPass.fromTeam === 'Blue' ? 'text-blue-400' : 'text-red-400',
+                                    },
+                                    {
+                                        label: 'RECEIVER',
+                                        value: `#${selectedPass.toPlayer} ${selectedPass.toTeam}`,
+                                        color: selectedPass.toTeam === 'Blue' ? 'text-blue-400' : 'text-red-400',
+                                    },
+                                    {
+                                        label: 'OUTCOME',
+                                        value: selectedPass.result,
+                                        color: selectedPass.result === 'Success' ? 'text-green-500' : 'text-orange-500',
+                                    },
+                                    { label: 'TIMESTAMP', value: selectedPass.formattedTime, color: 'text-white' },
                                     { label: 'CONFIDENCE', value: `${selectedPass.confidence}%`, color: 'text-indigo-400' },
                                 ].map((info) => (
                                     <div key={info.label} className="flex flex-col gap-1">
                                         <div className="text-[9px] font-black text-white/20 tracking-[0.2em]">{info.label}</div>
-                                        <div className={`text-sm font-black uppercase italic tracking-tight ${info.color}`}>{info.value}</div>
+                                        <div className={`text-sm font-black uppercase italic tracking-tight ${info.color}`}>
+                                            {info.value}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -723,10 +771,10 @@ function ScoutReport({ matchData, matchResult }: { matchData: MatchDetail | null
             </main>
         </div>
     );
-};
+}
 
 // ============================================================================
-// 4. MAIN PAGE COMPONENT
+// MAIN PAGE COMPONENT
 // ============================================================================
 const MatchDetailPage = () => {
     const params = useParams();
@@ -734,70 +782,66 @@ const MatchDetailPage = () => {
     const matchId = extractMatchId(slugOrId);
     const [reportType, setReportType] = useState<'scout' | 'premier'>('scout');
 
-    const [matchData, setMatchData] = useState<MatchDetail | null>(dummyMatch);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    
-    // Fetch match result
-    const { data: matchResult } = useFetchMatchResult(matchId);
+    // Fetch match result from API
+    const { data: apiResponse, isLoading, error } = useFetchMatchResult(matchId);
 
-    // --- EFFECT HOOK (PRESERVED AS COMMENTED OUT) ---
+    // ===========================================================
+    // UPDATE: Specific Data Extraction for your JSON Structure
+    // ===========================================================
+    // Your structure: { data: { message: "...", videoUrl: "...", data: [ { match_report: ... } ] } }
 
-    // useEffect(() => {
-    //     if (!matchId) return;
+    // 1. Get the video URL from the outer "data" object
+    const videoUrl = apiResponse?.data?.videoUrl;
 
-    //     const fetchMatchDetails = async () => {
-    //         setLoading(true);
-    //         setError(null);
-            
-    //         try {
-    //             const client = await getClient(); 
-    //             const response = await client.get(`/match/${matchId}`);
-    //             console.log(response.data)
-    //             setMatchData(response.data.data as MatchDetail);
-    //         } catch (err: any) {
-    //             console.error("Failed to fetch match details:", err);
-    //             const errorMessage = err.response?.data?.error || err.message || "Unknown error occurred.";
-    //             setError(errorMessage);
-    //             setMatchData(null);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
+    // 2. Get the match specific details (inside the data array)
+    const matchDetailRaw = apiResponse?.data?.data?.[0];
 
-    //     fetchMatchDetails();
-    // }, [matchId]);
- 
+    // 3. Get the report
+    const matchReport: MatchReport | null = matchDetailRaw?.match_report || null;
+
+    // 4. Fallback for team info (if available in matchDetailRaw)
+    const matchClubs = matchDetailRaw?.matchClubs || [];
+    const { home: homeTeam, away: awayTeam } = getTeams(matchClubs);
 
     // Generate match title for SEO
-    const { home: homeTeam, away: awayTeam } = getTeams(matchData?.matchClubs || []);
-    const matchTitle = matchData 
-      ? `${homeTeam?.name || 'Home'} vs ${awayTeam?.name || 'Away'}${matchData.competitionName ? ` - ${matchData.competitionName}` : ''}`
-      : 'Match Analysis';
-    const matchScore = matchData?.result 
-      ? `${matchData.result.homeScore} - ${matchData.result.awayScore}`
-      : '';
+    const matchTitle = matchDetailRaw
+        ? `Match Analysis`
+        : 'Match Analysis';
 
     // SEO metadata
     useSEO({
-      title: matchData 
-        ? `${matchTitle}${matchScore ? ` (${matchScore})` : ''} - Match Analysis | ScoutMe.cloud`
-        : 'Match Analysis | ScoutMe.cloud',
-      description: matchData
-        ? `Watch and analyze ${matchTitle}${matchScore ? ` (${matchScore})` : ''}${matchData.matchDate ? ` played on ${new Date(matchData.matchDate).toLocaleDateString()}` : ''}. Detailed match analysis, player stats, and tactical insights on ScoutMe.cloud.`
-        : 'View detailed match analysis, player stats, and tactical insights on ScoutMe.cloud',
-      image: homeTeam?.club?.logoUrl || awayTeam?.club?.logoUrl || '/images/default/club_default.PNG',
-      url: typeof window !== 'undefined' ? window.location.href : '',
-      keywords: matchData 
-        ? `${homeTeam?.name || ''}, ${awayTeam?.name || ''}, football match, match analysis, ${matchData.competitionName || ''}, football analytics, match stats`
-        : 'football match, match analysis, football analytics, match stats',
-      type: 'article',
-      siteName: 'ScoutMe.cloud'
+        title: `${matchTitle} | ScoutMe.cloud`,
+        description: 'Detailed match analysis, player stats, and tactical insights on ScoutMe.cloud.',
+        image: homeTeam?.club?.logoUrl || '/images/default/club_default.PNG',
+        url: typeof window !== 'undefined' ? window.location.href : '',
+        type: 'article',
+        siteName: 'ScoutMe.cloud',
     });
 
-    if (loading) return <div className="flex justify-center items-center h-screen bg-[#05060B]"><FiLoader className="animate-spin text-cyan-400" /></div>;
+    // Loading state
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-[#05060B]">
+                <FiLoader className="animate-spin text-cyan-400" size={48} />
+            </div>
+        );
+    }
 
-    if (error || !matchData) return <div className="p-8 text-center text-white mt-20"><FiAlertTriangle className="mx-auto mb-2 text-red-500" />{error || "Data not found."}</div>;
+    // Error state - check if we found the internal data array
+    if (error || !apiResponse?.data) {
+        return (
+            <div className="p-8 text-center text-white mt-20">
+                <FiAlertTriangle className="mx-auto mb-2 text-red-500" size={48} />
+                <p className="text-xl mb-4 font-bold">Match data could not be loaded</p>
+                <button
+                    onClick={() => router.push('/dashboard/matches')}
+                    className="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl transition-all font-bold"
+                >
+                    Back to Matches
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#05070a]">
@@ -807,11 +851,10 @@ const MatchDetailPage = () => {
                     <div className="bg-[#0b0f1a] border border-white/10 rounded-2xl p-1 flex items-center gap-2">
                         <button
                             onClick={() => setReportType('scout')}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${
-                                reportType === 'scout'
-                                    ? 'bg-indigo-600 text-white shadow-lg'
-                                    : 'text-white/40 hover:text-white hover:bg-white/5'
-                            }`}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${reportType === 'scout'
+                                ? 'bg-indigo-600 text-white shadow-lg'
+                                : 'text-white/40 hover:text-white hover:bg-white/5'
+                                }`}
                         >
                             <span className="flex items-center gap-2">
                                 <FiVideo size={16} /> Analyst Report
@@ -819,11 +862,10 @@ const MatchDetailPage = () => {
                         </button>
                         <button
                             onClick={() => setReportType('premier')}
-                            className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${
-                                reportType === 'premier'
-                                    ? 'bg-indigo-600 text-white shadow-lg'
-                                    : 'text-white/40 hover:text-white hover:bg-white/5'
-                            }`}
+                            className={`px-6 py-2.5 rounded-xl text-sm font-bold uppercase tracking-wider transition-all ${reportType === 'premier'
+                                ? 'bg-indigo-600 text-white shadow-lg'
+                                : 'text-white/40 hover:text-white hover:bg-white/5'
+                                }`}
                         >
                             <span className="flex items-center gap-2">
                                 <FiRefreshCw size={16} /> Match Analysis Report
@@ -835,12 +877,12 @@ const MatchDetailPage = () => {
 
             {/* Render Selected Report */}
             {reportType === 'scout' ? (
-                <ScoutReport matchData={matchData} matchResult={matchResult} />
+                <ScoutReport videoUrl={videoUrl} matchReport={matchReport} />
             ) : (
-                <PremierLeagueReport matchData={matchData} matchResult={matchResult} />
+                <PremierLeagueReport matchData={matchDetailRaw} matchResult={apiResponse?.data} />
             )}
         </div>
     );
-}
+};
 
 export default MatchDetailPage;

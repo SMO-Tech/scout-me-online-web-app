@@ -64,7 +64,7 @@ export const useFetchMatchResult = (id: string) => {
     queryFn: async () => {
       const client = await getClient();
       const response = await client.get(`/match/${id}`);
-      return response.data.data
+      return response
     },
     enabled: !!id, // only fetch if id exists
     staleTime: 1000 * 60 * 5, // 5 minutes
