@@ -324,7 +324,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { extractMatchId } from '@/lib/utils/slug';
 import { useSEO } from '@/hooks/useSEO';
 import PremierLeagueReport from '@/components/match/PremierLeagueReport';
+import { getYouTubeVideoId } from '@/lib/utils/youtubeVIdeo';
 
+// --- Types ---
 // ============================================================================
 // TYPES (Updated to match your JSON)
 // ============================================================================
@@ -391,23 +393,6 @@ const getTeams = (matchClubs: MatchClubData[]) => ({
     away: matchClubs?.find(c => !c.isUsersTeam),
 });
 
-const getYouTubeVideoId = (url: string | undefined): string | null => {
-    if (!url) return null;
-    try {
-        const urlObj = new URL(url);
-        if (urlObj.hostname.includes('youtube.com')) {
-            return urlObj.searchParams.get('v');
-        }
-        if (urlObj.hostname.includes('youtu.be')) {
-            return urlObj.pathname.substring(1);
-        }
-    } catch (e) {
-        // Fallback regex for non-URL objects or partial strings
-        const match = url.match(/v=([a-zA-Z0-9_-]+)/) || url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-        if (match) return match[1];
-    }
-    return null;
-};
 
 const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -819,11 +804,10 @@ function ScoutReport({ videoUrl, matchReport }: ScoutReportProps) {
 // ============================================================================
 const MatchDetailPage = () => {
     const params = useParams();
-    const router = useRouter();
     const slugOrId = params.id as string;
     const matchId = extractMatchId(slugOrId);
     const [reportType, setReportType] = useState<'scout' | 'premier'>('scout');
-
+    const router = useRouter()
     // Fetch match result from API
     const { data: apiResponse, isLoading, error } = useFetchMatchResult(matchId);
 
@@ -899,7 +883,7 @@ const MatchDetailPage = () => {
                                 }`}
                         >
                             <span className="flex items-center gap-2">
-                                <FiVideo size={16} /> Scout Report
+                                <FiVideo size={16} /> Analyst Report
                             </span>
                         </button>
                         <button
@@ -910,7 +894,7 @@ const MatchDetailPage = () => {
                                 }`}
                         >
                             <span className="flex items-center gap-2">
-                                <FiRefreshCw size={16} /> Premier League Report
+                                <FiRefreshCw size={16} /> Match Analysis Report
                             </span>
                         </button>
                     </div>

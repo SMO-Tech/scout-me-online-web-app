@@ -629,7 +629,7 @@ export default function ScoutingProfilesPage() {
                          e.stopPropagation();
                          router.push(`${createPlayerUrl(profile.name, profile.id)}?tab=profile`);
                        }}
-                       className="text-white text-[10px] "
+                       className="text-white text-[10px] bg-white/50 p-1 rounded hover:bg-cyan-500 hover:text-black"
                      >
                        View More
                      </button>

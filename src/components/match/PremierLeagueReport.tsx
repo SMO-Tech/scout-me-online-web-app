@@ -44,14 +44,19 @@ interface PremierLeagueReportProps {
     matchResult?: any;
 }
 
-type TabType = 'timeline' | 'lineups' | 'stats' | 'players';
+type TabType =  'lineups' | 'stats' | 'players';
 
-const getTeams = (matchClubs: MatchClubData[]) => {
+const getTeams = (matchClubs?: MatchClubData[]) => {
+    if (!Array.isArray(matchClubs)) {
+        return { home: undefined, away: undefined };
+    }
+
     return {
         home: matchClubs.find(c => c.isUsersTeam),
         away: matchClubs.find(c => !c.isUsersTeam),
     };
 };
+
 
 const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "TBD";
@@ -83,7 +88,7 @@ const getYouTubeVideoId = (url: string | undefined): string | null => {
 
 const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, matchResult }) => {
     const [activeTab, setActiveTab] = useState<TabType>('stats');
-    const [activeStatsTab, setActiveStatsTab] = useState<'key' | 'general' | 'attack' | 'defence' | 'discipline'>('key');
+    const [activeStatsTab, setActiveStatsTab] = useState<'key' | 'discipline'>('key');
 
     if (!matchData) {
         return (
@@ -139,7 +144,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
     ];
 
     const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-        { id: 'timeline', label: 'Timeline', icon: <FiList size={16} /> },
+        // { id: 'timeline', label: 'Timeline', icon: <FiList size={16} /> },
         { id: 'lineups', label: 'Lineups', icon: <FiUsers size={16} /> },
         { id: 'stats', label: 'Stats', icon: <FiBarChart2 size={16} /> },
         { id: 'players', label: 'Players', icon: <FiUsers size={16} /> },
@@ -147,26 +152,23 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
     const statsTabs = [
         { id: 'key' as const, label: 'Key stats' },
-        { id: 'general' as const, label: 'General play' },
-        { id: 'attack' as const, label: 'Attack' },
-        { id: 'defence' as const, label: 'Defence' },
         { id: 'discipline' as const, label: 'Discipline' },
     ];
 
-    // Static Timeline Events
-    const timelineEvents = [
-        { time: "0'", type: 'kickoff', team: 'home', description: 'Match started' },
-        { time: "12'", type: 'goal', team: 'home', player: 'Player Name', description: 'Goal scored', score: '1-0' },
-        { time: "23'", type: 'yellow', team: 'away', player: 'Player Name', description: 'Yellow card' },
-        { time: "34'", type: 'substitution', team: 'home', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
-        { time: "45+2'", type: 'goal', team: 'away', player: 'Player Name', description: 'Goal scored', score: '1-1' },
-        { time: "46'", type: 'kickoff', team: 'home', description: 'Second half started' },
-        { time: "58'", type: 'substitution', team: 'away', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
-        { time: "67'", type: 'goal', team: 'home', player: 'Player Name', description: 'Goal scored', score: '2-1' },
-        { time: "78'", type: 'yellow', team: 'home', player: 'Player Name', description: 'Yellow card' },
-        { time: "82'", type: 'substitution', team: 'home', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
-        { time: "90+3'", type: 'whistle', team: 'home', description: 'Full time' },
-    ];
+    // Static Timeline Events   # delete after taking confirmataion form KYAM
+    // const timelineEvents = [
+    //     { time: "0'", type: 'kickoff', team: 'home', description: 'Match started' },
+    //     { time: "12'", type: 'goal', team: 'home', player: 'Player Name', description: 'Goal scored', score: '1-0' },
+    //     { time: "23'", type: 'yellow', team: 'away', player: 'Player Name', description: 'Yellow card' },
+    //     { time: "34'", type: 'substitution', team: 'home', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
+    //     { time: "45+2'", type: 'goal', team: 'away', player: 'Player Name', description: 'Goal scored', score: '1-1' },
+    //     { time: "46'", type: 'kickoff', team: 'home', description: 'Second half started' },
+    //     { time: "58'", type: 'substitution', team: 'away', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
+    //     { time: "67'", type: 'goal', team: 'home', player: 'Player Name', description: 'Goal scored', score: '2-1' },
+    //     { time: "78'", type: 'yellow', team: 'home', player: 'Player Name', description: 'Yellow card' },
+    //     { time: "82'", type: 'substitution', team: 'home', playerOut: 'Player Out', playerIn: 'Player In', description: 'Substitution' },
+    //     { time: "90+3'", type: 'whistle', team: 'home', description: 'Full time' },
+    // ];
 
     // Static Lineups
     const homeLineup = [
@@ -222,13 +224,13 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
     ];
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-black">
             <div className="max-w-7xl mx-auto px-4 py-6">
                 {/* Match Header */}
                 <div className="mb-6">
                     {/* Competition & Follow Button */}
                     <div className="flex items-center justify-between mb-4">
-                        <div className="text-sm text-gray-600 font-medium">
+                        <div className="text-sm text-gray-200 font-medium">
                             {matchData.competitionName || 'Match'} {matchData.competitionName && '>'}
                         </div>
                         <button className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition">
@@ -237,7 +239,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                     </div>
 
                     {/* Teams & Score */}
-                    <div className="flex items-center justify-between bg-white border-b border-gray-200 pb-6">
+                    <div className="flex items-center justify-between bg-black border-b border-gray-200 pb-6">
                         {/* Home Team */}
                         <div className="flex items-center gap-4 flex-1">
                             <div className="flex flex-col items-center gap-2">
@@ -261,8 +263,8 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
                         {/* Match Status & Date */}
                         <div className="flex flex-col items-center gap-1 mx-8">
-                            <span className="text-sm font-medium text-gray-600">{matchStatus}</span>
-                            <span className="text-xs text-gray-500">{matchDateDisplay}</span>
+                            <span className="text-sm font-medium text-gray-200">{matchStatus}</span>
+                            <span className="text-xs text-gray-300">{matchDateDisplay}</span>
                         </div>
 
                         {/* Away Team */}
@@ -297,7 +299,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                             className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
                                 activeTab === tab.id
                                     ? 'border-blue-600 text-blue-600'
-                                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                                    : 'border-transparent text-gray-400 hover:text-gray-200'
                             }`}
                         >
                             {tab.icon}
@@ -319,7 +321,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                         className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                                             activeStatsTab === tab.id
                                                 ? 'border-blue-600 text-blue-600'
-                                                : 'border-transparent text-gray-600 hover:text-gray-900'
+                                                : 'border-transparent text-gray-400 hover:text-gray-200'
                                         }`}
                                     >
                                         {tab.label}
@@ -329,20 +331,21 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
                             {/* Key Stats Table */}
                             {activeStatsTab === 'key' && (
-                                <div className="bg-white">
+                                <div className="bg-black">
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-lg font-semibold text-gray-900">Match stats</h3>
                                         <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
                                             Note: Static data - Work in progress
                                         </span>
                                     </div>
+                                    {/* key stats */}
                                     <div className="space-y-2">
                                         {keyStats.map((stat) => {
                                             const homeWins = stat.home > stat.away;
                                             const awayWins = stat.away > stat.home;
 
                                             return (
-                                                <div key={stat.label} className="flex items-center justify-between py-3 hover:bg-gray-50 transition-colors rounded-lg px-2">
+                                                <div key={stat.label} className="flex items-center justify-between py-3 hover:bg-gray-700 transition-colors rounded-lg px-2">
                                                     {/* Home Team Value */}
                                                     <div className="flex items-center gap-3 flex-1 justify-end">
                                                         <span className={`inline-flex items-center justify-center min-w-[3rem] h-10 rounded-full text-base font-bold shadow-sm transition-all ${
@@ -356,7 +359,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                                     
                                                     {/* Stat Label (Center) */}
                                                     <div className="flex-1 text-center px-6">
-                                                        <span className="text-sm text-gray-700 font-medium">{stat.label}</span>
+                                                        <span className="text-sm text-gray-300 font-medium">{stat.label}</span>
                                                     </div>
                                                     
                                                     {/* Away Team Value */}
@@ -373,8 +376,12 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                             );
                                         })}
                                     </div>
+                                    <div>
+                                        
+                                    </div>
                                 </div>
                             )}
+
 
                             {/* Other stats tabs - placeholder */}
                             {activeStatsTab !== 'key' && (
@@ -386,9 +393,9 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                     )}
 
                     {activeTab === 'lineups' && (
-                        <div className="bg-white">
+                        <div className="bg-black">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Starting Lineups</h3>
+                                <h3 className="text-lg font-semibold text-gray-200">Starting Lineups</h3>
                                 <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
                                     Note: Static data - Work in progress
                                 </span>
@@ -400,11 +407,11 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                         {homeTeam?.club?.logoUrl && (
                                             <img src={homeTeam.club.logoUrl} alt={homeTeam.name} className="w-6 h-6" />
                                         )}
-                                        <h4 className="font-semibold text-gray-900">{homeTeam?.name || 'Home'}</h4>
+                                        <h4 className="font-semibold text-gray-200">{homeTeam?.name || 'Home'}</h4>
                                     </div>
                                     <div className="space-y-2">
                                         {homeLineup.map((player, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded">
                                                 <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-sm font-bold text-gray-700">
                                                     {player.number}
                                                 </span>
@@ -416,11 +423,11 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                         ))}
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-gray-200">
-                                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Substitutes</h5>
+                                        <h5 className="text-sm font-semibold text-gray-200 mb-2">Substitutes</h5>
                                         <div className="space-y-1">
                                             {homeSubstitutes.map((sub, idx) => (
-                                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <span className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded text-xs font-medium">
+                                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-200">
+                                                    <span className="w-6 h-6 flex items-center justify-center bg-gray-500 rounded text-xs font-medium">
                                                         {sub.number}
                                                     </span>
                                                     <span>{sub.name}</span>
@@ -437,12 +444,12 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                         {awayTeam?.club?.logoUrl && (
                                             <img src={awayTeam.club.logoUrl} alt={awayTeam.name} className="w-6 h-6" />
                                         )}
-                                        <h4 className="font-semibold text-gray-900">{awayTeam?.name || 'Away'}</h4>
+                                        <h4 className="font-semibold text-gray-200">{awayTeam?.name || 'Away'}</h4>
                                     </div>
                                     <div className="space-y-2">
                                         {awayLineup.map((player, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
-                                                <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-sm font-bold text-gray-700">
+                                            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded">
+                                                <span className="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-sm font-bold text-gray-00">
                                                     {player.number}
                                                 </span>
                                                 <div className="flex-1">
@@ -452,12 +459,12 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="mt-4 pt-4 border-t border-gray-200">
-                                        <h5 className="text-sm font-semibold text-gray-700 mb-2">Substitutes</h5>
-                                        <div className="space-y-1">
+                                    <div className="mt-4 pt-4 border-t  border-gray-200">
+                                        <h5 className="text-sm font-semibold text-gray-200 mb-2">Substitutes</h5>
+                                        <div className="space-y-1 bg-">
                                             {awaySubstitutes.map((sub, idx) => (
-                                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <span className="w-6 h-6 flex items-center justify-center bg-gray-100 rounded text-xs font-medium">
+                                                <div key={idx} className="flex items-center gap-2 text-sm  text-gray-200">
+                                                    <span className="w-6 h-6 flex items-center justify-center bg-gray-500 rounded text-xs font-medium">
                                                         {sub.number}
                                                     </span>
                                                     <span>{sub.name}</span>
@@ -471,7 +478,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                         </div>
                     )}
 
-                    {activeTab === 'timeline' && (
+                    {/* {activeTab === 'timeline' && (
                         <div className="bg-white">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-gray-900">Match Timeline</h3>
@@ -524,12 +531,12 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
 
                     {activeTab === 'players' && (
-                        <div className="bg-white">
+                        <div className="bg-black">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900">Player Statistics</h3>
+                                <h3 className="text-lg font-semibold text-gray-200">Player Statistics</h3>
                                 <span className="text-xs text-gray-500 italic bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200">
                                     Note: Static data - Work in progress
                                 </span>
@@ -538,34 +545,34 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-200">
-                                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Player</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Position</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Goals</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Assists</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Shots</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Passes</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Pass %</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Tackles</th>
-                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Rating</th>
+                                            <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300">Player</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Position</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Goals</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Assists</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Shots</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Passes</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Pass %</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Tackles</th>
+                                            <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300">Rating</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {playerStats.map((player, idx) => (
-                                            <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                            <tr key={idx} className="border-b border-gray-100 hover:bg-gray-500 transition-colors">
                                                 <td className="py-3 px-4">
-                                                    <div className="font-medium text-gray-900">{player.name}</div>
+                                                    <div className="font-medium text-gray-300">{player.name}</div>
                                                 </td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.position}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.position}</td>
                                                 <td className="py-3 px-4 text-center">
-                                                    <span className="font-semibold text-gray-900">{player.goals}</span>
+                                                    <span className="font-semibold text-gray-300">{player.goals}</span>
                                                 </td>
                                                 <td className="py-3 px-4 text-center">
-                                                    <span className="font-semibold text-gray-900">{player.assists}</span>
+                                                    <span className="font-semibold text-gray-300">{player.assists}</span>
                                                 </td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.shots}</td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.passes}</td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.passAccuracy}%</td>
-                                                <td className="py-3 px-4 text-center text-sm text-gray-600">{player.tackles}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.shots}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.passes}</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.passAccuracy}%</td>
+                                                <td className="py-3 px-4 text-center text-sm text-gray-300">{player.tackles}</td>
                                                 <td className="py-3 px-4 text-center">
                                                     <span className="inline-flex items-center justify-center w-12 h-8 bg-green-100 text-green-700 rounded-full text-sm font-bold">
                                                         {player.rating}
@@ -584,7 +591,7 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
 
                 {/* Match Info Footer */}
                 <div className="mt-8 pt-6 border-t border-gray-200">
-                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-200">
                         {matchData.venue && (
                             <div className="flex items-center gap-2">
                                 <FiMapPin size={16} />

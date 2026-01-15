@@ -4,15 +4,24 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { FiArrowLeft, FiMenu } from "react-icons/fi";
 import CollapsibleSidebar, { TabType } from "@/components/club/CollapsibleSideBar";
-import AnalyticsView from "@/components/club/Views/AnalytisView";
-import ProfileView from "@/components/club/Views/ProfileView";
-import MatchesView from "@/components/club/Views/MatchView";
-import MembersView from "@/components/club/Views/MembersView";
 import { useRouter } from "next/navigation";
-import { DUMMY_METRICS } from "@/staticdata/club";
 import { getClient } from "@/lib/api/client";
 import { extractClubId } from "@/lib/utils/slug";
 import { useSEO } from "@/hooks/useSEO";
+import dynamic from "next/dynamic"; 
+
+const AnalyticsView = dynamic(()=>import("@/components/club/Views/AnalytisView"),{
+   loading: () => <div className="text-gray-400">loading</div>,
+})
+const ProfileView = dynamic(()=>import("@/components/club/Views/ProfileView"),{
+   loading: () => <div className="text-gray-400"> loading</div>,
+})
+const MatchesView = dynamic(()=>import("@/components/club/Views/MatchView"),{
+   loading: () => <div className="text-gray-400">loading</div>,
+})
+const MembersView = dynamic(()=>import("@/components/club/Views/MembersView"),{
+   loading: () => <div className="text-gray-400"> loading</div>,
+})
 
 interface ClubMember {
   id: string;

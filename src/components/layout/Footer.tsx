@@ -125,7 +125,7 @@ const Footer = () => {
             >
               Terms & Conditions
             </a>
-            <a href="/Contact" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
+            <a href="/contact" className="text-gray-400 hover:text-purple-400 text-sm transition-colors">
               Contact Us
             </a>
           </div>

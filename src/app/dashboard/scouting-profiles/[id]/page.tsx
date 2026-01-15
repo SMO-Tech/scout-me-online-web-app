@@ -6,10 +6,23 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 // Reusing existing components
 import CollapsibleSidebar from "@/components/club/CollapsibleSideBar"
-import AnalyticsView from "@/components/club/Views/AnalytisView" // The analytics logic
-import PlayerProfileView from '@/components/Player/PlayerProfileView';
-import PlayerStatisticsView from '@/components/Player/PlayerStatisticsView';
-import PlayerEventsView from '@/components/Player/PlayerEventsView';
+import dynamic from "next/dynamic";
+
+const PlayerProfileView = dynamic(() => import('@/components/Player/PlayerProfileView'), {
+  loading: () => <div className="text-gray-400">Loading profile…</div>,
+});
+
+const AnalyticsView = dynamic(() => import('@/components/club/Views/AnalytisView'), {
+  loading: () => <div className="text-gray-400">Loading analytics…</div>,
+});
+
+const PlayerStatisticsView = dynamic(() => import('@/components/Player/PlayerStatisticsView'), {
+  loading: () => <div className="text-gray-400">Loading statistics…</div>,
+});
+
+const PlayerEventsView = dynamic(() => import('@/components/Player/PlayerEventsView'), {
+  loading: () => <div className="text-gray-400">Loading events…</div>,
+});
 
 
 const PlayerDetailPage = () => {

@@ -7,7 +7,6 @@ import { createMatchUrl } from "@/lib/utils/slug";
 import {
     FiPlus, FiSearch, FiEye, FiVideo
 } from "react-icons/fi";
-import { dummyMatches } from "@/staticdata/match";
 import { PiGenderIntersexThin } from "react-icons/pi";
 import { FaLocationDot } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -35,7 +34,7 @@ export interface BaseMatch {
     userId: string;
     videoUrl: string;
     lineUpImage: string | null;
-    status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
+    status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" ;
     level: string;
     matchDate: string | null;
     competitionName: string | null;
@@ -95,7 +94,7 @@ interface LegacyMatch {
 export default function Matches() {
     const router = useRouter();
 
-    const [matches, setMatches] = useState<BaseMatch[]>(dummyMatches);
+    const [matches, setMatches] = useState<BaseMatch[]>([])
     const [legacyMatches, setLegacyMatches] = useState<LegacyMatch[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingLegacy, setLoadingLegacy] = useState(false);

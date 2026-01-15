@@ -50,15 +50,7 @@ export default function LegacyMatchHeader({ teams, matchInfo, youtubeLink, user 
                     </div>
                 </div>
                 <div className="flex flex-col items-center gap-4">
-                    <a
-                        href={youtubeLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 bg-cyan-400 hover:bg-cyan-300 text-black px-6 py-3 rounded-xl font-black italic text-sm uppercase tracking-widest transition-all"
-                    >
-                        <FiVideo size={20} />
-                        Watch Video
-                    </a>
+                   
                     <div className="text-center">
                         <span className="text-blue-500 font-black text-xs uppercase">Created by</span>
                         <div className="text-cyan-400 font-bold text-sm">{user.name}</div>
