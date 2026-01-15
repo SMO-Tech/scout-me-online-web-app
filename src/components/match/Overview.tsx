@@ -6,7 +6,6 @@ import { getYouTubeId } from '@/lib/utils/youtubeIdExtractor'
 import LegacyMatchScore from './legacy/LegacyMatchScore'
 import LegacyMatchFormations from './legacy/LegacyMatchFormations'
 import LegacyMatchTiming from './legacy/LegacyMatchTiming'
-import LegacyMatchLineups from './legacy/LegacyMatchLineups'
 
 const Overview = () => {
     const params = useParams()
