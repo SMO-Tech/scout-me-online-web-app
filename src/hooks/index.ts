@@ -78,3 +78,27 @@ export const useFetchMatchResult = (id: string) => {
 
   return query;
 };
+
+export const useFetchLegacyMatchResult = (matchId: string) => {
+  const query = useQuery({
+    queryKey: ["legacy-match-analysis", matchId],
+    queryFn: async () => {
+      if (!matchId) return null;
+      const client = await getClient();
+      const response = await client.get(`/match/legacy-match-analysis/${matchId}`);
+      return response.data; // or response.data.data if your API nests it
+    },
+    enabled: !!matchId, // only fetch if matchId exists
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+  });
+
+  // Centralized error handling
+  useEffect(() => {
+    if (query.error) {
+      catchAsyncError(query.error);
+    }
+  }, [query.error]);
+
+  return query;
+};
+

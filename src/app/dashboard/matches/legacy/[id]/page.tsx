@@ -79,7 +79,7 @@ const page = () => {
                     />
                     <NavItem
                         icon={<FiBarChart />}
-                        label="Stats"
+                        label="Match Stats"
                         collapsed={collapsed}
                         active={view === 'Stats'}
                         onClick={() => setView('Stats')}
