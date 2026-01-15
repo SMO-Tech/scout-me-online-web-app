@@ -529,7 +529,7 @@ function ScoutReport({ videoUrl, matchReport }: ScoutReportProps) {
                     </div>
 
                     {/* Controls Below Video */}
-                    <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
+                    {/* <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
                         <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6">
                             <button
                                 onClick={togglePlay}
@@ -555,7 +555,7 @@ function ScoutReport({ videoUrl, matchReport }: ScoutReportProps) {
                                         style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
                                     />
 
-                                    {/* Pass Markers on Timeline */}
+                                   
                                     {passList.map((pass) => {
                                         if (!duration || pass.time > duration) return null;
                                         const leftPercent = (pass.time / duration) * 100;
@@ -582,7 +582,7 @@ function ScoutReport({ videoUrl, matchReport }: ScoutReportProps) {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </section>
 
                 {/* LOG TABLE SECTION */}
