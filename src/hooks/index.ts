@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClient } from "@/lib/api/client";
 import { catchAsyncError } from "@/lib/AsyncError";
+import { LegacyMatchResponse } from "@/@types/legacyMatch";
 
 const fetchPlayerById = async (id: string): Promise<any> => {
   const client = await getClient();
@@ -80,7 +81,7 @@ export const useFetchMatchResult = (id: string) => {
 };
 
 export const useFetchLegacyMatchResult = (matchId: string) => {
-  const query = useQuery({
+  const query = useQuery<LegacyMatchResponse>({
     queryKey: ["legacy-match-analysis", matchId],
     queryFn: async () => {
       if (!matchId) return null;

@@ -2,6 +2,7 @@
 
 import AnalyticsView from '@/components/match/legacy/AnalyticsView'
 import MatchStatsView from '@/components/match/legacy/MatchStatsView'
+import Overview from '@/components/match/Overview'
 import { getYouTubeId } from '@/lib/utils/youtubeIdExtractor'
 import React, { useState } from 'react'
 import {
@@ -118,27 +119,7 @@ const page = () => {
 
                 {/* OVERVIEW */}
                 {view === 'Overview' && (
-                    <div className="flex flex-col xl:flex-row gap-6">
-                        {/* VIDEO */}
-                        <div className="flex-1 bg-[#151720] rounded-xl overflow-hidden aspect-video">
-                            <iframe
-                                className="w-full h-full"
-                                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                                allowFullScreen
-                            />
-                        </div>
-
-                        {/* RIGHT ASIDE */}
-                        <aside className="w-full xl:w-80 bg-[#151720] rounded-xl p-5">
-                            <h4 className="font-semibold mb-3">Match Info</h4>
-                            <div className="space-y-2 text-sm text-gray-300">
-                                <p><span className="text-gray-500">Competition:</span> Champions Cup</p>
-                                <p><span className="text-gray-500">Venue:</span> Stadium A</p>
-                                <p><span className="text-gray-500">Date:</span> 25 Dec 2025</p>
-                                <p><span className="text-gray-500">Level:</span> Professional</p>
-                            </div>
-                        </aside>
-                    </div>
+                    <Overview />
                 )}
 
                 {/* LINEUP */}
