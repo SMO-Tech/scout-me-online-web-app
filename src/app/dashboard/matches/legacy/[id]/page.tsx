@@ -1,6 +1,6 @@
 'use client'
 
-import AnalyticsView from '@/components/match/legacy/AnalyticsView'
+import Lineup from '@/components/match/legacy/Lineup'
 import MatchStatsView from '@/components/match/legacy/MatchStatsView'
 import Overview from '@/components/match/Overview'
 import { getYouTubeId } from '@/lib/utils/youtubeIdExtractor'
@@ -11,10 +11,9 @@ import {
     FiHome,
     FiVideo,
     FiBarChart,
-    FiSettings,
 } from 'react-icons/fi'
 
-type View = 'Overview' | 'Lineup' | 'Stats' | "Analytics"
+type View = 'Overview' | 'Lineup' | 'Stats'
 
 
 const page = () => {
@@ -85,13 +84,6 @@ const page = () => {
                         active={view === 'Stats'}
                         onClick={() => setView('Stats')}
                     />
-                      <NavItem
-                        icon={<FiBarChart />}
-                        label="Analytics"
-                        collapsed={collapsed}
-                        active={view === 'Analytics'}
-                        onClick={() => setView('Analytics')}
-                    />
                 </nav>
             </aside>
 
@@ -124,14 +116,12 @@ const page = () => {
 
                 {/* LINEUP */}
                 {view === 'Lineup' && (
-                    <div className="bg-[#151720] rounded-xl p-6">
-                        Lineup content goes here
-                    </div>
+                    <Lineup />
                 )}
 
                 {/* STATS */}
                 {/* dummy video putting now delete it later  */}
-               
+
 
                 {view === 'Stats' && (
                     <div className="p-6 bg-black min-h-screen flex justify-center">
@@ -141,14 +131,7 @@ const page = () => {
                     </div>
 
                 )}
-                
-                {/* /delete tomorrow */}
-                {view === 'Analytics' && (
-                    
-                            <AnalyticsView />
-                      
 
-                )}
             </main>
         </div>
     )

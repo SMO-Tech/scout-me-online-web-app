@@ -2,66 +2,10 @@
 import React, { useState } from 'react'
 import { FiSettings } from 'react-icons/fi'
 import TacticalOverlay from '@/components/match/TechticalOverlay'
+import { useParams, useRouter } from 'next/navigation'
+import { useFetchLegacyMatchResult } from '@/hooks'
+import { getYouTubeId } from '@/lib/utils/youtubeIdExtractor'
 
-/* =======================
-   TYPES
-======================= */
-interface MatchPlayerStats {
-  goals: number
-  assists: number
-  shots: number
-  shotsOnTarget: number
-  passes: number
-  passAccuracy: number | null
-  tackles: number
-  yellowCards: number
-  redCards: number
-  minutesPlayed: number | null
-}
-
-interface PlayerProfile {
-  firstName: string
-  lastName: string
-  country: string
-  primaryPosition: string
-  avatar: string | null
-}
-
-export interface MatchPlayer {
-  id: string
-  jerseyNumber: number
-  position: string
-  playerProfile: PlayerProfile
-  stats: MatchPlayerStats | null
-}
-
-export interface MatchDetail {
-  id: string
-  videoUrl: string
-  matchPlayers: MatchPlayer[]
-}
-
-/* =======================
-   UTILS
-======================= */
-const getYouTubeId = (url?: string): string | null => {
-  if (!url) return null
-  try {
-    const u = new URL(url)
-    if (u.hostname.includes('youtube.com')) return u.searchParams.get('v')
-    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1)
-  } catch {
-    const m =
-      url.match(/v=([a-zA-Z0-9_-]+)/) ||
-      url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/)
-    return m ? m[1] : null
-  }
-  return null
-}
-
-/* =======================
-   UI COMPONENTS
-======================= */
 const StatSummaryCard = ({ title, value, apg, percentage, accentColor }: any) => {
   const colors: any = {
     cyan: 'text-cyan-400 bg-cyan-400',
@@ -96,89 +40,87 @@ const StatSummaryCard = ({ title, value, apg, percentage, accentColor }: any) =>
   )
 }
 
-const StatsTerminal = ({ title, players, metricName, accentColor }: any) => {
-  const color: any = {
-    cyan: 'text-cyan-400 bg-cyan-400',
-    purple: 'text-purple-500 bg-purple-500',
-    green: 'text-green-400 bg-green-400',
-  }
+// const StatsTerminal = ({ title, players, metricName, accentColor }: any) => {
+//   const color: any = {
+//     cyan: 'text-cyan-400 bg-cyan-400',
+//     purple: 'text-purple-500 bg-purple-500',
+//     green: 'text-green-400 bg-green-400',
+//   }
 
-  return (
-    <div className="bg-[#0B0D19] border border-white/5 rounded-2xl p-4">
-      <div className="flex justify-between mb-4 border-b border-white/5 pb-3">
-        <span className="text-[10px] font-black uppercase text-white">{title}</span>
-        <FiSettings className="text-gray-700" size={12} />
-      </div>
+//   return (
+//     <div className="bg-[#0B0D19] border border-white/5 rounded-2xl p-4">
+//       <div className="flex justify-between mb-4 border-b border-white/5 pb-3">
+//         <span className="text-[10px] font-black uppercase text-white">{title}</span>
+//         <FiSettings className="text-gray-700" size={12} />
+//       </div>
 
-      <div className="space-y-4">
-        {players.map((p: MatchPlayer) => {
-          const fig = Math.floor(Math.random() * 3)
-          const total = 3
-          const percent = Math.round((fig / total) * 100)
+//       <div className="space-y-4">
+//         {players.map((p: MatchPlayer) => {
+//           const fig = Math.floor(Math.random() * 3)
+//           const total = 3
+//           const percent = Math.round((fig / total) * 100)
 
-          return (
-            <div key={p.id} className="grid grid-cols-12 items-center">
-              <div className="col-span-6">
-                <p className="text-[10px] font-bold uppercase text-gray-300 truncate">
-                  {p.playerProfile.firstName} {p.playerProfile.lastName[0]}.
-                </p>
-              </div>
+//           return (
+//             <div key={p.id} className="grid grid-cols-12 items-center">
+//               <div className="col-span-6">
+//                 <p className="text-[10px] font-bold uppercase text-gray-300 truncate">
+//                   {p.playerProfile.firstName} {p.playerProfile.lastName[0]}.
+//                 </p>
+//               </div>
 
-              <div className="col-span-3 text-center">
-                <span className={`${color[accentColor].split(' ')[0]} text-[10px] font-black italic`}>
-                  {fig}/{total}
-                </span>
-              </div>
+//               <div className="col-span-3 text-center">
+//                 <span className={`${color[accentColor].split(' ')[0]} text-[10px] font-black italic`}>
+//                   {fig}/{total}
+//                 </span>
+//               </div>
 
-              <div className="col-span-3">
-                <span className="text-[9px] font-black text-white">{percent}%</span>
-                <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className={`${color[accentColor].split(' ')[1]} h-full`}
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
+//               <div className="col-span-3">
+//                 <span className="text-[9px] font-black text-white">{percent}%</span>
+//                 <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden">
+//                   <div
+//                     className={`${color[accentColor].split(' ')[1]} h-full`}
+//                     style={{ width: `${percent}%` }}
+//                   />
+//                 </div>
+//               </div>
+//             </div>
+//           )
+//         })}
+//       </div>
+//     </div>
+//   )
+// }
 
-/* =======================
-   DUMMY DATA
-======================= */
-const dummyMatch: MatchDetail = {
-  id: '1',
-  videoUrl: 'https://www.youtube.com/watch?v=IobYjhdAlH0',
-  matchPlayers: Array.from({ length: 12 }, (_, i) => ({
-    id: `${i}`,
-    jerseyNumber: i + 1,
-    position: 'MID',
-    playerProfile: { firstName: `Player${i + 1}`, lastName: `Last${i + 1}`, country: 'X', primaryPosition: 'MID', avatar: null },
-    stats: null,
-  })),
-}
-
-/* =======================
-   MAIN COMPONENT
-======================= */
 const MatchStatsView = () => {
-  const [matchData] = useState<MatchDetail>(dummyMatch)
-  const youtubeId = getYouTubeId(matchData.videoUrl)
-
+ const params = useParams()
+     const router = useRouter()
+     const matchId = params.id as string
+     const { data } = useFetchLegacyMatchResult(matchId)
+     console.log(data)
+     const matchData = data?.data
+     console.log(matchData)
+     // get yotube video id for embeeded view 
+     const videoID = getYouTubeId(matchData?.youtube_link! || "")
+     console.log(data)
+ 
+     if (!matchData) {
+         return (
+             <div>
+                 <p>No data available!</p>
+             </div>
+         )
+     }
+     
   return (
     <div className="min-h-screen bg-[#05060B] text-white p-6">
       <div className="max-w-[1700px] mx-auto grid grid-cols-12 gap-8">
         {/* CENTER */}
         <section className="col-span-12 md:col-span-9 xl:col-span-8 space-y-6">
           <div className="aspect-video bg-black rounded-xl overflow-hidden border border-white/5">
-            {youtubeId ? (
+            {videoID ? (
               <iframe
                 className="w-full h-full"
-                src={`https://www.youtube.com/embed/${youtubeId}`}
+                src={`https://www.youtube.com/embed/${videoID}`}
                 allowFullScreen
               />
             ) : (
@@ -196,10 +138,10 @@ const MatchStatsView = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatsTerminal title="Attempts" players={matchData.matchPlayers.slice(0, 6)} metricName="%" accentColor="cyan" />
-            <StatsTerminal title="Shot On" players={matchData.matchPlayers.slice(1, 4)} metricName="%" accentColor="cyan" />
-            <StatsTerminal title="Shot Off" players={matchData.matchPlayers.slice(2, 9)} metricName="%" accentColor="purple" />
-            <StatsTerminal title="Goal" players={matchData.matchPlayers.slice(0, 1)} metricName="%" accentColor="green" />
+            {/* <StatsTerminal title="Attempts" players={matchData.lineups} metricName="%" accentColor="cyan" />
+            <StatsTerminal title="Shot On" players={matchData.lineups} metricName="%" accentColor="cyan" />
+            <StatsTerminal title="Shot Off" players={matchData.lineups} metricName="%" accentColor="purple" />
+            <StatsTerminal title="Goal" players={matchData.lineups} metricName="%" accentColor="green" /> */}
           </div>
         </section>
 
