@@ -327,30 +327,27 @@ import PremierLeagueReport from '@/components/match/PremierLeagueReport';
 import { getYouTubeVideoId } from '@/lib/utils/youtubeVIdeo';
 
 // --- Types ---
-interface CanonicalClub { id: string; logoUrl: string | null; }
-interface MatchClubData {
-    id: string; name: string; country: string; jerseyColor: string | null;
-    isUsersTeam: boolean; club: CanonicalClub | null;
-}
-interface MatchResultData {
-    homeScore: number; awayScore: number;
-}
-interface MatchDetail {
-    id: string; videoUrl: string; status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
-    level: string; matchDate: string | null; competitionName: string | null; venue: string | null;
-    createdAt: string;
-    matchClubs: MatchClubData[]; matchPlayers: any[];
-    result: MatchResultData | null; user: { name: string };
+// ============================================================================
+// TYPES (Updated to match your JSON)
+// ============================================================================
+
+// The raw pass object coming from the JSON
+interface RawPass {
+    time: string;
+    frame: number;
+    result: string;
+    to_team: string;
+    from_team: string;
+    pass_type: string;
+    to_player: number | string;
+    from_player: number | string;
+    confidence: number;
+    passer_x?: number;
+    passer_y?: number;
+    distance_px?: number;
 }
 
-const getTeams = (matchClubs: MatchClubData[]) => {
-    return {
-        home: matchClubs.find(c => c.isUsersTeam),
-        away: matchClubs.find(c => !c.isUsersTeam),
-    };
-};
-
-// --- Types ---
+// The internal event shape used by the UI
 interface PassEvent {
     id: number;
     time: number; // converted to seconds
@@ -365,7 +362,36 @@ interface PassEvent {
     colorClass: string;
 }
 
-// --- Helper Functions ---
+interface MatchReport {
+    passes: RawPass[];
+    total_passes?: number;
+}
+
+// Basic club info
+interface MatchClubData {
+    id: string;
+    name: string;
+    isUsersTeam: boolean;
+    club: { logoUrl: string | null } | null;
+}
+
+// The outer structure of your match data
+interface MatchDetail {
+    id?: string;
+    videoUrl?: string; // This might come from the parent object in your specific JSON
+    matchClubs?: MatchClubData[];
+    result?: { homeScore: number; awayScore: number };
+    competitionName?: string;
+    matchDate?: string;
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+const getTeams = (matchClubs: MatchClubData[]) => ({
+    home: matchClubs?.find(c => c.isUsersTeam),
+    away: matchClubs?.find(c => !c.isUsersTeam),
+});
 
 
 const formatTime = (seconds: number) => {
@@ -781,7 +807,7 @@ const MatchDetailPage = () => {
     const slugOrId = params.id as string;
     const matchId = extractMatchId(slugOrId);
     const [reportType, setReportType] = useState<'scout' | 'premier'>('scout');
-
+    const router = useRouter()
     // Fetch match result from API
     const { data: apiResponse, isLoading, error } = useFetchMatchResult(matchId);
 

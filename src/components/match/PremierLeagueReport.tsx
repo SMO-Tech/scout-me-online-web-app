@@ -46,12 +46,17 @@ interface PremierLeagueReportProps {
 
 type TabType =  'lineups' | 'stats' | 'players';
 
-const getTeams = (matchClubs: MatchClubData[]) => {
+const getTeams = (matchClubs?: MatchClubData[]) => {
+    if (!Array.isArray(matchClubs)) {
+        return { home: undefined, away: undefined };
+    }
+
     return {
         home: matchClubs.find(c => c.isUsersTeam),
         away: matchClubs.find(c => !c.isUsersTeam),
     };
 };
+
 
 const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "TBD";
