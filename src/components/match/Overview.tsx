@@ -70,14 +70,6 @@ const Overview = () => {
                     <LegacyMatchFormations teams={matchData.teams} />
                     <LegacyMatchTiming matchTiming={matchData.match_timing} />
                 </div>
-                {/* Lineups */}
-                <div className="mt-6">
-                    <LegacyMatchLineups
-                        lineups={matchData.lineups}
-                        substitutes={matchData.substitutes}
-                        teams={matchData.teams}
-                    />
-                </div>
             </div>
         </div>
     )
