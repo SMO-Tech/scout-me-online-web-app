@@ -86,7 +86,7 @@ const getYouTubeVideoId = (url: string | undefined): string | null => {
     return null;
 };
 
-const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, matchResult }) => {
+const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, matchResult }) => {
     const [activeTab, setActiveTab] = useState<TabType>('stats');
     const [activeStatsTab, setActiveStatsTab] = useState<'key' | 'discipline'>('key');
 
@@ -617,5 +617,5 @@ const PremierLeagueReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
     );
 };
 
-export default PremierLeagueReport;
+export default MatchAnalysisReport;
 
