@@ -11,9 +11,8 @@ import { extractMatchId } from '@/lib/utils/slug';
 import { useSEO } from '@/hooks/useSEO';
 import { getYouTubeVideoId } from '@/lib/utils/youtubeVIdeo';
 
-// ============================================================================
+
 // TYPE DEFINITIONS
-// ============================================================================
 
 interface RawPass {
     time: string;
@@ -58,10 +57,8 @@ interface MatchClubData {
 
 type FilterType = 'All' | 'Blue' | 'Red' | 'Success' | 'Fail' | 'Unknown';
 
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
 
+// UTILITY FUNCTIONS
 const parseTimeString = (timeStr: string): number => {
     if (!timeStr) return 0;
     const parts = timeStr.split(':');
@@ -98,9 +95,7 @@ const transformPassData = (rawPasses: RawPass[]): PassEvent[] => {
     }));
 };
 
-// ============================================================================
 // VIDEO PLAYER COMPONENT
-// ============================================================================
 
 interface VideoPlayerProps {
     youtubeVideoId: string | null;
@@ -201,9 +196,8 @@ const VideoPlayer = ({
     );
 };
 
-// ============================================================================
+
 // PASS LOG TABLE COMPONENT
-// ============================================================================
 
 interface PassLogTableProps {
     filteredPasses: PassEvent[];
@@ -374,9 +368,8 @@ const PassLogTable = ({
     );
 };
 
-// ============================================================================
+
 // REPLAY MODAL COMPONENT
-// ============================================================================
 
 interface ReplayModalProps {
     selectedPass: PassEvent;
@@ -464,9 +457,8 @@ const ReplayModal = ({ selectedPass, youtubeVideoId, onClose }: ReplayModalProps
     );
 };
 
-// ============================================================================
+
 // SCOUT REPORT COMPONENT
-// ============================================================================
 
 interface ScoutReportProps {
     videoUrl: string | undefined;
@@ -492,7 +484,7 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
             // Set duration based on last pass time + 1 minute
             if (passes.length > 0) {
                 const lastPassTime = Math.max(...passes.map(p => p.time));
-                setDuration(lastPassTime + 60); // Last pass + 1 minute
+                setDuration(lastPassTime + 20); // Last pass + 1 minute
             }
         }
     }, [matchReport]);
@@ -554,10 +546,8 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
     );
 };
 
-// ============================================================================
-// MAIN PAGE COMPONENT
-// ============================================================================
 
+// MAIN PAGE COMPONENT
 const MatchDetailPage = () => {
     const params = useParams();
     const router = useRouter();

@@ -5,6 +5,7 @@ import AnalysisReport from '@/components/match/newMatch/views/AnalysisReport';
 import React, { useState } from 'react';
 
 import MatchAnalysisReportView from '@/components/match/newMatch/views/MatchAnalysisReport';
+import MatchStats from '@/components/match/newMatch/views/MatchStats';
 
 
 const renderUI = (view: View) => {
@@ -13,12 +14,14 @@ const renderUI = (view: View) => {
             return (
                 <AnalysisReport />
             )
-            break;
         case "MatchAnalyticsReport":
             return (
                 <MatchAnalysisReportView />
             )
-            break
+        case "MatchStats":
+            return (
+                <MatchStats />
+            )
         default:
             break;
     }
