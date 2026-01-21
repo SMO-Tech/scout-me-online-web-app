@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 
 import MatchAnalysisReportView from '@/components/match/newMatch/views/MatchAnalysisReport';
 import MatchStats from '@/components/match/newMatch/views/MatchStats';
+import GoBackButton from '@/components/ui/GoBackButton';
 
 
 const renderUI = (view: View) => {
@@ -37,6 +38,7 @@ const Page: React.FC = () => {
                 onViewChange={setView}
             />
             <main className="flex-1 p-8 overflow-y-auto h-screen">
+                <GoBackButton path='/dashboard/matches' name={'Return to Matches'} />
                 {renderUI(view)}
             </main>
         </div>

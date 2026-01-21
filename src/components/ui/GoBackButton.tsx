@@ -1,4 +1,5 @@
-import { useRouter } from 'next/router'
+
+import { useRouter } from 'next/navigation';
 import React from 'react'
 import { FiArrowLeft } from 'react-icons/fi'
 
@@ -15,7 +16,7 @@ const GoBackButton:React.FC<Props> = ({path, name}) => {
             className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 mb-6 transition-colors"
         >
             <FiArrowLeft size={20} />
-            <span className="font-semibold">name</span>
+            <span className="font-semibold">{name}</span>
         </button>
     )
 }

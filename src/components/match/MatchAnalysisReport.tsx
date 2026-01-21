@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { FiCalendar, FiMapPin, FiUsers, FiVideo, FiBarChart2, FiList, FiArrowDown, FiArrowUp } from 'react-icons/fi';
+import { FiCalendar, FiMapPin, FiUsers, FiBarChart2 } from 'react-icons/fi';
 
 interface MatchClubData {
     id: string;
@@ -44,7 +44,7 @@ interface PremierLeagueReportProps {
     matchResult?: any;
 }
 
-type TabType =  'lineups' | 'stats' | 'players';
+type TabType = 'lineups' | 'stats' | 'players';
 
 const getTeams = (matchClubs?: MatchClubData[]) => {
     if (!Array.isArray(matchClubs)) {
@@ -61,11 +61,11 @@ const getTeams = (matchClubs?: MatchClubData[]) => {
 const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "TBD";
     const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", { 
+    return date.toLocaleDateString("en-US", {
         weekday: 'short',
-        year: "numeric", 
-        month: "short", 
-        day: "numeric" 
+        year: "numeric",
+        month: "short",
+        day: "numeric"
     });
 };
 
@@ -244,8 +244,8 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                         <div className="flex items-center gap-4 flex-1">
                             <div className="flex flex-col items-center gap-2">
                                 {homeTeam?.club?.logoUrl ? (
-                                    <img 
-                                        src={homeTeam.club.logoUrl} 
+                                    <img
+                                        src={homeTeam.club.logoUrl}
                                         alt={homeTeam.name}
                                         className="w-16 h-16 object-contain"
                                     />
@@ -274,8 +274,8 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                             </div>
                             <div className="flex flex-col items-center gap-2">
                                 {awayTeam?.club?.logoUrl ? (
-                                    <img 
-                                        src={awayTeam.club.logoUrl} 
+                                    <img
+                                        src={awayTeam.club.logoUrl}
                                         alt={awayTeam.name}
                                         className="w-16 h-16 object-contain"
                                     />
@@ -296,11 +296,10 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
-                                activeTab === tab.id
+                            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id
                                     ? 'border-blue-600 text-blue-600'
                                     : 'border-transparent text-gray-400 hover:text-gray-200'
-                            }`}
+                                }`}
                         >
                             {tab.icon}
                             {tab.label}
@@ -318,11 +317,10 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveStatsTab(tab.id)}
-                                        className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-                                            activeStatsTab === tab.id
+                                        className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${activeStatsTab === tab.id
                                                 ? 'border-blue-600 text-blue-600'
                                                 : 'border-transparent text-gray-400 hover:text-gray-200'
-                                        }`}
+                                            }`}
                                     >
                                         {tab.label}
                                     </button>
@@ -348,27 +346,25 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                                 <div key={stat.label} className="flex items-center justify-between py-3 hover:bg-gray-700 transition-colors rounded-lg px-2">
                                                     {/* Home Team Value */}
                                                     <div className="flex items-center gap-3 flex-1 justify-end">
-                                                        <span className={`inline-flex items-center justify-center min-w-[3rem] h-10 rounded-full text-base font-bold shadow-sm transition-all ${
-                                                            homeWins 
-                                                                ? 'bg-red-500 text-white shadow-red-200' 
+                                                        <span className={`inline-flex items-center justify-center min-w-[3rem] h-10 rounded-full text-base font-bold shadow-sm transition-all ${homeWins
+                                                                ? 'bg-red-500 text-white shadow-red-200'
                                                                 : 'bg-gray-100 text-gray-700'
-                                                        }`}>
+                                                            }`}>
                                                             {stat.home}{stat.isPercentage ? '%' : ''}
                                                         </span>
                                                     </div>
-                                                    
+
                                                     {/* Stat Label (Center) */}
                                                     <div className="flex-1 text-center px-6">
                                                         <span className="text-sm text-gray-300 font-medium">{stat.label}</span>
                                                     </div>
-                                                    
+
                                                     {/* Away Team Value */}
                                                     <div className="flex items-center gap-3 flex-1 justify-start">
-                                                        <span className={`inline-flex items-center justify-center min-w-[3rem] h-10 rounded-full text-base font-bold shadow-sm transition-all ${
-                                                            awayWins 
-                                                                ? 'bg-red-500 text-white shadow-red-200' 
+                                                        <span className={`inline-flex items-center justify-center min-w-[3rem] h-10 rounded-full text-base font-bold shadow-sm transition-all ${awayWins
+                                                                ? 'bg-red-500 text-white shadow-red-200'
                                                                 : 'bg-gray-100 text-gray-700'
-                                                        }`}>
+                                                            }`}>
                                                             {stat.away}{stat.isPercentage ? '%' : ''}
                                                         </span>
                                                     </div>
@@ -377,7 +373,7 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                                         })}
                                     </div>
                                     <div>
-                                        
+
                                     </div>
                                 </div>
                             )}
@@ -586,7 +582,7 @@ const MatchAnalysisReport: React.FC<PremierLeagueReportProps> = ({ matchData, ma
                         </div>
                     )}
 
-                    
+
                 </div>
 
                 {/* Match Info Footer */}
