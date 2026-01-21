@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-    FiSearch, FiVideo,
+    FiPlay, FiPause, FiSearch, FiVideo,
     FiCheckCircle, FiXCircle, FiFilter, FiX,
-    FiLoader, FiAlertTriangle, FiPlay
+    FiLoader, FiAlertTriangle,
 } from 'react-icons/fi';
 import { useFetchMatchResult } from '@/hooks';
 import { useParams, useRouter } from 'next/navigation';
@@ -105,27 +105,29 @@ const transformPassData = (rawPasses: RawPass[]): PassEvent[] => {
 interface VideoPlayerProps {
     youtubeVideoId: string | null;
     passList: PassEvent[];
+    currentTime: number;
     duration: number;
-    onSeek: (time: number) => void;
+    isPlaying: boolean;
+    onTimeUpdate: (time: number) => void;
+    onTogglePlay: () => void;
 }
 
 const VideoPlayer = ({
     youtubeVideoId,
     passList,
+    currentTime,
     duration,
-    onSeek
+    isPlaying,
+    onTimeUpdate,
+    onTogglePlay
 }: VideoPlayerProps) => {
-    const [localCurrentTime, setLocalCurrentTime] = useState(0);
-
     const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
         let clickX = e.clientX - rect.left;
         clickX = Math.max(0, Math.min(clickX, rect.width));
         const percent = clickX / rect.width;
-        const newTime = percent * duration;
-        setLocalCurrentTime(newTime);
-        onSeek(newTime);
-    }, [duration, onSeek]);
+        onTimeUpdate(percent * duration);
+    }, [duration, onTimeUpdate]);
 
     return (
         <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
@@ -144,9 +146,8 @@ const VideoPlayer = ({
             <div className="rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-full md:max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
                 {youtubeVideoId ? (
                     <iframe
-                        key={localCurrentTime} // Force reload when seeking
                         className="w-full h-full"
-                        src={`https://www.youtube.com/embed/${youtubeVideoId}?start=${Math.floor(localCurrentTime)}&autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0`}
+                        src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0`}
                         title="Match Video"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -160,40 +161,50 @@ const VideoPlayer = ({
 
             {/* Interactive Timeline Controls */}
             <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
-                <div className="space-y-2 w-full">
-                    <div
-                        onClick={handleProgressClick}
-                        className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group"
+                <div className="flex flex-col md:flex-row items-center gap-3 md:gap-6">
+                    <button
+                        onClick={onTogglePlay}
+                        className="bg-indigo-600 hover:bg-indigo-500 p-3 md:p-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 text-white"
+                        aria-label={isPlaying ? "Pause" : "Play"}
                     >
+                        {isPlaying ? <FiPause size={24} /> : <FiPlay size={24} />}
+                    </button>
+
+                    <div className="flex-1 space-y-2 w-full">
                         <div
-                            className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
-                            style={{ width: `${duration > 0 ? (localCurrentTime / duration) * 100 : 0}%` }}
-                        />
+                            onClick={handleProgressClick}
+                            className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group"
+                        >
+                            <div
+                                className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                                style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+                            />
 
-                        {/* Pass markers on timeline */}
-                        {passList.map((pass) => {
-                            if (!duration || pass.time > duration) return null;
-                            const leftPercent = (pass.time / duration) * 100;
-                            const color =
-                                pass.result === "Success"
-                                    ? "bg-green-400"
-                                    : pass.result === "Fail"
-                                        ? "bg-red-500"
-                                        : "bg-gray-500";
-                            return (
-                                <div
-                                    key={pass.id}
-                                    className={`${color} absolute top-0 h-full w-1 md:w-1.5 rounded-full opacity-60 hover:opacity-100 transition-opacity`}
-                                    style={{ left: `${leftPercent}%` }}
-                                    title={`${pass.type} - ${pass.time}s`}
-                                />
-                            );
-                        })}
-                    </div>
+                            {/* Pass markers on timeline */}
+                            {passList.map((pass) => {
+                                if (!duration || pass.time > duration) return null;
+                                const leftPercent = (pass.time / duration) * 100;
+                                const color =
+                                    pass.result === "Success"
+                                        ? "bg-green-400"
+                                        : pass.result === "Fail"
+                                            ? "bg-red-500"
+                                            : "bg-gray-500";
+                                return (
+                                    <div
+                                        key={pass.id}
+                                        className={`${color} absolute top-0 h-full w-1 md:w-1.5 rounded-full opacity-60 hover:opacity-100 transition-opacity`}
+                                        style={{ left: `${leftPercent}%` }}
+                                        title={`${pass.type} - ${pass.time}s`}
+                                    />
+                                );
+                            })}
+                        </div>
 
-                    <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
-                        <span>{formatTime(localCurrentTime)}</span>
-                        <span>{formatTime(duration)}</span>
+                        <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
+                            <span>{formatTime(currentTime)}</span>
+                            <span>{formatTime(duration)}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -474,12 +485,13 @@ interface ScoutReportProps {
 }
 
 const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState<FilterType>('All');
     const [selectedPass, setSelectedPass] = useState<PassEvent | null>(null);
     const [passList, setPassList] = useState<PassEvent[]>([]);
-    const [seekTime, setSeekTime] = useState(0);
 
     const youtubeVideoId = useMemo(() => getYouTubeVideoId(videoUrl), [videoUrl]);
 
@@ -489,10 +501,10 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
             const passes = transformPassData(matchReport.passes);
             setPassList(passes);
 
-            // Set duration based on last pass time + 1 minute
+            // Set duration based on last pass time + buffer, or default to 90 mins
             if (passes.length > 0) {
                 const lastPassTime = Math.max(...passes.map(p => p.time));
-                setDuration(lastPassTime + 60); // Last pass + 1 minute
+                setDuration(Math.max(lastPassTime + 60, 600));
             }
         }
     }, [matchReport]);
@@ -517,7 +529,8 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
         });
     }, [passList, searchQuery, filter]);
 
-    const handleSeek = useCallback((time: number) => setSeekTime(time), []);
+    const handleTogglePlay = useCallback(() => setIsPlaying(prev => !prev), []);
+    const handleTimeUpdate = useCallback((time: number) => setCurrentTime(time), []);
     const handleFilterChange = useCallback((newFilter: FilterType) => setFilter(newFilter), []);
     const handleSearchChange = useCallback((query: string) => setSearchQuery(query), []);
     const handlePassSelect = useCallback((pass: PassEvent) => setSelectedPass(pass), []);
@@ -529,8 +542,11 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
                 <VideoPlayer
                     youtubeVideoId={youtubeVideoId}
                     passList={passList}
+                    currentTime={currentTime}
                     duration={duration}
-                    onSeek={handleSeek}
+                    isPlaying={isPlaying}
+                    onTimeUpdate={handleTimeUpdate}
+                    onTogglePlay={handleTogglePlay}
                 />
 
                 <PassLogTable
