@@ -38,19 +38,16 @@ const Footer = () => {
             onClick={() => router.replace('/dashboard')}
             className="cursor-pointer flex items-center gap-3 group"
           >
-            {/* NOTE: Ensure this logo image is suitable for a WHITE background.
-               If your current logo is white text, you need to swap the src 
-               to a dark version here.
-            */}
+            {/* Using the same logo source, but you can swap this for an SVG icon if you prefer */}
             <Image
               src="/images/new-logo.png"
-              alt="Touchline"
+              alt="ScoutAI Logo"
               width={100}
               height={35}
               className="object-contain opacity-90 group-hover:opacity-100 transition-opacity"
             />
             <span className="text-gray-900 font-bold tracking-tight text-lg group-hover:text-orange-600 transition-colors">
-              Touchline
+              ScoutAI
             </span>
           </div>
 
@@ -78,21 +75,21 @@ const Footer = () => {
         {/* Bottom row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 text-sm">
           <div className="text-gray-500 font-medium">
-            © {new Date().getFullYear()} Touchline. All rights reserved.
+            © {new Date().getFullYear()} ScoutAI. All rights reserved.
           </div>
 
           <div className="flex gap-6">
             <a
-              href="/terms&conditions"
-              className="text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              Terms
-            </a>
-            <a
               href="/contact"
-              className="text-gray-500 hover:text-gray-900 transition-colors"
+              className="text-gray-500 hover:text-orange-600 transition-colors"
             >
               Contact
+            </a>
+            <a
+              href="/terms&conditions"
+              className="text-gray-500 hover:text-orange-600 transition-colors"
+            >
+              Terms of Service
             </a>
           </div>
         </div>
