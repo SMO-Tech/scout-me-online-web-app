@@ -1,211 +1,559 @@
-'use client'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState, useRef } from 'react'
-import { FiMenu, FiX } from 'react-icons/fi'
-import { HiSparkles } from 'react-icons/hi'
-import dynamic from 'next/dynamic'
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import Image from 'next/image'
-import Footer from '@/components/layout/Footer'
-import Hero from '@/components/Home/Hero'
-import HowStatement from '@/components/Home/HowStatement'
-import Features from '@/components/Home/Features'
-import SectionThree from '@/components/Home/SectionThree'
-import SectionFour from '@/components/Home/SectionFour'
-import UserJourney from '@/components/Home/UserJourney'
-import Achievements from '@/components/Home/Achievements'
-import Link from 'next/link'
-import { useSEO } from '@/hooks/useSEO'
+'use client';
 
-// Dynamically import Three.js component to avoid SSR issues
-const ThreeBackground = dynamic(() => import('@/components/ThreeBackground').catch(() => {
-  // Fallback component if Three.js fails to load
-  return { default: () => <div className="absolute inset-0" /> }
-}), {
-  ssr: false,
-  loading: () => <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 to-blue-900/20" />
-})
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, useInView, Variants } from 'framer-motion';
+import { 
+  UploadCloud, 
+  Activity, 
+  PlayCircle, 
+  CheckCircle2, 
+  Clock, 
+  ArrowRight,
+  MonitorPlay,
+  TrendingUp,
+  Users
+} from 'lucide-react';
+import RoundedNavbar from '@/components/layout/MyNavbar';
+import Footer from '@/components/layout/Footer';
 
-const Page = () => {
-  const router = useRouter()
-  const [isVisible, setIsVisible] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const heroRef = useRef<HTMLElement>(null)
-  const section2Ref = useRef<HTMLElement>(null)
+// --- ANIMATION VARIANTS ---
 
-  // Use window scroll instead of container ref to avoid issues
-  const { scrollYProgress } = useScroll()
-
-  // Smooth spring animation for scroll - faster response
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 300, // Increased from 100 for faster response
-    damping: 40,    // Increased from 30 for less bounce
-    restDelta: 0.001
-  })
-
-  // Define all transforms at the top level (before any returns)
-  const backgroundGradient = useTransform(
-    smoothProgress,
-    [0, 0.5, 1],
-    [
-      'radial-gradient(ellipse at top, rgba(147, 51, 234, 0.3) 0%, rgba(0, 0, 0, 1) 50%)',
-      'radial-gradient(ellipse at center, rgba(59, 130, 246, 0.3) 0%, rgba(0, 0, 0, 1) 50%)',
-      'radial-gradient(ellipse at bottom, rgba(6, 182, 212, 0.3) 0%, rgba(0, 0, 0, 1) 50%)'
-    ]
-  )
-  const heroY = useTransform(smoothProgress, [0, 0.3], [0, -100])
-  const heroOpacity = useTransform(smoothProgress, [0, 0.2], [1, 0])
-  const heroOverlayY = useTransform(smoothProgress, [0, 0.3], [0, 150])
-  const heroContentY = useTransform(smoothProgress, [0, 0.3], [0, -50])
-  const heroContentOpacity = useTransform(smoothProgress, [0, 0.2, 0.3], [1, 0.8, 0])
-  const section2Opacity = useTransform(smoothProgress, [0.2, 0.4, 0.6], [0, 1, 0.8])
-  const section2GridY = useTransform(smoothProgress, [0.3, 0.6], [50, -50])
-
-  useEffect(() => {
-    // Loading animation - faster
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-      setTimeout(() => setIsVisible(true), 50)
-    }, 800) // Reduced from 2000ms to 800ms
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  // SEO metadata
-  useSEO({
-    title: 'ScoutMe.cloud - AI-Powered Football Scouting & Player Analytics Platform',
-    description: 'Discover, analyze, and track football players with AI-powered scouting tools. Advanced player analytics, match analysis, and talent discovery platform for coaches, scouts, and clubs.',
-    image: '/images/new-logo.png',
-    url: typeof window !== 'undefined' ? window.location.href : '',
-    keywords: 'football scouting, player analytics, AI scouting, football analytics, talent discovery, match analysis, player performance, football data, scouting platform',
-    type: 'website',
-    siteName: 'ScoutMe.cloud'
-  })
-
-  // Loading Screen
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-purple-950 to-black flex items-center justify-center z-50">
-        <div className="text-center">
-          <div className="relative">
-
-            <video
-              className='rounded-2xl mb-10'
-              src="/videos/loading.mp4"
-              width={200}
-              height={200}
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-
-            {/* Loading Text */}
-            <h2 className="text-2xl font-bold text-white mb-2 animate-pulse">ScoutMe.cloud</h2>
-            <p className="text-gray-400 text-sm">Loading your experience...</p>
-
-            {/* Progress Bar */}
-            <div className="w-48 h-1 bg-gray-800 rounded-full mx-auto mt-6 overflow-hidden">
-              <motion.div
-                className="h-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"
-                initial={{ width: '0%' }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 0.8, ease: "easeInOut" }}
-              />
-            </div>
-
-          </div>
-        </div>
-      </div>
-    )
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
   }
+};
 
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const timelineGrow: Variants = {
+  hidden: { scaleX: 0, originX: 0 },
+  visible: { 
+    scaleX: 1, 
+    transition: { duration: 1.5, ease: "circOut" } 
+  }
+};
+
+// --- COMPONENTS ---
+
+const SectionHeader = ({ title, subtitle }: { title: string, subtitle?: string }) => (
+  <motion.div 
+    variants={fadeInUp}
+    className="mb-16 md:mb-24 max-w-3xl"
+  >
+    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-4">{title}</h2>
+    {subtitle && <p className="text-xl text-gray-500 leading-relaxed">{subtitle}</p>}
+  </motion.div>
+);
+
+export default function LandingPage() {
   return (
-    <div ref={containerRef} className="min-h-screen bg-black overflow-x-hidden">
-      {/* Animated Background Gradient that changes on scroll */}
-      <motion.div
-        className="fixed inset-0 z-0"
-        style={{ background: backgroundGradient }}
-      />
-
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-black/40 backdrop-blur-xl border-b border-purple-500/20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex items-center justify-between h-16 md:h-20">
-
-            {/* Logo */}
-            <div
-              onClick={() => router.push('/')}
-              className="flex items-center gap-2 cursor-pointer hover:scale-[1.02] transition"
-            >
-              <Image
-                src="/images/new-logo.png"
-                alt="ScoutMe.cloud Logo"
-                width={70}
-                height={60}
-                className="rounded-xl"
-              />
-            </div>
-
-        
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-4 sm:gap-6">
-                <a
-                  href="/auth"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 sm:px-6 font-semibold text-white hover:text-gray-300 transition-colors duration-200 smofonts"
-                >
-                  Login / Register
-                </a>
-              </div>
-
-              {/* Mobile Toggle */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition"
-              >
-                {mobileMenuOpen ? <FiX color='#00FCFF' className="text-2xl" /> : <FiMenu color='#00FCFF' className="text-2xl" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile Menu */}
-          <div
-            className={`lg:hidden transition-all duration-300 overflow-hidden ${mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-              }`}
-          >
-            <div className="py-4 space-y-3 text-gray-300">
-              <div className="flex items-center gap-4 sm:gap-6">
-                <a
-                  href="/auth"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 sm:px-6 font-semibold text-white hover:text-gray-300 transition-colors duration-200 smofonts"
-                >
-                  Login / Register
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-
-      {/* solid - Hero */}
-      <Hero />
-      <HowStatement />
-      <Features />
-      <SectionThree />
-      <SectionFour />
-      <UserJourney />
-      <Achievements />
+    <div className="bg-white min-h-screen overflow-x-hidden selection:bg-orange-100 selection:text-orange-900">
+      <RoundedNavbar />
+      <HeroSection />
+      <ProblemSection />
+      <SolutionSection />
+      <HowItWorksSection />
+      {/* <OutputPreviewSection /> */}
+      <TurnaroundSection />
+      <PricingSection />
+      <WhoItsForSection />
+      <FinalCTASection />
       <Footer />
     </div>
-  )
+  );
 }
 
-export default Page
+// --- 1. HERO SECTION ---
+
+function HeroSection() {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+
+  return (
+    <section className="relative min-h-[90vh] flex items-center justify-center px-6 pt-20 overflow-hidden bg-white">
+      {/* Background Abstract Grid */}
+      <div className="absolute inset-0 z-0 opacity-[0.03]" 
+           style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+      </div>
+
+      <div className="container mx-auto max-w-6xl relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+        
+        {/* Copy */}
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="space-y-8"
+        >
+          <motion.div variants={fadeInUp} className="inline-flex items-center space-x-2 bg-orange-50 border border-orange-100 rounded-full px-4 py-1.5">
+            <span className="w-2 h-2 bg-orange-600 rounded-full animate-pulse"></span>
+            <span className="text-sm font-medium text-orange-900 tracking-wide">Beta Access Open</span>
+          </motion.div>
+          
+          <motion.h1 variants={fadeInUp} className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tight leading-[1.1]">
+            Turn Match Footage into <span className="text-orange-600">Structured Data</span>.
+          </motion.h1>
+          
+          <motion.p variants={fadeInUp} className="text-xl text-gray-500 max-w-lg leading-relaxed">
+            Upload a YouTube link. We process the footage and return an interactive timeline of key moments within hours.
+          </motion.p>
+          
+          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
+            <button className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg shadow-orange-600/20 transform hover:-translate-y-1">
+              Analyze a Match
+            </button>
+            <button className="bg-white border border-gray-200 hover:border-orange-200 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group">
+              <span>View Sample</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </motion.div>
+          
+          <motion.p variants={fadeInUp} className="text-sm text-gray-400">
+            1 Free Match Credit • No Credit Card Required
+          </motion.p>
+        </motion.div>
+
+        {/* Abstract Hero Visualization */}
+        <motion.div style={{ y: y1 }} className="relative h-[400px] w-full hidden lg:flex items-center justify-center">
+          {/* The "Timeline" Building Animation */}
+          <div className="relative w-full h-full bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-2xl flex flex-col justify-center gap-6">
+             {/* Fake Video Player */}
+             <div className="w-full h-48 bg-gray-200 rounded-lg animate-pulse mb-8 relative overflow-hidden">
+                <motion.div 
+                  initial={{ x: "-100%" }}
+                  animate={{ x: "100%" }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-1/2"
+                />
+             </div>
+             {/* Dynamic Timeline */}
+             <div className="relative h-2 bg-gray-200 rounded-full w-full overflow-hidden">
+               <motion.div 
+                 initial={{ width: 0 }}
+                 animate={{ width: "70%" }}
+                 transition={{ duration: 1.5, delay: 0.5, ease: "circOut" }}
+                 className="absolute top-0 left-0 h-full bg-orange-600"
+               />
+             </div>
+             {/* Event Markers Popping Up */}
+             <div className="flex justify-between px-4">
+               {[1, 2, 3, 4].map((i) => (
+                 <motion.div
+                   key={i}
+                   initial={{ scale: 0, opacity: 0 }}
+                   animate={{ scale: 1, opacity: 1 }}
+                   transition={{ delay: 1 + (i * 0.2), type: "spring" }}
+                   className="flex flex-col items-center gap-2"
+                 >
+                   <div className="w-3 h-3 bg-gray-900 rounded-full ring-4 ring-white" />
+                   <div className="w-16 h-2 bg-gray-200 rounded-full" />
+                 </motion.div>
+               ))}
+             </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// --- 2. PROBLEM SECTION ---
+
+function ProblemSection() {
+  return (
+    <section className="py-24 bg-gray-50">
+      <div className="container mx-auto max-w-5xl px-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid md:grid-cols-2 gap-16 items-center"
+        >
+          <div>
+            <motion.h2 variants={fadeInUp} className="text-3xl font-bold text-gray-900 mb-6">
+              The 90-Minute Grind
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-gray-500 mb-6">
+              Manual analysis is inefficient. Key moments are buried in long footage, forcing coaches and analysts to spend hours scrubbing through dead ball time and midfield stagnation just to find ten relevant clips.
+            </motion.p>
+            <motion.div variants={fadeInUp} className="flex items-center gap-4 text-gray-400">
+               <Clock className="w-5 h-5" />
+               <span>Average manual tagging time: 3+ Hours</span>
+            </motion.div>
+          </div>
+          
+          <div className="relative h-64 bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-center">
+             {/* Visualizing "Messy" Timeline */}
+             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Raw Footage</p>
+             <div className="w-full h-4 bg-gray-200 rounded-full mb-2 overflow-hidden flex">
+                {/* Random messy blocks */}
+                <div className="w-[10%] h-full bg-gray-300"></div>
+                <div className="w-[30%] h-full bg-gray-200"></div>
+                <div className="w-[5%] h-full bg-gray-300"></div>
+                <div className="w-[40%] h-full bg-gray-200"></div>
+                <div className="w-[15%] h-full bg-gray-300"></div>
+             </div>
+             <div className="flex justify-between text-xs text-gray-400 font-mono">
+               <span>00:00</span>
+               <span>90:00</span>
+             </div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="bg-white/80 backdrop-blur px-4 py-2 rounded-lg border border-gray-200 text-gray-500 font-medium">
+                   Untagged & Unstructured
+                </div>
+             </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// --- 3. SOLUTION SECTION ---
+
+function SolutionSection() {
+  return (
+    <section className="py-24 bg-white">
+      <div className="container mx-auto max-w-5xl px-6">
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+          className="grid md:grid-cols-2 gap-16 items-center"
+        >
+           {/* Order swapped on mobile/desktop via flex/grid order if needed, but standard is fine */}
+           <div className="relative h-64 bg-white rounded-xl border-2 border-orange-100 shadow-xl shadow-orange-100/50 p-6 flex flex-col justify-center order-2 md:order-1">
+             <p className="text-xs font-semibold text-orange-600 uppercase tracking-widest mb-4">ScoutAI Processed</p>
+             <div className="w-full h-1 bg-gray-100 rounded-full mb-6 flex items-center relative">
+                {/* Clean Nodes */}
+                <motion.div variants={timelineGrow} className="absolute inset-0 bg-gray-200 origin-left" />
+                <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.5 }} className="absolute left-[10%] w-3 h-3 bg-gray-900 rounded-full ring-4 ring-white shadow-sm" />
+                <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.7 }} className="absolute left-[35%] w-3 h-3 bg-orange-500 rounded-full ring-4 ring-white shadow-sm" />
+                <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.9 }} className="absolute left-[60%] w-3 h-3 bg-gray-900 rounded-full ring-4 ring-white shadow-sm" />
+                <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 1.1 }} className="absolute left-[85%] w-3 h-3 bg-gray-900 rounded-full ring-4 ring-white shadow-sm" />
+             </div>
+             
+             <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-3 rounded border border-gray-100">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mb-2"></div>
+                  <div className="text-sm font-bold text-gray-900">Shots</div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded border border-gray-100">
+                  <div className="w-2 h-2 bg-gray-900 rounded-full mb-2"></div>
+                  <div className="text-sm font-bold text-gray-900">Passes</div>
+                </div>
+             </div>
+          </div>
+
+          <div className="order-1 md:order-2">
+            <motion.h2 variants={fadeInUp} className="text-3xl font-bold text-gray-900 mb-6">
+              Structured Visual Data
+            </motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-gray-500 mb-6">
+              We act as a rapid preliminary analysis layer. ScoutAI identifies distinct events, organizing chaos into a navigable timeline. It is not a replacement for your expertise—it is a tool to get you to the footage that matters, faster.
+            </motion.p>
+            <motion.ul variants={fadeInUp} className="space-y-3">
+              {['Auto-detection of passes & shots', 'Click-to-play timeline markers', 'Same-day turnaround'].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-gray-700">
+                  <CheckCircle2 className="w-5 h-5 text-orange-600" />
+                  {item}
+                </li>
+              ))}
+            </motion.ul>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// --- 4. HOW IT WORKS ---
+
+function HowItWorksSection() {
+  const steps = [
+    { icon: <UploadCloud />, title: "Submit Link", desc: "Paste a YouTube URL of the full match footage." },
+    { icon: <Activity />, title: "Processing", desc: "Our system scans the match (typically 2-4 hours)." },
+    { icon: <MonitorPlay />, title: "Review", desc: "Receive a link to your interactive timeline." }
+  ];
+
+  return (
+    <section id="how-it-works"  className="py-24 bg-gray-50 border-y border-gray-200">
+      <div className="container mx-auto max-w-6xl px-6">
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainer}
+        >
+          <SectionHeader title="The Workflow" subtitle="Designed for speed and simplicity." />
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {steps.map((step, index) => (
+              <motion.div 
+                key={index} 
+                variants={fadeInUp}
+                className="bg-white p-8 rounded-xl border border-gray-200 relative group hover:border-orange-200 transition-colors duration-300"
+              >
+                <div className="absolute top-8 right-8 text-6xl font-bold text-gray-100 -z-10 group-hover:text-orange-50 transition-colors">
+                  0{index + 1}
+                </div>
+                <div className="w-12 h-12 bg-gray-900 text-white rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-gray-900/20">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
+                <p className="text-gray-500">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// --- 5. OUTPUT PREVIEW (KEY SECTION) ---
+
+function OutputPreviewSection() {
+  return (
+    <section className="py-24 bg-white overflow-hidden">
+      <div className="container mx-auto max-w-6xl px-6">
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="text-center mb-16"
+        >
+          <SectionHeader title="The Dashboard" subtitle="Clean, distraction-free analysis environment." />
+        </motion.div>
+
+        {/* The Mockup Interface */}
+        <motion.div 
+          initial={{ y: 100, opacity: 0, rotateX: 10 }}
+          whileInView={{ y: 0, opacity: 1, rotateX: 0 }}
+          transition={{ duration: 1, type: "spring" }}
+          viewport={{ once: true }}
+          className="relative mx-auto bg-white rounded-t-2xl border-x border-t border-gray-200 shadow-2xl max-w-5xl aspect-[16/9] overflow-hidden"
+        >
+            {/* Header Mock */}
+            <div className="h-16 border-b border-gray-200 flex items-center justify-between px-6 bg-gray-50/50">
+               <div className="flex items-center gap-4">
+                 <div className="w-8 h-8 bg-orange-600 rounded-md"></div>
+                 <div className="h-4 w-32 bg-gray-200 rounded"></div>
+               </div>
+               <div className="h-8 w-24 bg-white border border-gray-200 rounded text-xs flex items-center justify-center text-gray-500">
+                 Export Data
+               </div>
+            </div>
+
+            {/* Video Area Mock */}
+            <div className="flex h-[calc(100%-4rem)]">
+               {/* Sidebar */}
+               <div className="w-64 border-r border-gray-200 bg-gray-50 p-4 hidden md:block">
+                  <div className="space-y-3">
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} className="h-12 bg-white border border-gray-200 rounded p-2 flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-100 rounded"></div>
+                        <div className="space-y-1">
+                          <div className="h-2 w-16 bg-gray-200 rounded"></div>
+                          <div className="h-2 w-10 bg-gray-100 rounded"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+
+               {/* Main Player */}
+               <div className="flex-1 bg-gray-900 relative flex items-center justify-center">
+                  <PlayCircle className="w-20 h-20 text-white/20" />
+                  
+                  {/* Floating Event Tag Overlay */}
+                  <motion.div 
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 1 }}
+                    className="absolute bottom-8 left-8 bg-black/80 backdrop-blur text-white px-4 py-2 rounded-lg border border-white/10 flex items-center gap-3"
+                  >
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span className="font-mono text-sm">23:14 • Key Pass</span>
+                  </motion.div>
+               </div>
+            </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// --- 6. TURNAROUND & RELIABILITY ---
+
+function TurnaroundSection() {
+  return (
+    <section className="py-24 bg-gray-900 text-white">
+      <div className="container mx-auto max-w-4xl px-6 text-center">
+        <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           whileInView={{ opacity: 1, scale: 1 }}
+           viewport={{ once: true }}
+           transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-8">Built for Speed, Not Perfection.</h2>
+          <p className="text-xl text-gray-400 leading-relaxed mb-12">
+            We prioritize delivery speed to fit into your weekly cycle. 
+            While our detection accuracy is high and improving daily, we position ScoutAI as a 
+            <span className="text-white font-semibold"> rapid review tool</span> rather than a definitive statistical record.
+          </p>
+          
+          <div className="grid md:grid-cols-2 gap-8 text-left">
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+               <h4 className="text-lg font-bold text-orange-500 mb-2">Same-Day Delivery</h4>
+               <p className="text-gray-400">Submit in the morning, review in the afternoon. We work on a rolling queue system.</p>
+            </div>
+            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+               <h4 className="text-lg font-bold text-orange-500 mb-2">Replay Friendly</h4>
+               <p className="text-gray-400">Jump instantly to events. No more scrubbing through dead ball time.</p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// --- 7. PRICING SECTION ---
+
+function PricingSection() {
+  return (
+    <section id="pricing" className="py-24 bg-gray-50">
+      <div className="container mx-auto max-w-5xl px-6">
+        <SectionHeader title="Simple Pricing" subtitle="No subscriptions. Pay as you analyze." />
+        
+        <div className="grid md:grid-cols-2 gap-8">
+           {/* Free Tier */}
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm"
+           >
+             <h3 className="text-2xl font-bold text-gray-900 mb-2">Trial</h3>
+             <div className="text-4xl font-bold text-gray-900 mb-6">Free<span className="text-lg font-normal text-gray-500"> / 1 Match</span></div>
+             <p className="text-gray-500 mb-8">Test the output quality with your own footage.</p>
+             <ul className="space-y-4 mb-8">
+               <li className="flex gap-3 text-gray-700"><CheckCircle2 className="w-5 h-5 text-gray-400" /> Full Match Analysis</li>
+               <li className="flex gap-3 text-gray-700"><CheckCircle2 className="w-5 h-5 text-gray-400" /> Interactive Timeline</li>
+               <li className="flex gap-3 text-gray-700"><CheckCircle2 className="w-5 h-5 text-gray-400" /> 24hr Turnaround</li>
+             </ul>
+             <button className="w-full py-4 rounded-lg border-2 border-gray-200 hover:border-gray-900 text-gray-900 font-bold transition-all">
+               Start Free Trial
+             </button>
+           </motion.div>
+
+           {/* Paid Tier */}
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             transition={{ delay: 0.2 }}
+             viewport={{ once: true }}
+             className="bg-white p-8 rounded-2xl border-2 border-orange-600 shadow-xl relative overflow-hidden"
+           >
+             <div className="absolute top-0 right-0 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
+             <h3 className="text-2xl font-bold text-gray-900 mb-2">Standard</h3>
+             <div className="text-4xl font-bold text-gray-900 mb-6">£15<span className="text-lg font-normal text-gray-500"> / Match</span></div>
+             <p className="text-gray-500 mb-8">Flexible credits for busy periods.</p>
+             <ul className="space-y-4 mb-8">
+               <li className="flex gap-3 text-gray-900 font-medium"><CheckCircle2 className="w-5 h-5 text-orange-600" /> Priority Queue</li>
+               <li className="flex gap-3 text-gray-900 font-medium"><CheckCircle2 className="w-5 h-5 text-orange-600" /> Permanent Hosting</li>
+               <li className="flex gap-3 text-gray-900 font-medium"><CheckCircle2 className="w-5 h-5 text-orange-600" /> Bulk Discounts Available</li>
+             </ul>
+             <button className="w-full py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-bold transition-all shadow-lg shadow-orange-600/20">
+               Buy Credits
+             </button>
+           </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// --- 8. WHO IT'S FOR ---
+
+function WhoItsForSection() {
+  const profiles = [
+    { icon: <TrendingUp />, title: "Analysts", desc: "Reduce tactical coding time by 80%." },
+    { icon: <Users />, title: "Coaches", desc: "Prepare post-match review sessions instantly." },
+    { icon: <MonitorPlay />, title: "Content Teams", desc: "Find highlights for social media packages." },
+    { icon: <Activity />, title: "Semi-Pro Clubs", desc: "Elite level tooling on a grassroots budget." },
+  ];
+
+  return (
+    <section className="py-24 bg-white">
+      <div className="container mx-auto max-w-6xl px-6">
+        <SectionHeader title="Built for the Football Ecosystem" />
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {profiles.map((p, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="p-6 rounded-xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 group cursor-default"
+            >
+              <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-900 mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                {p.icon}
+              </div>
+              <h4 className="font-bold text-gray-900 mb-2">{p.title}</h4>
+              <p className="text-sm text-gray-500">{p.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// --- 9. FINAL CTA ---
+
+function FinalCTASection() {
+  return (
+    <section className="py-32 bg-white flex justify-center">
+      <div className="container mx-auto px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="max-w-2xl mx-auto"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-8">
+            Stop scrubbing. <br />Start analyzing.
+          </h2>
+          <p className="text-xl text-gray-500 mb-10">
+            Join the analysts saving hours every matchday. <br/>Your first match is on us.
+          </p>
+          <button className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-xl font-bold text-xl transition-all shadow-xl shadow-orange-600/30 transform hover:-translate-y-1">
+            Analyze Your First Match
+          </button>
+          <p className="mt-6 text-sm text-gray-400">No credit card required for trial.</p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
