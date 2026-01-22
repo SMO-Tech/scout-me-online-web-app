@@ -1,21 +1,26 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import Image from "next/image";
+import { auth } from "@/lib/firebaseConfig";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const auth = getAuth();
 
   useEffect(() => {
+    if (!auth) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
     });
     return () => unsub();
-  }, [auth]);
+  }, []);
 
 
   // Senior Engineer Tip: Use a "Skeleton" loader instead of text for better perceived performance

@@ -1,7 +1,7 @@
 // /lib/AuthContext.tsx
 'use client'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { auth } from './firebaseConfig'
+import { auth, isFirebaseConfigured } from './firebaseConfig'
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { AuthContextType } from '@/@types'
 
@@ -16,19 +16,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null | undefined>(null)
 
   useEffect(() => {
+    if (!isFirebaseConfigured || !auth) {
+      setUser(null)
+      return
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser ?? null)
       if (firebaseUser) {
         const token = await firebaseUser.getIdToken()
-         setToken(token);
-        //  persist token for axios
-        if(!token) return;
-        localStorage.setItem("authToken", token);
-      }else{
-        setUser(null);
+        setToken(token)
+        if (!token) return
+        localStorage.setItem("authToken", token)
+      } else {
+        setUser(null)
         setToken(null)
-        //remove token from localStorage
-        localStorage.removeItem("authToken");
+        localStorage.removeItem("authToken")
       }
     })
     return () => unsubscribe()

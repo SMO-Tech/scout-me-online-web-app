@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { auth, facebookProvider, googleProvider } from "@/lib/firebaseConfig";
+import { auth, facebookProvider, googleProvider, isFirebaseConfigured } from "@/lib/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -70,28 +70,25 @@ const AuthPage = () => {
     }
   }, [currentUser, router, oobCode]);
 
-  // refresh latest email flag and chagne UI state
+  // refresh latest email flag and change UI state
   useEffect(() => {
-    if (auth.currentUser) {
-      auth.currentUser.reload();
-    }
+    if (auth?.currentUser) auth.currentUser.reload();
   }, []);
 
   // handle email verification
   useEffect(() => {
+    if (!auth || mode !== "verifyEmail" || !oobCode) return;
+    const authInstance = auth;
     const handleVerifyEmail = async () => {
-      if (mode === "verifyEmail" && oobCode) {
-        try {
-          await applyActionCode(auth, oobCode);
-          await auth.currentUser?.reload();
-          toast.success("Email verified successfully.");
-          router.replace("/auth"); // triggers redirect to dashboard
-        } catch {
-          toast.error("Verification link invalid or expired.");
-        }
+      try {
+        await applyActionCode(authInstance, oobCode);
+        await authInstance.currentUser?.reload();
+        toast.success("Email verified successfully.");
+        router.replace("/auth");
+      } catch {
+        toast.error("Verification link invalid or expired.");
       }
     };
-
     handleVerifyEmail();
   }, [mode, oobCode]);
 
@@ -118,6 +115,7 @@ const AuthPage = () => {
   // --------------------------------------------------------------------------
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
     setIsLoading(true);
     setError("");
 
@@ -165,11 +163,12 @@ const AuthPage = () => {
     }
   };
 
-  const handleSocialAuth = async (provider: any) => {
+  const handleSocialAuth = async (provider: unknown) => {
+    if (!auth) return;
     setIsLoading(true);
     setError("");
     try {
-      const res = await signInWithPopup(auth, provider);
+      const res = await signInWithPopup(auth, provider as import("firebase/auth").AuthProvider);
       const isNewUser = getAdditionalUserInfo(res)?.isNewUser;
 
       if (isNewUser) {
@@ -187,8 +186,8 @@ const AuthPage = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) return;
     try {
-      // Pass actionCodeSettings here to return to your site
       await sendPasswordResetEmail(auth, resetEmail, actionCodeSettings);
       toast.success("Reset link sent to your inbox");
       setShowResetModal(false);
@@ -199,7 +198,7 @@ const AuthPage = () => {
 
   const handleConfirmPasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!oobCode) return;
+    if (!oobCode || !auth) return;
     setIsLoading(true);
 
     try {
@@ -213,6 +212,27 @@ const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Firebase not configured — show instructions instead of auth UI
+  if (!isFirebaseConfigured) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-gray-900">
+        <div className="bg-white border border-gray-200 p-10 rounded-[2rem] w-full max-w-md shadow-2xl shadow-gray-200/50 text-center">
+          <h1 className="text-xl font-bold text-gray-900 mb-3">Authentication not configured</h1>
+          <p className="text-gray-500 text-sm mb-6">
+            Add <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">NEXT_PUBLIC_FIREBASE_API_KEY</code> and other
+            Firebase env vars to <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">.env.local</code>.
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className="bg-gray-900 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition-colors"
+          >
+            Back to home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // RENDER RESET PASSWORD UI
   if (isResettingPassword) {
@@ -291,11 +311,8 @@ const AuthPage = () => {
             Email not verified.
             <button
               onClick={async () => {
-                if (!auth.currentUser) return;
-                await sendEmailVerification(
-                  auth.currentUser,
-                  actionCodeSettings
-                );
+                if (!auth?.currentUser) return;
+                await sendEmailVerification(auth.currentUser, actionCodeSettings);
                 toast.success("Verification email sent.");
               }}
               className="ml-2 underline text-gray-900 hover:text-orange-600"

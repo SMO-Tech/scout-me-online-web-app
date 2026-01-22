@@ -1,44 +1,35 @@
 import axios, { CreateAxiosDefaults } from "axios";
 import { auth } from "@/lib/firebaseConfig";
 
-const  baseURL = process.env.NEXT_PUBLIC_BASE_URL
-console.log(baseURL)
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 
 // Warn if baseURL is not set (only in development)
-if (typeof window !== 'undefined' && !baseURL && process.env.NODE_ENV === 'development') {
-  console.warn('⚠️ NEXT_PUBLIC_BASE_URL is not set. API calls will fail.');
+if (typeof window !== "undefined" && !baseURL && process.env.NODE_ENV === "development") {
+  console.warn("⚠️ NEXT_PUBLIC_BASE_URL is not set. API calls will fail.");
 }
 
 const client = axios.create({
-    baseURL : baseURL
-})
+  baseURL: baseURL,
+});
 
+type heders = CreateAxiosDefaults<any>["headers"];
 
+export const getClient = async (headers?: heders) => {
+  let token: string | null = null;
 
-type heders = CreateAxiosDefaults<any>['headers']
-
-export const getClient = async (headers?: heders)=>{
-    let token = null;
-    
-    // Try to get fresh token from Firebase if user is logged in
-    if(typeof window !== 'undefined'){
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-            try {
-                // Get fresh token from Firebase (this will refresh if expired)
-                token = await currentUser.getIdToken(true); // true = force refresh
-                // Update localStorage with fresh token
-                localStorage.setItem("authToken", token);
-            } catch (error) {
-                console.error("Failed to get Firebase token:", error);
-                // Fallback to localStorage token
-                token = localStorage.getItem("authToken");
-            }
-        } else {
-            // No user logged in, try localStorage as fallback
-            token = localStorage.getItem("authToken");
-        }
+  if (typeof window !== "undefined") {
+    if (auth?.currentUser) {
+      try {
+        token = await auth.currentUser.getIdToken(true);
+        localStorage.setItem("authToken", token);
+      } catch (error) {
+        console.error("Failed to get Firebase token:", error);
+        token = localStorage.getItem("authToken");
+      }
+    } else {
+      token = localStorage.getItem("authToken");
     }
+  }
   
     if(!token) {
         console.warn("No auth token available");

@@ -12,13 +12,6 @@ module.exports = {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
       },
-      animation: {
-        'gradient': 'gradient 3s ease infinite',
-        'float': 'float 6s ease-in-out infinite',
-        'loading-bar': 'loading-bar 2s ease-in-out',
-        'spin-slow': 'spin-slow 3s linear infinite',
-        'float-slow': 'float-slow 8s ease-in-out infinite',
-      },
       keyframes: {
         gradient: {
           '0%, 100%': {
@@ -66,6 +59,34 @@ module.exports = {
             transform: 'translateY(-15px) translateX(-20px) scale(0.95)',
           },
         },
+        shimmer: {
+          '0%': { 'background-position': '-200% 0' },
+          '100%': { 'background-position': '200% 0' },
+        },
+        'glow-pulse': {
+          '0%, 100%': {
+            opacity: '0.4',
+            'box-shadow': '0 0 20px rgba(234, 88, 12, 0.15)',
+          },
+          '50%': {
+            opacity: '0.7',
+            'box-shadow': '0 0 32px rgba(234, 88, 12, 0.25)',
+          },
+        },
+        'scale-in': {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+      },
+      animation: {
+        'gradient': 'gradient 3s ease infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'loading-bar': 'loading-bar 2s ease-in-out',
+        'spin-slow': 'spin-slow 3s linear infinite',
+        'float-slow': 'float-slow 8s ease-in-out infinite',
+        'shimmer': 'shimmer 2.5s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'scale-in': 'scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards',
       },
       perspective: {
         '1000': '1000px',

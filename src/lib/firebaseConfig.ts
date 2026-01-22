@@ -1,10 +1,8 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { initializeApp, FirebaseApp } from "firebase/app";
+import type { Auth } from "firebase/auth";
 // Import all necessary Auth functions and both Providers
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,14 +14,22 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const hasValidConfig =
+  typeof firebaseConfig.apiKey === "string" &&
+  firebaseConfig.apiKey.length > 0 &&
+  firebaseConfig.projectId;
 
-// Export the central Auth instance
-export const auth = getAuth(app);
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
+let facebookProvider: FacebookAuthProvider | null = null;
 
-// Export the Google Provider
-export const googleProvider = new GoogleAuthProvider();
+if (hasValidConfig) {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  googleProvider = new GoogleAuthProvider();
+  facebookProvider = new FacebookAuthProvider();
+}
 
-// ⭐️ ADD THE FACEBOOK PROVIDER HERE
-export const facebookProvider = new FacebookAuthProvider();
+export const isFirebaseConfigured = hasValidConfig;
+export { auth, googleProvider, facebookProvider };

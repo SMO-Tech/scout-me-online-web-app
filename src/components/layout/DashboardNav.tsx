@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import {
   FiUpload, FiUser, FiLogOut, FiMenu, FiX, FiChevronDown, FiFilePlus, FiList
 } from 'react-icons/fi';
-import { auth } from '@/lib/firebaseConfig';
+import { auth } from "@/lib/firebaseConfig";
 import toast from 'react-hot-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { User } from 'firebase/auth';
@@ -37,10 +37,10 @@ export default function DashboardNav() {
 
   const handleLogout = async () => {
     try {
-      await auth.signOut();
-      router.replace('/auth');
+      if (auth) await auth.signOut();
+      router.replace("/auth");
     } catch (error) {
-      toast.error('Something went wrong, please try again!');
+      toast.error("Something went wrong, please try again!");
     }
   };
 

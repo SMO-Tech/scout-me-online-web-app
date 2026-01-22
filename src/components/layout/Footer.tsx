@@ -11,6 +11,22 @@ import {
   FiTwitter
 } from 'react-icons/fi'
 
+const footerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0 },
+}
+
 const Footer = () => {
   const router = useRouter()
 
@@ -21,79 +37,95 @@ const Footer = () => {
     twitter: 'https://x.com',
   }
 
+  const socials = [
+    { Icon: FiYoutube, href: socialLinks.youtube },
+    { Icon: FiLinkedin, href: socialLinks.linkedin },
+    { Icon: FiInstagram, href: socialLinks.instagram },
+    { Icon: FiTwitter, href: socialLinks.twitter },
+  ]
+
   return (
     <motion.footer
       className="relative bg-white border-t border-gray-200"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.4 }}
     >
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <motion.div
+        className="max-w-7xl mx-auto px-6 py-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-50px' }}
+        variants={footerVariants}
+      >
         {/* Top row */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-gray-100">
-          
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-gray-100"
+        >
           {/* Logo */}
           <div
             onClick={() => router.replace('/dashboard')}
             className="cursor-pointer flex items-center gap-3 group"
           >
-            {/* Using the same logo source, but you can swap this for an SVG icon if you prefer */}
             <Image
               src="/images/new-logo.png"
               alt="ScoutAI Logo"
               width={100}
               height={35}
-              className="object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+              className="object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300"
             />
-            <span className="text-gray-900 font-bold tracking-tight text-lg group-hover:text-orange-600 transition-colors">
+            <span className="text-gray-900 font-bold tracking-tight text-lg group-hover:text-orange-600 transition-colors duration-300">
               ScoutAI
             </span>
           </div>
 
           {/* Socials */}
           <div className="flex items-center gap-5">
-            {[
-              { Icon: FiYoutube, href: socialLinks.youtube },
-              { Icon: FiLinkedin, href: socialLinks.linkedin },
-              { Icon: FiInstagram, href: socialLinks.instagram },
-              { Icon: FiTwitter, href: socialLinks.twitter },
-            ].map(({ Icon, href }, i) => (
-              <a
+            {socials.map(({ Icon, href }, i) => (
+              <motion.a
                 key={i}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-orange-600 hover:scale-110 transition-all duration-200"
+                whileHover={{ scale: 1.2, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-gray-400 hover:text-orange-600 transition-colors duration-200"
               >
                 <Icon className="w-5 h-5" />
-              </a>
+              </motion.a>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Bottom row */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 text-sm">
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 text-sm"
+        >
           <div className="text-gray-500 font-medium">
             © {new Date().getFullYear()} ScoutAI. All rights reserved.
           </div>
 
           <div className="flex gap-6">
-            <a
+            <motion.a
               href="/contact"
-              className="text-gray-500 hover:text-orange-600 transition-colors"
+              whileHover={{ x: 2 }}
+              className="text-gray-500 hover:text-orange-600 transition-colors duration-200"
             >
               Contact
-            </a>
-            <a
+            </motion.a>
+            <motion.a
               href="/terms&conditions"
-              className="text-gray-500 hover:text-orange-600 transition-colors"
+              whileHover={{ x: 2 }}
+              className="text-gray-500 hover:text-orange-600 transition-colors duration-200"
             >
               Terms of Service
-            </a>
+            </motion.a>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </motion.footer>
   )
 }

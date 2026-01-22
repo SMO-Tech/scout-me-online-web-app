@@ -84,11 +84,13 @@ function HeroSection() {
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center px-6 pt-20 overflow-hidden bg-white">
+    <section className="relative min-h-[90vh] flex items-center justify-center px-6 pt-20 overflow-hidden bg-white bg-mesh-gradient">
       {/* Background Abstract Grid */}
       <div className="absolute inset-0 z-0 opacity-[0.03]" 
            style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
       </div>
+      {/* Subtle AI scan overlay */}
+      <div className="absolute inset-0 z-0 ai-scan-line opacity-60" aria-hidden="true" />
 
       <div className="container mx-auto max-w-6xl relative z-10 grid lg:grid-cols-2 gap-12 items-center">
         
@@ -113,13 +115,21 @@ function HeroSection() {
           </motion.p>
           
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg shadow-orange-600/20 transform hover:-translate-y-1">
+            <motion.button
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg shadow-orange-600/20 hover:shadow-xl hover:shadow-orange-600/30"
+            >
               Analyze a Match
-            </button>
-            <button className="bg-white border border-gray-200 hover:border-orange-200 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group">
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="bg-white border border-gray-200 hover:border-orange-200 hover:shadow-md text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2 group"
+            >
               <span>View Sample</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+            </motion.button>
           </motion.div>
           
           <motion.p variants={fadeInUp} className="text-sm text-gray-400">
@@ -130,7 +140,7 @@ function HeroSection() {
         {/* Abstract Hero Visualization */}
         <motion.div style={{ y: y1 }} className="relative h-[400px] w-full hidden lg:flex items-center justify-center">
           {/* The "Timeline" Building Animation */}
-          <div className="relative w-full h-full bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-2xl flex flex-col justify-center gap-6">
+          <div className="relative w-full h-full bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-2xl shadow-orange-900/5 flex flex-col justify-center gap-6 ring-1 ring-gray-100/50 hover:shadow-orange-600/5 hover:ring-orange-200/30 transition-all duration-500">
              {/* Fake Video Player */}
              <div className="w-full h-48 bg-gray-200 rounded-lg animate-pulse mb-8 relative overflow-hidden">
                 <motion.div 
@@ -197,16 +207,19 @@ function ProblemSection() {
             </motion.div>
           </div>
           
-          <div className="relative h-64 bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col justify-center">
+          <motion.div 
+            variants={fadeInUp}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className="relative h-64 bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 p-6 flex flex-col justify-center transition-all duration-300"
+          >
              {/* Visualizing "Messy" Timeline */}
              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Raw Footage</p>
              <div className="w-full h-4 bg-gray-200 rounded-full mb-2 overflow-hidden flex">
-                {/* Random messy blocks */}
-                <div className="w-[10%] h-full bg-gray-300"></div>
-                <div className="w-[30%] h-full bg-gray-200"></div>
-                <div className="w-[5%] h-full bg-gray-300"></div>
-                <div className="w-[40%] h-full bg-gray-200"></div>
-                <div className="w-[15%] h-full bg-gray-300"></div>
+                <div className="w-[10%] h-full bg-gray-300 rounded-l" />
+                <div className="w-[30%] h-full bg-gray-200" />
+                <div className="w-[5%] h-full bg-gray-300" />
+                <div className="w-[40%] h-full bg-gray-200" />
+                <div className="w-[15%] h-full bg-gray-300 rounded-r" />
              </div>
              <div className="flex justify-between text-xs text-gray-400 font-mono">
                <span>00:00</span>
@@ -217,7 +230,7 @@ function ProblemSection() {
                    Untagged & Unstructured
                 </div>
              </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
@@ -238,7 +251,10 @@ function SolutionSection() {
           className="grid md:grid-cols-2 gap-16 items-center"
         >
            {/* Order swapped on mobile/desktop via flex/grid order if needed, but standard is fine */}
-           <div className="relative h-64 bg-white rounded-xl border-2 border-orange-100 shadow-xl shadow-orange-100/50 p-6 flex flex-col justify-center order-2 md:order-1">
+           <motion.div 
+             whileHover={{ y: -4, transition: { duration: 0.2 } }}
+             className="relative h-64 bg-white rounded-xl border-2 border-orange-100 shadow-xl shadow-orange-100/50 hover:shadow-2xl hover:shadow-orange-200/30 p-6 flex flex-col justify-center order-2 md:order-1 transition-shadow duration-300"
+           >
              <p className="text-xs font-semibold text-orange-600 uppercase tracking-widest mb-4">ScoutAI Processed</p>
              <div className="w-full h-1 bg-gray-100 rounded-full mb-6 flex items-center relative">
                 {/* Clean Nodes */}
@@ -250,16 +266,16 @@ function SolutionSection() {
              </div>
              
              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-3 rounded border border-gray-100">
+                <motion.div whileHover={{ scale: 1.03 }} className="bg-gray-50 p-3 rounded border border-gray-100 hover:border-orange-200 transition-colors">
                   <div className="w-2 h-2 bg-orange-500 rounded-full mb-2"></div>
                   <div className="text-sm font-bold text-gray-900">Shots</div>
-                </div>
-                <div className="bg-gray-50 p-3 rounded border border-gray-100">
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.03 }} className="bg-gray-50 p-3 rounded border border-gray-100 hover:border-orange-200 transition-colors">
                   <div className="w-2 h-2 bg-gray-900 rounded-full mb-2"></div>
                   <div className="text-sm font-bold text-gray-900">Passes</div>
-                </div>
+                </motion.div>
              </div>
-          </div>
+          </motion.div>
 
           <div className="order-1 md:order-2">
             <motion.h2 variants={fadeInUp} className="text-3xl font-bold text-gray-900 mb-6">
@@ -308,14 +324,18 @@ function HowItWorksSection() {
               <motion.div 
                 key={index} 
                 variants={fadeInUp}
-                className="bg-white p-8 rounded-xl border border-gray-200 relative group hover:border-orange-200 transition-colors duration-300"
+                whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.25 } }}
+                className="bg-white p-8 rounded-xl border border-gray-200 relative group hover:border-orange-200 hover:shadow-lg hover:shadow-orange-100/50 transition-all duration-300"
               >
-                <div className="absolute top-8 right-8 text-6xl font-bold text-gray-100 -z-10 group-hover:text-orange-50 transition-colors">
+                <div className="absolute top-8 right-8 text-6xl font-bold text-gray-100 -z-10 group-hover:text-orange-50 transition-colors duration-300">
                   0{index + 1}
                 </div>
-                <div className="w-12 h-12 bg-gray-900 text-white rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-gray-900/20">
+                <motion.div 
+                  className="w-12 h-12 bg-gray-900 text-white rounded-lg flex items-center justify-center mb-6 shadow-lg shadow-gray-900/20 group-hover:bg-orange-600 group-hover:shadow-orange-600/30"
+                  whileHover={{ rotate: [0, -8, 8, 0], transition: { duration: 0.5 } }}
+                >
                   {step.icon}
-                </div>
+                </motion.div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
                 <p className="text-gray-500">{step.desc}</p>
               </motion.div>
@@ -405,8 +425,9 @@ function OutputPreviewSection() {
 
 function TurnaroundSection() {
   return (
-    <section className="py-24 bg-gray-900 text-white">
-      <div className="container mx-auto max-w-4xl px-6 text-center">
+    <section className="relative py-24 bg-gray-900 text-white overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-orange-950/10 via-transparent to-orange-950/10 pointer-events-none" aria-hidden="true" />
+      <div className="container relative mx-auto max-w-4xl px-6 text-center">
         <motion.div
            initial={{ opacity: 0, scale: 0.95 }}
            whileInView={{ opacity: 1, scale: 1 }}
@@ -421,14 +442,20 @@ function TurnaroundSection() {
           </p>
           
           <div className="grid md:grid-cols-2 gap-8 text-left">
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-orange-600/50 hover:shadow-lg hover:shadow-orange-600/10 transition-all duration-300"
+            >
                <h4 className="text-lg font-bold text-orange-500 mb-2">Same-Day Delivery</h4>
                <p className="text-gray-400">Submit in the morning, review in the afternoon. We work on a rolling queue system.</p>
-            </div>
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700">
+            </motion.div>
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-orange-600/50 hover:shadow-lg hover:shadow-orange-600/10 transition-all duration-300"
+            >
                <h4 className="text-lg font-bold text-orange-500 mb-2">Replay Friendly</h4>
                <p className="text-gray-400">Jump instantly to events. No more scrubbing through dead ball time.</p>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>
@@ -442,7 +469,13 @@ function PricingSection() {
   return (
     <section id="pricing" className="py-24 bg-gray-50">
       <div className="container mx-auto max-w-5xl px-6">
-        <SectionHeader title="Simple Pricing" subtitle="No subscriptions. Pay as you analyze." />
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={staggerContainer}
+        >
+          <SectionHeader title="Simple Pricing" subtitle="No subscriptions. Pay as you analyze." />
         
         <div className="grid md:grid-cols-2 gap-8">
            {/* Free Tier */}
@@ -450,7 +483,8 @@ function PricingSection() {
              initial={{ opacity: 0, y: 20 }}
              whileInView={{ opacity: 1, y: 0 }}
              viewport={{ once: true }}
-             className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm"
+             whileHover={{ y: -6, transition: { duration: 0.2 } }}
+             className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-300"
            >
              <h3 className="text-2xl font-bold text-gray-900 mb-2">Trial</h3>
              <div className="text-4xl font-bold text-gray-900 mb-6">Free<span className="text-lg font-normal text-gray-500"> / 1 Match</span></div>
@@ -460,9 +494,13 @@ function PricingSection() {
                <li className="flex gap-3 text-gray-700"><CheckCircle2 className="w-5 h-5 text-gray-400" /> Interactive Timeline</li>
                <li className="flex gap-3 text-gray-700"><CheckCircle2 className="w-5 h-5 text-gray-400" /> 24hr Turnaround</li>
              </ul>
-             <button className="w-full py-4 rounded-lg border-2 border-gray-200 hover:border-gray-900 text-gray-900 font-bold transition-all">
+             <motion.button
+               whileHover={{ scale: 1.02 }}
+               whileTap={{ scale: 0.98 }}
+               className="w-full py-4 rounded-lg border-2 border-gray-200 hover:border-gray-900 text-gray-900 font-bold transition-colors duration-300"
+             >
                Start Free Trial
-             </button>
+             </motion.button>
            </motion.div>
 
            {/* Paid Tier */}
@@ -471,9 +509,10 @@ function PricingSection() {
              whileInView={{ opacity: 1, y: 0 }}
              transition={{ delay: 0.2 }}
              viewport={{ once: true }}
-             className="bg-white p-8 rounded-2xl border-2 border-orange-600 shadow-xl relative overflow-hidden"
+             whileHover={{ y: -6, transition: { duration: 0.2 } }}
+             className="bg-white p-8 rounded-2xl border-2 border-orange-600 shadow-xl hover:shadow-2xl hover:shadow-orange-600/20 relative overflow-hidden transition-shadow duration-300"
            >
-             <div className="absolute top-0 right-0 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
+             <div className="absolute top-0 right-0 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg animate-glow-pulse-soft">POPULAR</div>
              <h3 className="text-2xl font-bold text-gray-900 mb-2">Standard</h3>
              <div className="text-4xl font-bold text-gray-900 mb-6">£5<span className="text-lg font-normal text-gray-500"> / Match</span></div>
              <p className="text-gray-500 mb-8">Flexible credits for busy periods.</p>
@@ -482,11 +521,16 @@ function PricingSection() {
                <li className="flex gap-3 text-gray-900 font-medium"><CheckCircle2 className="w-5 h-5 text-orange-600" /> Permanent Hosting</li>
                <li className="flex gap-3 text-gray-900 font-medium"><CheckCircle2 className="w-5 h-5 text-orange-600" /> Bulk Discounts Available</li>
              </ul>
-             <button className="w-full py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-bold transition-all shadow-lg shadow-orange-600/20">
+             <motion.button
+               whileHover={{ scale: 1.02 }}
+               whileTap={{ scale: 0.98 }}
+               className="w-full py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-bold transition-colors duration-300 shadow-lg shadow-orange-600/20"
+             >
                Buy Credits
-             </button>
+             </motion.button>
            </motion.div>
         </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -515,11 +559,15 @@ function WhoItsForSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="p-6 rounded-xl border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-300 group cursor-default"
+              whileHover={{ y: -6, scale: 1.03, transition: { duration: 0.2 } }}
+              className="p-6 rounded-xl border border-gray-100 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-100/40 transition-all duration-300 group cursor-default"
             >
-              <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-900 mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+              <motion.div 
+                className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-gray-900 mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300"
+                whileHover={{ rotate: 5, scale: 1.1 }}
+              >
                 {p.icon}
-              </div>
+              </motion.div>
               <h4 className="font-bold text-gray-900 mb-2">{p.title}</h4>
               <p className="text-sm text-gray-500">{p.desc}</p>
             </motion.div>
@@ -534,12 +582,13 @@ function WhoItsForSection() {
 
 function FinalCTASection() {
   return (
-    <section className="py-32 bg-white flex justify-center">
-      <div className="container mx-auto px-6 text-center">
+    <section className="relative py-32 bg-white bg-mesh-gradient flex justify-center overflow-hidden">
+      <div className="container mx-auto px-6 text-center relative">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-2xl mx-auto"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-8">
@@ -548,9 +597,13 @@ function FinalCTASection() {
           <p className="text-xl text-gray-500 mb-10">
             Join the analysts saving hours every matchday. <br/>Your first match is on us.
           </p>
-          <button className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-xl font-bold text-xl transition-all shadow-xl shadow-orange-600/30 transform hover:-translate-y-1">
+          <motion.button
+            whileHover={{ scale: 1.04, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-xl font-bold text-xl transition-all duration-300 shadow-xl shadow-orange-600/30 hover:shadow-2xl hover:shadow-orange-600/40"
+          >
             Analyze Your First Match
-          </button>
+          </motion.button>
           <p className="mt-6 text-sm text-gray-400">No credit card required for trial.</p>
         </motion.div>
       </div>
