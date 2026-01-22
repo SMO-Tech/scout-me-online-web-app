@@ -475,7 +475,7 @@ function PricingSection() {
            >
              <div className="absolute top-0 right-0 bg-orange-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">POPULAR</div>
              <h3 className="text-2xl font-bold text-gray-900 mb-2">Standard</h3>
-             <div className="text-4xl font-bold text-gray-900 mb-6">£15<span className="text-lg font-normal text-gray-500"> / Match</span></div>
+             <div className="text-4xl font-bold text-gray-900 mb-6">£5<span className="text-lg font-normal text-gray-500"> / Match</span></div>
              <p className="text-gray-500 mb-8">Flexible credits for busy periods.</p>
              <ul className="space-y-4 mb-8">
                <li className="flex gap-3 text-gray-900 font-medium"><CheckCircle2 className="w-5 h-5 text-orange-600" /> Priority Queue</li>
