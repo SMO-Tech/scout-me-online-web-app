@@ -9,7 +9,8 @@ import { auth } from "@/lib/firebaseConfig";
 import toast from 'react-hot-toast';
 import { useAuth } from '@/lib/AuthContext';
 import { User } from 'firebase/auth';
-import Image from 'next/image';
+import Image from "next/image";
+import { SITE_LOGO } from "@/lib/constant";
 
 export default function DashboardNav() {
   const router = useRouter();
@@ -69,9 +70,14 @@ export default function DashboardNav() {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              {/* Ensure you swap this image for a dark version if your logo is white-only */}
-              <Image className='mt-2' src={"/images/new-logo.png"} width={80} height={70} alt={'website logo'} />
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <Image
+                src={SITE_LOGO.src}
+                alt={SITE_LOGO.alt}
+                width={100}
+                height={40}
+                className="object-contain"
+              />
             </Link>
           </div>
 

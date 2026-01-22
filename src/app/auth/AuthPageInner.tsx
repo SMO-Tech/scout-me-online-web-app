@@ -21,6 +21,7 @@ import { FaFacebook } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import { SITE_LOGO } from "@/lib/constant";
 
 // ============================================================================
 // AUTH PAGE COMPONENT
@@ -284,16 +285,20 @@ const AuthPage = () => {
 
       {/* Main Card */}
       <div className="bg-white border border-gray-200 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 p-8 w-full max-w-md relative z-10">
-        <div className="text-center items-center justify-center flex flex-col mb-10">
-          {/* Ensure your logo works on white background */}
-          <Image 
-            onClick={() => router.push('/')} 
-            src={"/images/new-logo.png"} 
-            alt={"scout me logo"} 
-            width={200} 
-            height={80} 
-            className="cursor-pointer mb-2"
-          />
+        <div className="text-center flex flex-col items-center justify-center mb-10">
+          <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 rounded-lg transition-transform hover:scale-[1.02] active:scale-[0.98] mb-3"
+          >
+            <Image
+              src={SITE_LOGO.src}
+              alt={SITE_LOGO.alt}
+              width={200}
+              height={72}
+              className="object-contain"
+            />
+          </button>
           <p className="text-gray-400 text-sm font-bold uppercase tracking-[0.2em]">
             {isLogin ? "Welcome Back" : "Create Account"}
           </p>

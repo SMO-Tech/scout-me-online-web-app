@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion'
 import React from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { SITE_LOGO } from "@/lib/constant"
 import {
   FiYoutube,
   FiLinkedin,
@@ -66,14 +67,14 @@ const Footer = () => {
         >
           {/* Logo */}
           <div
-            onClick={() => router.replace('/dashboard')}
+            onClick={() => router.replace("/dashboard")}
             className="cursor-pointer flex items-center gap-3 group"
           >
             <Image
-              src="/images/new-logo.png"
-              alt="ScoutAI Logo"
-              width={100}
-              height={35}
+              src={SITE_LOGO.src}
+              alt={SITE_LOGO.alt}
+              width={110}
+              height={38}
               className="object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300"
             />
             <span className="text-gray-900 font-bold tracking-tight text-lg group-hover:text-orange-600 transition-colors duration-300">

@@ -1,3 +1,9 @@
+/** Single source of truth for site logo (transparent PNG) */
+export const SITE_LOGO = {
+  src: "/final_logo-removebg-preview.png",
+  alt: "ScoutAI Logo",
+} as const;
+
 export const playerPostition = [
   "Keeper",
   "Right Back",

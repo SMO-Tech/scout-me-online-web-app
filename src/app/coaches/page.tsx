@@ -5,6 +5,7 @@ import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FiSearch, FiDatabase, FiTrendingUp, FiUsers } from 'react-icons/fi'
 import { useSEO } from '@/hooks/useSEO'
+import { SITE_LOGO } from '@/lib/constant'
 
 const CoachesPage = () => {
   const router = useRouter()
@@ -13,7 +14,7 @@ const CoachesPage = () => {
   useSEO({
     title: 'AI-Powered Talent Discovery for Coaches | ScoutMe.cloud',
     description: 'Transform your scouting and coaching strategies with AI-driven performance analytics. Discover hidden talents, compare players, and make data-informed decisions with ScoutMe.cloud.',
-    image: '/images/new-logo.png',
+    image: SITE_LOGO.src,
     url: typeof window !== 'undefined' ? window.location.href : '',
     keywords: 'football coaching, talent discovery, AI scouting, player analytics, football analytics, coaching tools, player performance, football scouting platform',
     type: 'website',
@@ -45,16 +46,20 @@ const CoachesPage = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <div className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform duration-300" onClick={() => router.push('/')}>
-              <Image 
-                src="/logo.png" 
-                alt="ScoutMe.cloud Logo" 
-                width={40} 
-                height={40} 
-                className="rounded-lg shadow-lg shadow-purple-500/30"
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="flex items-center gap-3 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black rounded-lg"
+            >
+              <Image
+                src={SITE_LOGO.src}
+                alt={SITE_LOGO.alt}
+                width={48}
+                height={40}
+                className="object-contain"
               />
               <span className="text-white font-bold text-xl">ScoutMe.cloud</span>
-            </div>
+            </button>
             {/* Rest of the navigation remains the same */}
           </div>
         </div>

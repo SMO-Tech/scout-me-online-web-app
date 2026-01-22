@@ -1,9 +1,10 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { FiMenu, FiX } from 'react-icons/fi'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { SITE_LOGO } from "@/lib/constant"
 
 const RoundedNavbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -41,15 +42,15 @@ const RoundedNavbar: React.FC = () => {
             <motion.div
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
-              className="flex-shrink-0 cursor-pointer"
-              onClick={() => router.push('/')}
+              className="flex-shrink-0 cursor-pointer flex items-center"
+              onClick={() => router.push("/")}
             >
               <Image
-                src="/images/new-logo.png"
-                alt="ScoutAI Logo"
-                width={120}
-                height={40}
-                className="object-contain"
+                src={SITE_LOGO.src}
+                alt={SITE_LOGO.alt}
+                width={140}
+                height={44}
+                className="object-contain object-left"
                 priority
               />
             </motion.div>
