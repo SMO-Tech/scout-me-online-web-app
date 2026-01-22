@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getClient } from "@/lib/api/client";
 import { createMatchUrl } from "@/lib/utils/slug";
-import { FiSearch, FiEye } from "react-icons/fi";
+import { FiSearch, FiEye, FiArrowRight } from "react-icons/fi";
 import { PiGenderIntersexThin } from "react-icons/pi";
 import { FaLocationDot } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -130,53 +130,57 @@ export default function Matches() {
     }, [matches, searchQuery, selectedLevel, selectedLocation, selectedGender, sortBy]);
 
     return (
-        <div className="min-h-screen bg-[#0A0B15] text-white p-4 sm:p-10 selection:bg-cyan-500/30">
+        <div className="min-h-screen bg-gray-50 text-gray-900 p-4 sm:p-10">
             <div className="max-w-7xl mx-auto">
 
                 {/* HEADER */}
                 <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
                     <div className="space-y-2">
-                        <h1 className="text-5xl font-black italic tracking-tighter uppercase text-transparent bg-clip-text bg-gradient-to-r text-white">
+                        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
                             Match Events
                         </h1>
-                        <p className="text-cyan-400/60 font-mono text-sm tracking-widest uppercase">
-                            {filteredAndSortedMatches.length} events found
+                        <p className="text-gray-500 font-medium text-sm">
+                            {filteredAndSortedMatches.length} events found in library
                         </p>
-                        <div>
+                        
+                        {/* ACTIVE FILTERS DISPLAY */}
+                        <div className="pt-2">
                             {selectedGender || selectedLevel || selectedLocation ? (
-                                <p className="mb-1 text-sm font-medium">Filters Applied</p>
-                            ) : (
-                                <p className="mb-1 text-sm font-medium">Filters Applied :</p>
-                            )}
+                                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Filters Active:</p>
+                            ) : null}
 
                             <div className="flex flex-wrap gap-2">
                                 {selectedGender && (
                                     <button
                                         onClick={() => setSelectedGender("")}
-                                        className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 hover:border-orange-300 rounded-full px-3 py-1.5 text-xs font-medium transition-colors shadow-sm"
                                     >
-                                        <PiGenderIntersexThin color="#00FFF3" size={20} />: {selectedGender}
-                                        <IoIosCloseCircle />
+                                        <PiGenderIntersexThin className="text-orange-500" size={16} /> 
+                                        {selectedGender}
+                                        <IoIosCloseCircle className="text-gray-400 hover:text-red-500" />
                                     </button>
                                 )}
 
                                 {selectedLocation && (
                                     <button
                                         onClick={() => setSelectedLocation("")}
-                                        className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 hover:border-orange-300 rounded-full px-3 py-1.5 text-xs font-medium transition-colors shadow-sm"
                                     >
-                                        <FaLocationDot color="#00FFF3" size={20} />: {selectedLocation}
-                                        <IoIosCloseCircle />
+                                        <FaLocationDot className="text-orange-500" size={14} /> 
+                                        {selectedLocation}
+                                        <IoIosCloseCircle className="text-gray-400 hover:text-red-500" />
                                     </button>
                                 )}
 
                                 {selectedLevel && (
                                     <button
                                         onClick={() => setSelectedLevel("")}
-                                        className="flex items-center gap-1 border text-[#00FFF3] hover:border-white border-green-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 hover:border-orange-300 rounded-full px-3 py-1.5 text-xs font-medium transition-colors shadow-sm"
                                     >
-                                        <Image src={"/images/performance.png"} width={20} height={20} alt="Performance icon" />: {selectedLevel}
-                                        <IoIosCloseCircle />
+                                        {/* Assuming this is a static icon, kept as is */}
+                                        <Image src={"/images/performance.png"} width={16} height={16} alt="Performance icon" className="opacity-60" /> 
+                                        {selectedLevel}
+                                        <IoIosCloseCircle className="text-gray-400 hover:text-red-500" />
                                     </button>
                                 )}
 
@@ -187,10 +191,9 @@ export default function Matches() {
                                             setSelectedLocation("");
                                             setSelectedLevel("");
                                         }}
-                                        className="flex items-center gap-1 border hover:border-white border-pink-500 rounded-md px-2 py-1 text-sm"
+                                        className="flex items-center gap-1 text-xs font-semibold text-red-500 hover:text-red-700 px-2 py-1.5"
                                     >
                                         Clear All
-                                        <IoIosCloseCircle />
                                     </button>
                                 )}
                             </div>
@@ -200,27 +203,26 @@ export default function Matches() {
                     <div className="flex flex-wrap items-center gap-4">
                         <button
                             onClick={() => router.push("/dashboard/form")}
-                            className="bg-white/5 hover:bg-white/10 text-gray-300 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
+                            className="bg-gray-900 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm hover:shadow-orange-600/20 active:scale-95"
                         >
-                            Create New Event
+                            + Create New Event
                         </button>
 
                         {/* SORT */}
-                        <div className="flex items-center gap-4 bg-[#0B0D19]/80 backdrop-blur-md p-2 rounded-2xl border border-white/5">
-                            <span className="text-blue-500 font-bold text-[10px] uppercase tracking-widest pl-2">Arrange by:</span>
-                            <div className="flex gap-2">
+                        <div className="flex items-center gap-3 bg-white p-1.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span className="text-gray-400 font-semibold text-xs pl-2 hidden sm:inline">Sort:</span>
+                            <div className="flex gap-1">
                                 {(["recent", "oldest", "mostViewed"] as const).map((id, idx) => (
                                     <button
                                         key={id}
                                         onClick={() => setSortBy(id)}
-                                        className={`flex items-center gap-2 px-4 py-1.5 rounded-full transition-all duration-300 ${sortBy === id ? "text-green-600" : "bg-white/5 hover:bg-white/10"}`}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            sortBy === id 
+                                            ? "bg-orange-50 text-orange-700 shadow-sm ring-1 ring-orange-100" 
+                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                        }`}
                                     >
-                                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] border font-bold ${sortBy === id ? "border-green-600" : "border-blue-500 text-blue-500"}`}>
-                                            {idx + 1}
-                                        </span>
-                                        <span className={`text-[10px] font-black uppercase tracking-tighter ${sortBy === id ? "text-green-500" : "text-blue-500"}`}>
-                                            {id.replace("mostViewed", "Popular")}
-                                        </span>
+                                        {id.replace("mostViewed", "Popular").replace("recent", "Newest").replace("oldest", "Oldest")}
                                     </button>
                                 ))}
                             </div>
@@ -228,164 +230,179 @@ export default function Matches() {
                     </div>
                 </div>
 
-                {/* SEARCH + FILTER */}
-                <div className="mb-12 flex items-center gap-3">
+                {/* SEARCH + FILTER TOOLBAR */}
+                <div className="mb-10 flex flex-col md:flex-row items-stretch gap-3">
                     {/* search bar */}
                     <div className="relative group flex-1">
-                        <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-cyan-400 transition-colors" />
+                        <FiSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
                         <input
                             type="text"
-                            placeholder="SEARCH MATCHES OR TEAMS..."
+                            placeholder="Search matches, teams or opponents..."
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-[#0B0D19]/50 border border-white/50 rounded-2xl py-3 pl-14 pr-6 text-xs font-bold tracking-widest uppercase focus:border-cyan-500/50 outline-none transition-all placeholder:text-gray-400 backdrop-blur-sm"
+                            className="w-full bg-white border border-gray-200 rounded-xl py-3.5 pl-12 pr-6 text-sm font-medium text-gray-900 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none transition-all placeholder:text-gray-400 shadow-sm"
                         />
                     </div>
 
-                    {/* filter functions */}
-                    <div className="relative">
+                    {/* filter dropdown toggle */}
+                    <div className="relative z-20">
                         <button
                             onClick={() => setShowFilter(p => !p)}
-                            className="p-3 rounded-2xl bg-[#0B0D19]/70 border border-cyan-500/40 text-sm font-bold uppercase tracking-wider hover:border-cyan-400 transition-all"
+                            className={`h-full px-6 rounded-xl border text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                                showFilter 
+                                ? "border-orange-500 bg-orange-50 text-orange-700" 
+                                : "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                            }`}
                         >
-                            Filter
+                           <span>Filters</span> 
+                           <span className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px] border border-gray-200">
+                                {Number(!!selectedLevel) + Number(!!selectedLocation) + Number(!!selectedGender)}
+                           </span>
                         </button>
 
                         {showFilter && (
-                            <div className="absolute right-0 mt-2 w-52 bg-black/90 border border-gray-700 rounded-xl shadow-xl z-50 text-xs uppercase tracking-wide">
-                                <button
-                                    className="block w-full text-left px-4 py-3 hover:bg-white/10"
-                                    onClick={() => {
-                                        setSelectedLevel("");
-                                        setSelectedLocation("");
-                                        setSelectedGender("");
-                                        setShowFilter(false);
-                                    }}
-                                >
-                                    Default
-                                </button>
+                            <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-100 rounded-2xl shadow-xl p-2 animate-in fade-in slide-in-from-top-2">
+                                <div className="space-y-1">
+                                    <button
+                                        className="w-full text-left px-4 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 rounded-lg transition-colors mb-2"
+                                        onClick={() => {
+                                            setSelectedLevel("");
+                                            setSelectedLocation("");
+                                            setSelectedGender("");
+                                            setShowFilter(false);
+                                        }}
+                                    >
+                                        Reset All Filters
+                                    </button>
 
-                                {/* Location */}
-                                <select
-                                    value={selectedLocation}
-                                    onChange={e => setSelectedLocation(e.target.value)}
-                                    className="w-full px-4 py-3 bg-black text-white outline-none hover:bg-white/10 appearance-none"
-                                >
-                                    <option className="bg-black" value="">
-                                        Location
-                                    </option>
-                                    {ALL_COUNTRIES.map((country, index) => (
-                                        <option
-                                            key={index}
-                                            className="bg-black"
-                                            value={country}
-                                        >
-                                            {country}
-                                        </option>
-                                    ))}
-                                </select>
+                                    {/* Location */}
+                                    <div className="px-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Location</div>
+                                    <select
+                                        value={selectedLocation}
+                                        onChange={e => setSelectedLocation(e.target.value)}
+                                        className="w-full px-3 py-2 bg-gray-50 border-gray-100 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-orange-100 mb-2 cursor-pointer"
+                                    >
+                                        <option value="">Any Location</option>
+                                        {ALL_COUNTRIES.map((country, index) => (
+                                            <option key={index} value={country}>{country}</option>
+                                        ))}
+                                    </select>
 
-                                {/* Level */}
-                                <select
-                                    value={selectedLevel}
-                                    onChange={e => setSelectedLevel(e.target.value)}
-                                    className="w-full px-4 py-3 bg-black text-white outline-none hover:bg-white/10 appearance-none"
-                                >
-                                    <option className="bg-black" value="">Level</option>
-                                    <option className="bg-black" value="Beginner">Beginner</option>
-                                    <option className="bg-black" value="Intermediate">Intermediate</option>
-                                    <option className="bg-black" value="Professional">Professional</option>
-                                </select>
+                                    {/* Level */}
+                                    <div className="px-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Performance Level</div>
+                                    <select
+                                        value={selectedLevel}
+                                        onChange={e => setSelectedLevel(e.target.value)}
+                                        className="w-full px-3 py-2 bg-gray-50 border-gray-100 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-orange-100 mb-2 cursor-pointer"
+                                    >
+                                        <option value="">Any Level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Professional">Professional</option>
+                                    </select>
 
-                                {/* Gender */}
-                                <select
-                                    value={selectedGender}
-                                    onChange={e => setSelectedGender(e.target.value)}
-                                    className="w-full px-4 py-3 bg-black text-white outline-none hover:bg-white/10 appearance-none"
-                                >
-                                    <option className="bg-black" value="">Gender</option>
-                                    <option className="bg-black" value="Male">Male</option>
-                                    <option className="bg-black" value="Female">Female</option>
-                                </select>
+                                    {/* Gender */}
+                                    <div className="px-2 pb-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Gender</div>
+                                    <select
+                                        value={selectedGender}
+                                        onChange={e => setSelectedGender(e.target.value)}
+                                        className="w-full px-3 py-2 bg-gray-50 border-gray-100 rounded-lg text-sm text-gray-700 outline-none focus:ring-2 focus:ring-orange-100 cursor-pointer"
+                                    >
+                                        <option value="">Any Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* GRID */}
+                {/* GRID CONTENT */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-40 gap-4">
-                        <div className="w-4 h-6 border-2 border-purple-700 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-8 h-8 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin"></div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredAndSortedMatches.map(match => (
-                            <div key={match.id} className="group bg-[#0B0D19]/60 border rounded-[2rem] p-6 shadow-2xl border-cyan-500/30 hover:shadow-[0_0_25px_2px_rgba(34,211,238,0.7)] hover:translate-y-[-4px] transition-all duration-500">
+                            <div key={match.id} className="group bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-1 transition-all duration-300">
 
-                                {/* USER */}
-                                <div className="flex items-center gap-4 mb-6">
+                                {/* USER / UPLOADER INFO */}
+                                <div className="flex items-center gap-3 mb-5">
                                     <div className="relative">
-                                        <div className="w-12 h-12 rounded-full border-4 border-purple-600 p-0.5">
+                                        <div className="w-10 h-10 rounded-full border border-gray-100 p-0.5 shadow-sm">
                                             <img
                                                 src={`https://ui-avatars.com/api/?name=${match.user.name}&background=random`}
                                                 className="w-full h-full rounded-full object-cover"
                                                 alt={match.user.name}
                                             />
                                         </div>
-                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0B0D19] rounded-full"></div>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-blue-500 font-black text-sm uppercase">{match.user.name}</span>
+                                        <span className="text-gray-900 font-bold text-sm">{match.user.name}</span>
+                                        <span className="text-gray-400 text-xs">Coach / Uploader</span>
                                     </div>
                                 </div>
 
-                                {/* IMAGE */}
-                                <div className="relative aspect-video w-full rounded-3xl overflow-hidden mb-6 border border-white/5 shadow-inner group-hover:border-white/10 transition-colors">
+                                {/* THUMBNAIL IMAGE */}
+                                <div className="relative aspect-video w-full rounded-xl overflow-hidden mb-5 bg-gray-100 border border-gray-100">
                                     <img
                                         src={match.lineUpImage || "/images/default/default_football_pitch.PNG"}
                                         alt={`${match.teamName} vs ${match.opponentName}`}
-                                        className="w-full h-full grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover grayscale-[0.1] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
                                         onError={(e) => {
                                             const target = e.target as HTMLImageElement;
                                             target.src = "/images/default/default_football_pitch.PNG";
                                         }}
                                     />
-                                </div>
-
-                                {/* DETAILS */}
-                                <div className="space-y-2 mb-8 px-1">
-                                    <h3 className="text-cyan-400 font-black text-lg italic uppercase leading-tight">
-                                        {match.teamName} <span className="text-[#E860E2]">VS</span> {match.opponentName}
-                                    </h3>
-
-                                    <div className="flex items-center gap-3 text-white text-[10px] font-black uppercase tracking-widest">
-                                        <PiGenderIntersexThin color="#00FFF3" size={20} />
-                                        <span>Male</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 text-white text-[10px] font-black uppercase tracking-widest">
-                                        <FaLocationDot color="#00FFF3" size={20} />
-                                        <span>{match.country || "GLOBAL"}, {match.venue || "HQ"}</span>
-                                    </div>
-
-                                    <div className="flex items-center gap-3 text-white text-[10px] font-black uppercase tracking-widest">
-                                        <Image src={"/images/performance-icon.png"} width={20} height={20} alt="Performance icon" />
-                                        <span>{match.level}</span>
+                                    
+                                    {/* Overlay Badge for Status (Optional addition for clarity) */}
+                                    <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md">
+                                        {match.status}
                                     </div>
                                 </div>
 
-                                {/* FOOTER */}
-                                <div className="flex items-center justify-between gap-4 border-t border-white/5 pt-6">
-                                    <div className="flex items-center gap-2 text-cyan-400">
-                                        <FiEye />
-                                        <span className="text-xs font-black italic">{match.views || 0}</span>
+                                {/* MATCH DETAILS */}
+                                <div className="space-y-3 mb-6">
+                                    <div>
+                                        <h3 className="text-gray-900 font-bold text-lg leading-tight group-hover:text-orange-600 transition-colors">
+                                            {match.teamName} <span className="text-gray-400 font-normal text-sm">vs</span> {match.opponentName}
+                                        </h3>
+                                        <p className="text-xs text-gray-400 mt-1">Match Date: {match.matchDate ? new Date(match.matchDate).toLocaleDateString() : 'N/A'}</p>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-semibold text-gray-600">
+                                            <PiGenderIntersexThin className="text-gray-400" />
+                                            <span>Male</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-semibold text-gray-600">
+                                            <FaLocationDot className="text-gray-400" size={10} />
+                                            <span className="truncate max-w-[120px]">{match.country || "Global"}, {match.venue || "HQ"}</span>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded text-xs font-semibold text-gray-600">
+                                             {/* Keeping Image, just adjusting opacity */}
+                                            <Image src={"/images/performance-icon.png"} width={12} height={12} alt="Level" className="opacity-50" />
+                                            <span>{match.level}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* FOOTER ACTION */}
+                                <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
+                                    <div className="flex items-center gap-1.5 text-gray-400">
+                                        <FiEye className="w-4 h-4" />
+                                        <span className="text-xs font-medium">{match.views || 0} views</span>
                                     </div>
 
                                     <button
                                         onClick={() => router.push(createMatchUrl(`${match.teamName} vs ${match.opponentName}`, match.id))}
-                                        className="bg-cyan-400 hover:bg-cyan-300 text-black px-10 py-2.5 rounded-xl font-black italic text-[10px] uppercase tracking-widest transition-all"
+                                        className="text-gray-900 hover:text-orange-600 text-sm font-bold flex items-center gap-1 transition-colors"
                                     >
-                                        View Match
+                                        View Analysis <FiArrowRight />
                                     </button>
                                 </div>
                             </div>
