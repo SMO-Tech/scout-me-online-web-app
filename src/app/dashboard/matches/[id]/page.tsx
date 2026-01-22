@@ -91,7 +91,7 @@ const transformPassData = (rawPasses: RawPass[]): PassEvent[] => {
         type: p.pass_type || 'Pass',
         result: (p.result || 'Unknown') as 'Success' | 'Fail' | 'Unknown',
         confidence: p.confidence || 0,
-        colorClass: p.pass_type === 'Key Pass' ? 'bg-indigo-500' : 'bg-purple-500',
+        colorClass: p.pass_type === 'Key Pass' ? 'bg-orange-500' : 'bg-slate-600', // THEME UPDATE
     }));
 };
 
@@ -123,20 +123,21 @@ const VideoPlayer = ({
     }, [duration, onSeek]);
 
     return (
-        <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-20 bg-indigo-500" />
+        <section className="bg-white border border-gray-200 rounded-[2rem] p-6 md:p-8 shadow-xl shadow-gray-200/50 relative overflow-hidden">
+             {/* THEME UPDATE: Changed accent bar from Indigo to Orange */}
+            <div className="absolute top-0 left-0 w-1 h-20 bg-orange-500" />
             
             <div className="flex items-center justify-between mb-4 md:mb-6">
-                <h2 className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-400">
-                    <FiVideo className="text-lg md:text-xl" /> Tactical Feed Analysis
+                <h2 className="flex items-center gap-2 md:gap-3 text-sm md:text-base font-black uppercase tracking-[0.2em] text-gray-900">
+                    <FiVideo className="text-lg md:text-xl text-orange-600" /> Tactical Feed Analysis
                 </h2>
-                <div className="text-[9px] md:text-[10px] font-bold bg-white/5 px-2 md:px-3 py-1 rounded-full text-white/40 uppercase">
+                <div className="text-[9px] md:text-[10px] font-bold bg-gray-100 px-2 md:px-3 py-1 rounded-full text-gray-500 uppercase border border-gray-200">
                     Interactive Timeline
                 </div>
             </div>
 
             {/* YouTube Video Player */}
-            <div className="rounded-3xl overflow-hidden bg-black border border-white/10 aspect-video max-w-full md:max-w-6xl mx-auto shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+            <div className="rounded-3xl overflow-hidden bg-gray-900 border border-gray-200 aspect-video max-w-full md:max-w-6xl mx-auto shadow-sm">
                 {youtubeVideoId ? (
                     <iframe
                         key={localCurrentTime} // Force reload when seeking
@@ -147,21 +148,23 @@ const VideoPlayer = ({
                         allowFullScreen
                     />
                 ) : (
-                    <div className="flex items-center justify-center h-full text-gray-500 bg-white/5">
+                    <div className="flex items-center justify-center h-full text-gray-400 bg-gray-50">
                         No video source available
                     </div>
                 )}
             </div>
 
             {/* Interactive Timeline Controls */}
-            <div className="mt-4 bg-[#0b0f1a] border border-white/5 rounded-2xl p-4 md:p-6">
+            {/* THEME UPDATE: Light background for timeline container */}
+            <div className="mt-4 bg-gray-50 border border-gray-200 rounded-2xl p-4 md:p-6">
                 <div className="space-y-2 w-full">
                     <div
                         onClick={handleProgressClick}
-                        className="h-3 md:h-2.5 bg-white/10 rounded-full cursor-pointer relative overflow-hidden group"
+                        className="h-3 md:h-2.5 bg-gray-200 rounded-full cursor-pointer relative overflow-hidden group"
                     >
+                        {/* THEME UPDATE: Orange Gradient for progress */}
                         <div
-                            className="absolute h-full bg-gradient-to-r from-indigo-600 to-purple-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                            className="absolute h-full bg-gradient-to-r from-orange-600 to-orange-400 rounded-full shadow-sm"
                             style={{ width: `${duration > 0 ? (localCurrentTime / duration) * 100 : 0}%` }}
                         />
 
@@ -171,10 +174,10 @@ const VideoPlayer = ({
                             const leftPercent = (pass.time / duration) * 100;
                             const color =
                                 pass.result === "Success"
-                                    ? "bg-green-400"
+                                    ? "bg-green-500"
                                     : pass.result === "Fail"
                                         ? "bg-red-500"
-                                        : "bg-gray-500";
+                                        : "bg-gray-400";
                             return (
                                 <div
                                     key={pass.id}
@@ -186,7 +189,7 @@ const VideoPlayer = ({
                         })}
                     </div>
 
-                    <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-white/40 tracking-widest">
+                    <div className="flex justify-between items-center text-[9px] md:text-[11px] font-mono text-gray-400 tracking-widest">
                         <span>{formatTime(localCurrentTime)}</span>
                         <span>{formatTime(duration)}</span>
                     </div>
@@ -219,40 +222,42 @@ const PassLogTable = ({
     const filters: FilterType[] = ['All', 'Blue', 'Red', 'Success', 'Fail', 'Unknown'];
 
     return (
-        <section className="bg-[#0b0f1a] border border-white/5 rounded-[2rem] p-8 shadow-2xl">
+        <section className="bg-white border border-gray-200 rounded-[2rem] p-8 shadow-xl shadow-gray-200/50">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-10">
                 <div>
-                    <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3">
-                        <FiFilter className="text-indigo-500" /> Pass Log & Replays
+                    <h3 className="text-xl font-black italic uppercase tracking-tighter flex items-center gap-3 text-gray-900">
+                        <FiFilter className="text-orange-600" /> Pass Log & Replays
                     </h3>
-                    <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
                         Click any entry to trigger AI Replay
                     </p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 w-full lg:w-auto">
                     <div className="relative">
-                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                        <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                         <input
                             type="text"
                             placeholder="SEARCH EVENT, PLAYER OR TYPE..."
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
-                            className="w-full md:w-80 bg-black/40 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:border-indigo-500 transition-all text-[11px] font-bold tracking-widest uppercase placeholder:text-white/10"
+                            // THEME UPDATE: White input with light border
+                            className="w-full md:w-80 bg-white border border-gray-200 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-[11px] font-bold tracking-widest uppercase placeholder:text-gray-300 text-gray-900"
                         />
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-8 bg-black/20 p-1.5 rounded-2xl w-fit">
+            {/* THEME UPDATE: Filter container light gray */}
+            <div className="flex flex-wrap gap-2 mb-8 bg-gray-100 p-1.5 rounded-2xl w-fit">
                 {filters.map((f) => (
                     <button
                         key={f}
                         onClick={() => onFilterChange(f)}
                         className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${
                             filter === f
-                                ? 'bg-indigo-600 text-white shadow-lg'
-                                : 'text-white/40 hover:text-white hover:bg-white/5'
+                                ? 'bg-white text-orange-600 shadow-sm border border-gray-200' // Active state
+                                : 'text-gray-400 hover:text-gray-900 hover:bg-white/50' // Inactive state
                         }`}
                     >
                         {f}
@@ -263,7 +268,8 @@ const PassLogTable = ({
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-separate border-spacing-y-3">
                     <thead>
-                        <tr className="text-[10px] font-black uppercase text-white/20 tracking-[0.25em]">
+                        {/* THEME UPDATE: Text gray-400 for headers */}
+                        <tr className="text-[10px] font-black uppercase text-gray-400 tracking-[0.25em]">
                             <th className="px-6 py-2">ID</th>
                             <th className="px-6 py-2">Replay</th>
                             <th className="px-6 py-2">From</th>
@@ -279,75 +285,76 @@ const PassLogTable = ({
                                 <tr
                                     key={pass.id}
                                     onClick={() => onPassSelect(pass)}
-                                    className="bg-white/[0.02] hover:bg-indigo-600/10 border border-transparent hover:border-indigo-500/20 transition-all cursor-pointer group"
+                                    // THEME UPDATE: Row hover to orange-50, borders added
+                                    className="bg-white border border-transparent hover:bg-orange-50 hover:border-orange-100 transition-all cursor-pointer group shadow-sm hover:shadow-md"
                                 >
-                                    <td className="px-6 py-5 rounded-l-2xl text-white/20 font-mono text-xs">
+                                    <td className="px-6 py-5 rounded-l-2xl text-gray-400 font-mono text-xs border-y border-l border-gray-100 group-hover:border-orange-100">
                                         {pass.id.toString().padStart(2, '0')}
                                     </td>
-                                    <td className="px-6 py-5">
-                                        <button className="bg-white/5 group-hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-3 transition-all">
+                                    <td className="px-6 py-5 border-y border-gray-100 group-hover:border-orange-100">
+                                        <button className="bg-gray-100 group-hover:bg-orange-600 text-gray-600 group-hover:text-white px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-3 transition-all">
                                             <FiPlay size={12} /> {pass.formattedTime}
                                         </button>
                                     </td>
-                                    <td className="px-6 py-5">
+                                    <td className="px-6 py-5 border-y border-gray-100 group-hover:border-orange-100">
                                         <div className="flex items-center gap-3">
                                             <div
-                                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${
+                                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shadow-sm ${
                                                     pass.fromTeam === 'Blue' ? 'bg-blue-600' :
-                                                    pass.fromTeam === 'Red' ? 'bg-red-600' : 'bg-gray-600'
+                                                    pass.fromTeam === 'Red' ? 'bg-red-600' : 'bg-gray-400'
                                                 }`}
                                             >
                                                 #{pass.fromPlayer}
                                             </div>
-                                            <span className="text-[11px] font-black uppercase tracking-widest text-white/50">
+                                            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">
                                                 {pass.fromTeam}
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5">
+                                    <td className="px-6 py-5 border-y border-gray-100 group-hover:border-orange-100">
                                         <div className="flex items-center gap-3">
                                             <div
-                                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shadow-lg ${
+                                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shadow-sm ${
                                                     pass.toTeam === 'Blue' ? 'bg-blue-600' :
-                                                    pass.toTeam === 'Red' ? 'bg-red-600' : 'bg-gray-600'
+                                                    pass.toTeam === 'Red' ? 'bg-red-600' : 'bg-gray-400'
                                                 }`}
                                             >
                                                 #{pass.toPlayer}
                                             </div>
-                                            <span className="text-[11px] font-black uppercase tracking-widest text-white/50">
+                                            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400">
                                                 {pass.toTeam}
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5 text-center">
-                                        <span className={`${pass.colorClass} text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest`}>
+                                    <td className="px-6 py-5 text-center border-y border-gray-100 group-hover:border-orange-100">
+                                        <span className={`${pass.colorClass} text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm`}>
                                             {pass.type}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-5">
+                                    <td className="px-6 py-5 border-y border-gray-100 group-hover:border-orange-100">
                                         {pass.result === 'Success' ? (
-                                            <div className="flex items-center gap-2 text-green-500 text-[10px] font-black uppercase tracking-widest">
+                                            <div className="flex items-center gap-2 text-green-600 text-[10px] font-black uppercase tracking-widest">
                                                 <FiCheckCircle size={14} /> Completed
                                             </div>
                                         ) : pass.result === 'Fail' ? (
-                                            <div className="flex items-center gap-2 text-red-500 text-[10px] font-black uppercase tracking-widest">
+                                            <div className="flex items-center gap-2 text-red-600 text-[10px] font-black uppercase tracking-widest">
                                                 <FiXCircle size={14} /> Intercepted
                                             </div>
                                         ) : (
-                                            <div className="flex items-center gap-2 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                                            <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest">
                                                 <FiAlertTriangle size={14} /> Unknown
                                             </div>
                                         )}
                                     </td>
-                                    <td className="px-6 py-5 rounded-r-2xl">
+                                    <td className="px-6 py-5 rounded-r-2xl border-y border-r border-gray-100 group-hover:border-orange-100">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                            <div className="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full ${pass.confidence > 80 ? 'bg-green-500' : 'bg-yellow-500'}`}
                                                     style={{ width: `${pass.confidence}%` }}
                                                 />
                                             </div>
-                                            <span className="text-[10px] font-mono font-bold text-white/40">
+                                            <span className="text-[10px] font-mono font-bold text-gray-400">
                                                 {pass.confidence}%
                                             </span>
                                         </div>
@@ -356,7 +363,7 @@ const PassLogTable = ({
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={7} className="px-6 py-10 text-center text-white/40">
+                                <td colSpan={7} className="px-6 py-10 text-center text-gray-400 text-sm">
                                     No passes found matching your search criteria
                                 </td>
                             </tr>
@@ -382,44 +389,45 @@ const ReplayModal = ({ selectedPass, youtubeVideoId, onClose }: ReplayModalProps
         {
             label: 'SENDER',
             value: `#${selectedPass.fromPlayer} ${selectedPass.fromTeam}`,
-            color: selectedPass.fromTeam === 'Blue' ? 'text-blue-400' : 'text-red-400',
+            color: selectedPass.fromTeam === 'Blue' ? 'text-blue-600' : 'text-red-600',
         },
         {
             label: 'RECEIVER',
             value: `#${selectedPass.toPlayer} ${selectedPass.toTeam}`,
-            color: selectedPass.toTeam === 'Blue' ? 'text-blue-400' : 'text-red-400',
+            color: selectedPass.toTeam === 'Blue' ? 'text-blue-600' : 'text-red-600',
         },
         {
             label: 'OUTCOME',
             value: selectedPass.result,
-            color: selectedPass.result === 'Success' ? 'text-green-500' : 'text-orange-500',
+            color: selectedPass.result === 'Success' ? 'text-green-600' : 'text-orange-600',
         },
-        { label: 'TIMESTAMP', value: selectedPass.formattedTime, color: 'text-white' },
-        { label: 'CONFIDENCE', value: `${selectedPass.confidence}%`, color: 'text-indigo-400' },
+        { label: 'TIMESTAMP', value: selectedPass.formattedTime, color: 'text-gray-900' },
+        { label: 'CONFIDENCE', value: `${selectedPass.confidence}%`, color: 'text-gray-500' },
     ], [selectedPass]);
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="bg-[#0b0f1a] border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] relative flex flex-col">
+        <div className="fixed inset-0 z-[100] bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className="bg-white border border-gray-200 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] shadow-2xl relative flex flex-col">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 z-10 bg-black/40 hover:bg-red-500 text-white p-2 rounded-full backdrop-blur-md transition-all hover:scale-110"
+                    className="absolute top-4 right-4 z-10 bg-white hover:bg-red-50 text-gray-400 hover:text-red-500 p-2 rounded-full shadow-md transition-all hover:scale-110"
                     aria-label="Close modal"
                 >
                     <FiX size={20} />
                 </button>
 
                 {/* Header */}
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-800 p-5 flex flex-col justify-between items-start gap-3 shrink-0">
+                {/* THEME UPDATE: Orange Gradient Header */}
+                <div className="bg-gradient-to-r from-orange-600 to-orange-500 p-5 flex flex-col justify-between items-start gap-3 shrink-0">
                     <div>
                         <h2 className="font-black italic uppercase flex items-center gap-2 text-base tracking-tight text-white">
                             <FiPlay size={18} className="text-white" /> AI Action Replay
                         </h2>
                         <div className="mt-2 flex flex-wrap gap-2">
-                            <span className="bg-white/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-indigo-100">
+                            <span className="bg-white/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-white">
                                 {selectedPass.type}
                             </span>
-                            <span className="bg-black/20 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-white/50">
+                            <span className="bg-black/10 px-3 py-1 rounded-full font-black text-[9px] uppercase tracking-widest text-white/80">
                                 Sequence #{selectedPass.id}
                             </span>
                         </div>
@@ -427,8 +435,8 @@ const ReplayModal = ({ selectedPass, youtubeVideoId, onClose }: ReplayModalProps
                 </div>
 
                 {/* Video Container */}
-                <div className="w-full bg-black shrink-0">
-                    <div className="w-full aspect-video border-y border-white/10">
+                <div className="w-full bg-gray-900 shrink-0">
+                    <div className="w-full aspect-video border-y border-gray-200">
                         <iframe
                             className="w-full h-full"
                             src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&start=${Math.floor(selectedPass.time)}`}
@@ -440,10 +448,10 @@ const ReplayModal = ({ selectedPass, youtubeVideoId, onClose }: ReplayModalProps
                 </div>
 
                 {/* Stats Grid */}
-                <div className="p-5 grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2 bg-[#0b0f1a]">
+                <div className="p-5 grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2 bg-gray-50">
                     {statsData.map((info) => (
                         <div key={info.label} className="flex flex-col gap-1">
-                            <div className="text-[9px] font-black text-white/20 tracking-[0.2em]">
+                            <div className="text-[9px] font-black text-gray-400 tracking-[0.2em]">
                                 {info.label}
                             </div>
                             <div className={`text-sm font-black uppercase italic tracking-tight ${info.color}`}>
@@ -516,7 +524,8 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
     const handleCloseModal = useCallback(() => setSelectedPass(null), []);
 
     return (
-        <div className="min-h-screen bg-[#05070a] text-slate-100 pb-20">
+        // THEME UPDATE: Main background changed to gray-50 and text-gray-900
+        <div className="min-h-screen bg-gray-50 text-gray-900 pb-20">
             <main className="max-w-[1600px] mx-auto p-6 md:p-10 space-y-10">
                 <VideoPlayer
                     youtubeVideoId={youtubeVideoId}
@@ -524,6 +533,8 @@ const ScoutReport = ({ videoUrl, matchReport }: ScoutReportProps) => {
                     duration={duration}
                     onSeek={handleSeek}
                 />
+                
+                
 
                 <PassLogTable
                     filteredPasses={filteredPasses}
@@ -575,20 +586,21 @@ const MatchDetailPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-[#05060B]">
-                <FiLoader className="animate-spin text-cyan-400" size={48} />
+            <div className="flex justify-center items-center h-screen bg-gray-50">
+                {/* THEME UPDATE: Loader to Orange */}
+                <FiLoader className="animate-spin text-orange-600" size={48} />
             </div>
         );
     }
 
     if (error || !apiResponse?.data) {
         return (
-            <div className="p-8 text-center text-white mt-20">
+            <div className="p-8 text-center text-gray-900 mt-20">
                 <FiAlertTriangle className="mx-auto mb-2 text-red-500" size={48} />
                 <p className="text-xl mb-4 font-bold">Match data could not be loaded</p>
                 <button
                     onClick={() => router.push('/dashboard/matches')}
-                    className="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl transition-all font-bold"
+                    className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-xl transition-all font-bold"
                 >
                     Back to Matches
                 </button>
@@ -597,7 +609,7 @@ const MatchDetailPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#05070a]">
+        <div className="min-h-screen bg-gray-50">
             <ScoutReport videoUrl={videoUrl} matchReport={matchReport} />
         </div>
     );
