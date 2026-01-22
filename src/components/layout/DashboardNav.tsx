@@ -73,40 +73,6 @@ export default function DashboardNav() {
       ),
       href: '/dashboard/matches'
     },
-    {
-      label: 'Scouting Profiles',
-      icon: (
-        <div className="relative w-8 h-8 ">
-
-          <Image
-            src="/images/nav-player-icon.png"
-            alt="Scouting"
-            width={60}
-            height={60}
-            className="relative z-10 object-contain w-full h-full"
-
-          />
-        </div>
-      ),
-      href: '/dashboard/scouting-profiles'
-    },
-    {
-      label: 'Clubs',
-      icon: (
-        <div className="relative w-8 h-8 ">
-
-          <Image
-            src="/images/nav-club-icon.png"
-            alt="Clubs"
-            width={60}
-            height={60}
-            className="relative z-10 object-contain w-full h-full"
-
-          />
-        </div>
-      ),
-      href: '/dashboard/clubs'
-    },
   ];
 
 
