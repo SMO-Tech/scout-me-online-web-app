@@ -11,61 +11,55 @@ import {
   FiCpu,
   FiMoreVertical,
   FiCalendar,
-  FiZap,
-  FiTarget,
-  FiActivity,
   FiInfo,
-  FiCheck
+  FiActivity,
+  FiZap,     // Added missing import
+  FiTarget   // Added missing import
 } from 'react-icons/fi';
 import { motion, Variants } from 'framer-motion';
 
-// --- ANIMATION VARIANTS ---
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { 
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+// --- MOCK DATA FOR TESTING UI ---
+const MOCK_MATCHES = [
+  {
+    id: 1,
+    title: "Arsenal vs Liverpool - U18 Academy",
+    date: "22 Jan 2026",
+    status: "PROCESSING", 
+    progress: 45, 
+    thumbnail: null 
+  },
+  {
+    id: 2,
+    title: "Sunday League Cup Final",
+    date: "14 Jan 2026",
+    status: "COMPLETED",
+    thumbnail: "/api/placeholder/400/225" 
   }
-}
-
-const itemVariants: Variants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { 
-    y: 0, 
-    opacity: 1,
-    transition: { type: "spring", stiffness: 40, damping: 10 }
-  }
-}
-
-// --- MOCK DATA ---
-// Change this to [] to see the "Hero" Empty State
-// Change this to [Object, Object] to see the "Grid" Dashboard
-const MOCK_MATCHES: any[] = []; 
+];
 
 export default function DashboardPage() {
-  const [matches, setMatches] = useState<any[]>(MOCK_MATCHES);
+  const [matches, setMatches] = useState<any[]>(MOCK_MATCHES); 
   const [isLoading, setIsLoading] = useState(true);
   const { push } = useRouter();
 
   useEffect(() => {
-    // Simulate API fetch
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) return <LoadingState />;
 
-  // 1. EMPTY STATE: Show the "Stop Scrubbing" Hero Screen
+  // LOGIC: If no matches, show the "Hero Upload" screen
   if (matches.length !== 0) {
-    return <HeroEmptyState onUpload={() => push('/dashboard/form')} />;
+    return <EmptyStateView onUpload={() => push('/dashboard/form')} />;
   }
 
-  // 2. ACTIVE STATE: Show the Dashboard Grid
+  // LOGIC: If matches exist, show the "Dashboard Grid"
   return (
     <div className="min-h-screen bg-gray-50 p-6 lg:p-12">
       <div className="max-w-7xl mx-auto space-y-8">
         
-        {/* Header */}
+        {/* Header: Title + New Analysis Button */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Match Library</h1>
@@ -92,10 +86,113 @@ export default function DashboardPage() {
   );
 }
 
-// ============================================================================
-// SUB-COMPONENT: HERO EMPTY STATE (The design you liked)
-// ============================================================================
-const HeroEmptyState = ({ onUpload }: { onUpload: () => void }) => {
+// --- SUB-COMPONENT: The Match Card ---
+const MatchCard = ({ match }: { match: any }) => {
+  const isProcessing = match.status === 'PROCESSING';
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+    >
+      {/* Card Header / Thumbnail Area */}
+      <div className={`relative h-48 w-full ${isProcessing ? 'bg-gray-50' : 'bg-gray-200'}`}>
+        
+        {isProcessing ? (
+          // PROCESSING STATE UI
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+             <div className="relative">
+                <div className="w-12 h-12 border-4 border-orange-100 border-t-orange-500 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <FiCpu className="text-orange-600 w-4 h-4" />
+                </div>
+             </div>
+             <div className="text-center">
+                <p className="text-xs font-bold text-orange-600 uppercase tracking-wider">Scouting...</p>
+                <p className="text-[10px] text-gray-400">Est. 2 hours remaining</p>
+             </div>
+          </div>
+        ) : (
+          // COMPLETED STATE UI
+          <>
+             {/* Placeholder for YouTube Thumb */}
+             <div className="absolute inset-0 bg-gray-800 flex items-center justify-center group-hover:bg-gray-900 transition-colors">
+                <FiPlay className="text-white/50 w-12 h-12 group-hover:text-white group-hover:scale-110 transition-all" />
+             </div>
+             
+             {/* Status Badge */}
+             <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md flex items-center gap-1.5 shadow-sm">
+                <FiCheckCircle className="text-green-500 w-3 h-3" />
+                <span className="text-[10px] font-bold text-gray-700 uppercase">Ready</span>
+             </div>
+          </>
+        )}
+      </div>
+
+      {/* Card Body */}
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-2">
+           <h3 className="font-bold text-gray-900 line-clamp-1 pr-4">{match.title}</h3>
+           <button className="text-gray-400 hover:text-gray-600"><FiMoreVertical /></button>
+        </div>
+        
+        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
+            <FiCalendar />
+            <span>{match.date}</span>
+        </div>
+
+        {/* Footer Actions */}
+        {isProcessing ? (
+           <div className="w-full bg-gray-100 rounded-full h-1.5 mt-2 overflow-hidden">
+              <motion.div 
+                className="bg-orange-500 h-full rounded-full" 
+                initial={{ width: 0 }}
+                animate={{ width: `${match.progress}%` }}
+              />
+           </div>
+        ) : (
+            <button className="w-full py-2.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:border-orange-200 hover:text-orange-600 hover:bg-orange-50 transition-all flex items-center justify-center gap-2">
+                View Report <FiArrowRight className="w-4 h-4" />
+            </button>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+// --- SUB-COMPONENT: Loading Spinner ---
+const LoadingState = () => (
+  <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin"></div>
+  </div>
+);
+
+// --- ANIMATION VARIANTS (Missing in original code) ---
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+};
+
+// --- SUB-COMPONENT: Empty State (Renamed to match usage) ---
+const EmptyStateView = ({ onUpload }: { onUpload: () => void }) => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
       <motion.div 
@@ -137,7 +234,7 @@ const HeroEmptyState = ({ onUpload }: { onUpload: () => void }) => {
                 <div className="border-2 border-dashed border-gray-200 bg-gray-50/50 rounded-xl py-12 px-6 text-center flex flex-col items-center justify-center gap-8 group hover:border-orange-300 hover:bg-orange-50/30 transition-all duration-300">
                   
                   <div className="w-20 h-20 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center group-hover:scale-110 group-hover:border-orange-200 transition-all duration-300">
-                       <FiUpload className="text-gray-400 group-hover:text-orange-600 transition-colors" size={32} />
+                        <FiUpload className="text-gray-400 group-hover:text-orange-600 transition-colors" size={32} />
                   </div>
 
                   <div className="space-y-4 flex flex-col items-center w-full max-w-md">
@@ -212,83 +309,3 @@ const HeroEmptyState = ({ onUpload }: { onUpload: () => void }) => {
     </div>
   )
 }
-
-// ============================================================================
-// SUB-COMPONENT: MATCH CARD (Grid View)
-// ============================================================================
-const MatchCard = ({ match }: { match: any }) => {
-  const isProcessing = match.status === 'PROCESSING';
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
-    >
-      <div className={`relative h-48 w-full ${isProcessing ? 'bg-gray-50' : 'bg-gray-200'}`}>
-        {isProcessing ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-             <div className="relative">
-                <div className="w-12 h-12 border-4 border-orange-100 border-t-orange-500 rounded-full animate-spin"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <FiCpu className="text-orange-600 w-4 h-4" />
-                </div>
-             </div>
-             <div className="text-center">
-                <p className="text-xs font-bold text-orange-600 uppercase tracking-wider">Scouting...</p>
-                <p className="text-[10px] text-gray-400">Est. 2 hours remaining</p>
-             </div>
-          </div>
-        ) : (
-          <>
-             <div className="absolute inset-0 bg-gray-800 flex items-center justify-center group-hover:bg-gray-900 transition-colors">
-                <FiPlay className="text-white/50 w-12 h-12 group-hover:text-white group-hover:scale-110 transition-all" />
-             </div>
-             <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md flex items-center gap-1.5 shadow-sm">
-                <FiCheckCircle className="text-green-500 w-3 h-3" />
-                <span className="text-[10px] font-bold text-gray-700 uppercase">Ready</span>
-             </div>
-          </>
-        )}
-      </div>
-
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-2">
-           <h3 className="font-bold text-gray-900 line-clamp-1 pr-4">{match.title}</h3>
-           <button className="text-gray-400 hover:text-gray-600"><FiMoreVertical /></button>
-        </div>
-        
-        <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
-            <FiCalendar />
-            <span>{match.date}</span>
-        </div>
-
-        {isProcessing ? (
-           <div className="w-full bg-gray-100 rounded-full h-1.5 mt-2 overflow-hidden">
-              <motion.div 
-                className="bg-orange-500 h-full rounded-full" 
-                initial={{ width: 0 }}
-                animate={{ width: `${match.progress}%` }}
-              />
-           </div>
-        ) : (
-            <button className="w-full py-2.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700 hover:border-orange-200 hover:text-orange-600 hover:bg-orange-50 transition-all flex items-center justify-center gap-2">
-                View Report <FiArrowRight className="w-4 h-4" />
-            </button>
-        )}
-      </div>
-    </motion.div>
-  );
-};
-
-// ============================================================================
-// SUB-COMPONENT: LOADING STATE
-// ============================================================================
-const LoadingState = () => (
-  <div className="min-h-screen bg-white flex items-center justify-center">
-    <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin"></div>
-        <span className="text-gray-400 text-xs font-mono font-medium tracking-widest">LOADING SCOUT AI...</span>
-    </div>
-  </div>
-);
