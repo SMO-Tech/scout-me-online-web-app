@@ -1,13 +1,13 @@
-Based on the structure analysis, I need to update all dark theme classes to support both light and dark themes. Here's the strategy:
+Backgrounds: bg-white (Clean, stark) or bg-gray-50 (Subtle contrast).
 
-1. Create a comprehensive theme system
-2. Update all components to use conditional classes
-3. The key changes needed are in these files:
-   - MatchSummaryWidget.tsx - Update all gray-800/900 backgrounds to white/dark equivalents
-   - PassAnalysisChart.tsx - Update background and text colors
-   - PlayerPerformanceMetrics.tsx - Update background and text colors  
-   - FootballPitchPassMap.tsx - Update background colors
-   - BallTrackingVisualization.tsx - Update background colors
+Primary Text: text-gray-900 (Sharp, readable).
 
-Let me create an automated solution that converts the most critical classes.
+Secondary Text: text-gray-500 (Soft, professional).
 
+Borders: border-gray-200 (Light, crisp).
+
+Primary Action (CTA): bg-orange-600, hover:bg-orange-700, text-white.
+
+Accents: orange-50 or orange-100 (For backgrounds/selection).
+
+Animations: Smooth, "heavy" entry animations using framer-motion.
