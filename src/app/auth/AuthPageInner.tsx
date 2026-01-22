@@ -11,7 +11,7 @@ import {
   updateProfile,
   sendPasswordResetEmail,
   confirmPasswordReset,
-  sendEmailVerification, // Added for verification
+  sendEmailVerification,
   applyActionCode,
 } from "firebase/auth";
 import { getClient } from "@/lib/api/client";
@@ -217,13 +217,13 @@ const AuthPage = () => {
   // RENDER RESET PASSWORD UI
   if (isResettingPassword) {
     return (
-      <div className="min-h-screen bg-[#05060B] flex flex-col items-center justify-center px-4 text-white">
-        <div className="bg-[#0B0D19] border border-cyan-500/30 p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl">
-          <h1 className="text-white text-3xl font-black italic uppercase mb-2 tracking-tighter">
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-gray-900">
+        <div className="bg-white border border-gray-200 p-10 rounded-[2rem] w-full max-w-md shadow-2xl shadow-gray-200/50">
+          <h1 className="text-gray-900 text-3xl font-bold tracking-tight mb-2">
             New Password
           </h1>
 
-          <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-8">
+          <p className="text-gray-500 text-xs font-semibold uppercase tracking-widest mb-8">
             Enter your new security credentials below.
           </p>
           <form onSubmit={handleConfirmPasswordReset} className="space-y-6">
@@ -233,13 +233,13 @@ const AuthPage = () => {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="NEW PASSWORD"
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-5 pr-12 text-sm text-white-400 focus:border-cyan-500 outline-none transition-all"
+                placeholder="New Password"
+                className="w-full bg-white border border-gray-200 rounded-xl py-4 px-5 pr-12 text-sm text-gray-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-400"
               />
               <button
                 type="button"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-600 transition-colors"
               >
                 {showNewPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
               </button>
@@ -247,7 +247,7 @@ const AuthPage = () => {
             <button
               disabled={isLoading}
               type="submit"
-              className="w-full bg-cyan-400 hover:bg-cyan-300 text-black font-black italic py-4 rounded-xl shadow-[0_0_20px_rgba(34,211,238,0.2)] transition-all uppercase text-xs tracking-widest"
+              className="w-full bg-gray-900 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-gray-200 transition-all uppercase text-xs tracking-widest"
             >
               {isLoading ? "Updating..." : "Update Password"}
             </button>
@@ -258,28 +258,36 @@ const AuthPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#05060B] flex flex-col items-center justify-center px-4 text-white">
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 text-gray-900">
+      {/* Ambient Background - Adjusted for Light Theme */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-100/50 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="bg-[#0B0D19]/90 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] shadow-2xl p-8 w-full max-w-md relative z-10">
+      {/* Main Card */}
+      <div className="bg-white border border-gray-200 rounded-[2.5rem] shadow-2xl shadow-gray-200/50 p-8 w-full max-w-md relative z-10">
         <div className="text-center items-center justify-center flex flex-col mb-10">
-
-          <Image onClick={() => router.push('/')} src={"/images/new-logo.png"} alt={"scout me logo"} width={200} height={80} />
-          <p className="text-gray-200 text-[20px] font-bold uppercase tracking-[0.4em]  ">
-            {isLogin ? "Login" : "Register"}
+          {/* Ensure your logo works on white background */}
+          <Image 
+            onClick={() => router.push('/')} 
+            src={"/images/new-logo.png"} 
+            alt={"scout me logo"} 
+            width={200} 
+            height={80} 
+            className="cursor-pointer mb-2"
+          />
+          <p className="text-gray-400 text-sm font-bold uppercase tracking-[0.2em]">
+            {isLogin ? "Welcome Back" : "Create Account"}
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-600/20 border border-red-500/40 text-red-400 text-[10px] font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-widest shadow-[0_0_15px_rgba(255,0,0,0.6)]">
+          <div className="bg-red-50 border border-red-100 text-red-600 text-xs font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-wide">
             {error}
           </div>
-
         )}
 
         {/* resend email for email verification */}
         {showVerifyNotice && (
-          <div className="bg-yellow-600/10 border border-yellow-500/30 text-yellow-300 text-[10px] font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-widest">
+          <div className="bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold p-4 rounded-xl mb-6 text-center uppercase tracking-wide">
             Email not verified.
             <button
               onClick={async () => {
@@ -290,7 +298,7 @@ const AuthPage = () => {
                 );
                 toast.success("Verification email sent.");
               }}
-              className="ml-2 underline text-cyan-300"
+              className="ml-2 underline text-gray-900 hover:text-orange-600"
             >
               Resend link
             </button>
@@ -300,7 +308,7 @@ const AuthPage = () => {
         <form onSubmit={handleEmailAuth} className="space-y-4">
           {!isLogin && (
             <div className="space-y-1">
-              <label className="text-cyan-400 text-[10px] font-black uppercase tracking-widest ml-1">
+              <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest ml-1">
                 Username
               </label>
               <input
@@ -308,13 +316,13 @@ const AuthPage = () => {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-green-400 focus:border-cyan-500 outline-none transition-all placeholder:text-green-700"
-                placeholder="FULL NAME"
+                className="w-full bg-white border border-gray-200 rounded-xl py-4 px-5 text-sm text-gray-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-300"
+                placeholder="Full Name"
               />
             </div>
           )}
           <div className="space-y-1">
-            <label className="text-cyan-400 text-[10px] font-black uppercase tracking-widest ml-1">
+            <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest ml-1">
               Email
             </label>
             <input
@@ -322,20 +330,20 @@ const AuthPage = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 text-sm text-white-400 focus:border-cyan-500 outline-none transition-all placeholder:text=grey-800"
-              placeholder="USER@ACADEMY.COM"
+              className="w-full bg-white border border-gray-200 rounded-xl py-4 px-5 text-sm text-gray-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-300"
+              placeholder="user@example.com"
             />
           </div>
           <div className="space-y-1">
             <div className="flex justify-between items-center pr-1">
-              <label className="text-cyan-400 text-[10px] font-black uppercase tracking-widest ml-1">
+              <label className="text-gray-500 text-[10px] font-bold uppercase tracking-widest ml-1">
                 Password
               </label>
               {isLogin && (
                 <button
                   type="button"
                   onClick={() => setShowResetModal(true)}
-                  className="text-gray-300 hover:text-cyan-400 text-[9px] font-bold uppercase transition-colors"
+                  className="text-gray-400 hover:text-orange-600 text-[10px] font-bold uppercase transition-colors"
                 >
                   Forgot Password?
                 </button>
@@ -347,13 +355,13 @@ const AuthPage = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-black/40 border border-white/50 rounded-xl py-4 px-5 pr-12 text-sm text-white-400 focus:border-cyan-500 outline-none transition-all placeholder:text-grey-700"
+                className="w-full bg-white border border-gray-200 rounded-xl py-4 px-5 pr-12 text-sm text-gray-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-300"
                 placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-600 transition-colors"
               >
                 {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
               </button>
@@ -363,15 +371,15 @@ const AuthPage = () => {
           <button
             disabled={isLoading}
             type="submit"
-            className="w-full bg-cyan-400 hover:bg-cyan-300 text-black font-black italic py-4 rounded-xl shadow-[0_4px_20px_rgba(34,211,238,0.2)] transition-all active:scale-[0.98] disabled:opacity-50 text-xs tracking-widest uppercase mt-4"
+            className="w-full bg-gray-900 hover:bg-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-gray-200 hover:shadow-orange-200 transition-all active:scale-[0.98] disabled:opacity-50 text-xs tracking-widest uppercase mt-4"
           >
-            {isLoading ? "Executing..." : isLogin ? "Login" : "Register"}
+            {isLoading ? "Processing..." : isLogin ? "Sign In" : "Register"}
           </button>
         </form>
 
-        <div className="relative flex items-center justify-center my-6">
-          <div className="border-t border-white/20 w-full"></div>
-          <span className="bg-[#0B0D19] px-2 text-[9px] text-gray-200 font-bold uppercase absolute tracking-[0.3em]">
+        <div className="relative flex items-center justify-center my-8">
+          <div className="border-t border-gray-200 w-full"></div>
+          <span className="bg-white px-2 text-[10px] text-gray-400 font-bold uppercase absolute tracking-[0.2em]">
             or continue with
           </span>
         </div>
@@ -380,20 +388,20 @@ const AuthPage = () => {
           <button
             type="button"
             onClick={() => handleSocialAuth(googleProvider)}
-            className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/5 py-2 rounded-xl hover:bg-white/10 transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
           >
             <FcGoogle size={18} />
-            <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
               Google
             </span>
           </button>
           <button
             type="button"
             onClick={() => handleSocialAuth(facebookProvider)}
-            className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-white/5 py-3 rounded-xl hover:bg-white/10 transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-white border border-gray-200 py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
           >
             <FaFacebook size={18} className="text-[#1877F2]" />
-            <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+            <span className="text-[10px] font-bold text-gray-600 uppercase tracking-widest">
               Facebook
             </span>
           </button>
@@ -406,22 +414,22 @@ const AuthPage = () => {
               setIsLogin(!isLogin);
               setError("");
             }}
-            className="text-[10px] font-bold text-gray-200 hover:text-cyan-400 uppercase tracking-widest transition-colors"
+            className="text-[10px] font-bold text-gray-500 hover:text-orange-600 uppercase tracking-widest transition-colors"
           >
             {isLogin
-              ? "Create a new account!"
-              : "Existing Member? Return to SignIn"}
+              ? "Don't have an account? Sign Up"
+              : "Already have an account? Sign In"}
           </button>
         </p>
       </div>
 
       {showResetModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#0B0D19] border border-white/10 p-8 rounded-[2rem] w-full max-w-sm shadow-2xl">
-            <h3 className="text-white text-xl font-black italic uppercase tracking-tighter mb-2">
-              Reset Passowrd
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm">
+          <div className="bg-white border border-gray-200 p-8 rounded-[2rem] w-full max-w-sm shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h3 className="text-gray-900 text-xl font-bold tracking-tight mb-2">
+              Reset Password
             </h3>
-            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-6 leading-relaxed">
+            <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-6 leading-relaxed">
               Enter your email to receive recovery instructions.
             </p>
             <form onSubmit={handleResetPassword} className="space-y-4">
@@ -430,22 +438,22 @@ const AuthPage = () => {
                 required
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
-                className="w-full bg-white/5 border border-white/50 rounded-xl py-4 px-5 text-sm text-green-400 placeholder:text-green-700 focus:border-cyan-500/50 outline-none"
-                placeholder="USER@EMAIL.COM"
+                className="w-full bg-white border border-gray-200 rounded-xl py-4 px-5 text-sm text-gray-900 placeholder:text-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
+                placeholder="user@example.com"
               />
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowResetModal(false)}
-                  className="flex-1 py-3 text-[10px] font-black uppercase text-gray-500 hover:text-white transition-colors"
+                  className="flex-1 py-3 text-[10px] font-bold uppercase text-gray-400 hover:text-gray-900 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-cyan-400 hover:bg-cyan-300 text-black py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                  className="flex-1 bg-gray-900 hover:bg-orange-600 text-white py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all shadow-md"
                 >
-                  Send link
+                  Send Link
                 </button>
               </div>
             </form>
