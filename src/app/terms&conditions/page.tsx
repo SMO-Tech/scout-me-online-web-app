@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiLock, FiShield, FiEye, FiServer, FiGlobe, FiMail } from 'react-icons/fi';
+import { FiArrowLeft } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 
 // --- NAVIGATION SECTIONS ---
@@ -27,10 +29,10 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 10 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { duration: 0.5 } 
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 }
   }
 };
 
@@ -41,7 +43,7 @@ export default function PrivacyPolicyPage() {
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200; // Offset
-      
+
       for (const section of sections) {
         const element = document.getElementById(section.id);
         if (element && element.offsetTop <= scrollPosition) {
@@ -63,15 +65,37 @@ export default function PrivacyPolicyPage() {
       });
     }
   };
+  const router = useRouter()
 
   return (
+
     <div className="bg-gray-50 min-h-screen font-sans selection:bg-orange-100 selection:text-orange-900">
- 
+      {/* --- GO BACK HEADER --- */}
+      <div className="flex ml-10 mt-10 items-center justify-between mb-2">
+        <button
+          onClick={() => router.back()}
+          className="group flex items-center gap-2 bg-white border border-gray-200 hover:border-orange-200 px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+        >
+          <div className="bg-gray-50 group-hover:bg-orange-50 p-1.5 rounded-lg transition-colors">
+            <FiArrowLeft className="text-gray-500 group-hover:text-orange-600 w-4 h-4 transition-colors" />
+          </div>
+          <span className="text-sm font-bold text-gray-700 group-hover:text-gray-900 uppercase tracking-wide">
+            Go Back
+          </span>
+        </button>
+
+        {/* Optional: Add Logo or Match Title here since Nav is gone */}
+        <div className="hidden md:block text-xs font-bold text-gray-400 uppercase tracking-widest">
+          ScoutAI Analysis Engine
+        </div>
+      </div>
+
 
       <div className="max-w-7xl mx-auto px-6 py-24">
-        
+
+
         {/* HEADER */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -95,7 +119,7 @@ export default function PrivacyPolicyPage() {
         </motion.div>
 
         <div className="grid lg:grid-cols-12 gap-12 relative">
-          
+
           {/* SIDEBAR NAVIGATION (Sticky) */}
           <div className="hidden lg:block lg:col-span-3">
             <div className="sticky top-32 space-y-1">
@@ -106,11 +130,10 @@ export default function PrivacyPolicyPage() {
                 <button
                   key={section.id}
                   onClick={() => scrollTo(section.id)}
-                  className={`w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    activeSection === section.id 
-                      ? 'bg-white text-orange-600 shadow-sm border border-gray-200 translate-x-1' 
+                  className={`w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${activeSection === section.id
+                      ? 'bg-white text-orange-600 shadow-sm border border-gray-200 translate-x-1'
                       : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {section.title}
                 </button>
@@ -119,7 +142,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           {/* MAIN CONTENT */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-8 lg:col-start-5 space-y-16"
             variants={containerVariants}
             initial="hidden"
@@ -146,7 +169,7 @@ export default function PrivacyPolicyPage() {
                     When you register, we collect personally identifiable information such as your <strong>Email Address</strong>, <strong>Full Name</strong>, and <strong>Password</strong> (hashed).
                   </p>
                 </div>
-                
+
                 <div className="bg-white p-6 rounded-xl border border-gray-200">
                   <h3 className="font-bold text-gray-900 mb-2">B. Usage Data</h3>
                   <p className="text-gray-500 text-sm">
@@ -246,8 +269,8 @@ export default function PrivacyPolicyPage() {
                 If you have any questions about this Privacy Policy or wish to exercise your data rights, please contact us:
               </p>
               <div className="mt-6">
-                <a 
-                  href="mailto:privacy@scoutai.com" 
+                <a
+                  href="mailto:privacy@scoutai.com"
                   className="inline-flex items-center gap-3 bg-gray-900 text-white px-8 py-4 rounded-xl font-bold hover:bg-orange-600 transition-colors shadow-lg shadow-gray-900/10"
                 >
                   <FiMail /> privacy@scoutmeonline.com
@@ -258,7 +281,7 @@ export default function PrivacyPolicyPage() {
           </motion.div>
         </div>
       </div>
-      
+
 
     </div>
   );
@@ -266,8 +289,8 @@ export default function PrivacyPolicyPage() {
 
 // --- SUB-COMPONENT: Generic Section Wrapper ---
 const Section = ({ id, children, icon }: { id: string, children: React.ReactNode, icon: React.ReactNode }) => (
-  <motion.section 
-    id={id} 
+  <motion.section
+    id={id}
     variants={itemVariants}
     className="scroll-mt-32"
   >
@@ -277,14 +300,14 @@ const Section = ({ id, children, icon }: { id: string, children: React.ReactNode
       </div>
       {/* Extracting H2 logic to assure consistent styling */}
       <div className="prose prose-lg prose-headings:m-0 prose-headings:text-2xl prose-headings:font-bold prose-headings:text-gray-900">
-        {React.Children.toArray(children)[0]} 
+        {React.Children.toArray(children)[0]}
       </div>
     </div>
-    
+
     <div className="prose prose-gray max-w-none text-gray-500 leading-relaxed">
       {React.Children.toArray(children).slice(1)}
     </div>
-    
+
     <div className="h-px bg-gray-200 w-full mt-12"></div>
   </motion.section>
 );
