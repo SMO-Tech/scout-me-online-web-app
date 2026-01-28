@@ -95,9 +95,9 @@ const AuthPage = () => {
     handleVerifyEmail();
   }, [mode, oobCode]);
 
-  // --------------------------------------------------------------------------
+
   // LOGIC: BACKEND SYNCHRONIZATION
-  // --------------------------------------------------------------------------
+
   const syncWithBackend = async (user: any, name?: string) => {
     try {
       const client = await getClient();
@@ -113,9 +113,9 @@ const AuthPage = () => {
     }
   };
 
-  // --------------------------------------------------------------------------
+
   // LOGIC: AUTH HANDLERS
-  // --------------------------------------------------------------------------
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -130,12 +130,12 @@ const AuthPage = () => {
         if (!res.user.emailVerified) {
           setShowVerifyNotice(true);
           toast.error("Please verify your email before logging in.");
-          return; // 🚨 STOP HERE
+          return; //  STOP HERE
         }
 
         toast.success("Welcome back");
         router.push("/dashboard");
-        return; // 🚨 END LOGIN FLOW
+        return; //  END LOGIN FLOW
       } else {
         const res = await createUserWithEmailAndPassword(auth, email, password);
 

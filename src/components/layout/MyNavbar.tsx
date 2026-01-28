@@ -37,10 +37,10 @@ const RoundedNavbar: React.FC = () => {
               onClick={() => router.push('/')}
             >
               <Image
-                src="/images/new-logo.png" // Ensure this path matches your file structure
+                src="/image/logo.png" // Ensure this path matches your file structure
                 alt="ScoutAI Logo"
-                width={120}
-                height={40}
+                width={160}
+                height={80}
                 className="object-contain" // Removed brightness-200 so it shows clearly on white
                 priority
               />
