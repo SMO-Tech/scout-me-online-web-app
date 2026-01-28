@@ -29,26 +29,23 @@ const Footer = () => {
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
     >
-      <div className="max-w-7xl mx-auto px-6 py-10">
+      <div className="max-w-7xl mx-auto px-6 ">
         {/* Top row */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-gray-100">
+        <div className="flex flex-col md:flex-row items-center justify-between  border-b border-gray-100">
           
           {/* Logo */}
           <div
             onClick={() => router.replace('/dashboard')}
-            className="cursor-pointer flex items-center gap-3 group"
+            className="cursor-pointer flex items-center group"
           >
             {/* Using the same logo source, but you can swap this for an SVG icon if you prefer */}
             <Image
-              src="/images/new-logo.png"
+              src="/image/logo.png"
               alt="ScoutAI Logo"
-              width={100}
+              width={160}
               height={35}
               className="object-contain opacity-90 group-hover:opacity-100 transition-opacity"
             />
-            <span className="text-gray-900 font-bold tracking-tight text-lg group-hover:text-orange-600 transition-colors">
-              ScoutAI
-            </span>
           </div>
 
           {/* Socials */}
@@ -73,7 +70,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom row */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-6 text-sm">
+        <div className="flex flex-col md:flex-row mb-5 items-center justify-between gap-4 pt-6 text-sm">
           <div className="text-gray-500 font-medium">
             © {new Date().getFullYear()} ScoutAI. All rights reserved.
           </div>
